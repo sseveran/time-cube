@@ -5,9 +5,11 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE StandaloneDeriving #-}
 -}
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE GADTs        #-}
-{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE DataKinds             #-}
+{-# LANGUAGE GADTs                 #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE Rank2Types            #-}
+{-# LANGUAGE TypeFamilies          #-}
 
 module Data.Time.Cube.Types {-
   ( DateTime(..)
@@ -39,9 +41,11 @@ module Data.Time.Cube.Types {-
   , Duration
   )-} where
 
+import Control.Lens
+import Data.Int
 import GHC.TypeLits
 
-data family Time (timeZone :: TimeZone) (calendar :: Calendar) (epoch :: Epoch) (storageFormat :: *) :: *
+data family Time (timeZone :: TimeZone) (calendar :: Calendar) (epoch :: Epoch) (storage :: *) :: *
 
 -- Calendars
 data Calendar = ISO8601 | Gregorian | Julian | Hijri | Japanese
@@ -58,6 +62,19 @@ data TimeZone where
 -- | Compute relative times since the epoch.
 data Epoch
 
+data family TimeMathSetter timeType (timeZone :: TimeZone) (calendar :: Calendar) (epoch :: Epoch) (storage :: *) :: *
+
+type TimeLens timeType (timeZone :: TimeZone)
+                       (calendar :: Calendar)
+                       (epoch    :: Epoch   )
+                       (storage  :: *       ) field =
+
+     Lens timeType (TimeMathSetter timeType timeZone calendar epoch storage) field field
+
+class HasYear timeType timeZone calendar epoch storage where
+  year :: TimeLens timeType timeZone calendar epoch storage Year
+
+newtype Year = Years {getYear :: Int32}
 
 {-
 
