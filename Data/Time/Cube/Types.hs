@@ -1,14 +1,15 @@
-{-# LANGUAGE DataKinds #-}
+{-{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE StandaloneDeriving #-}
+-}
+{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE GADTs        #-}
 {-# LANGUAGE TypeFamilies #-}
 
--- |
---
-module Data.Time.Cube.Types
+module Data.Time.Cube.Types {-
   ( DateTime(..)
   , DateTimePart(..)
   , TimeZone(..)
@@ -36,7 +37,29 @@ module Data.Time.Cube.Types
 
   -- * Durations
   , Duration
-  ) where
+  )-} where
+
+import GHC.TypeLits
+
+data family Time (timeZone :: TimeZone) (calendar :: Calendar) (epoch :: Epoch) (storageFormat :: *) :: *
+
+-- Calendars
+data Calendar = ISO8601 | Gregorian | Julian | Hijri | Japanese
+
+data Signed n = Negative n | NonNegative n
+
+data TimeZone where
+  UTC             :: TimeZone
+  LocalZone       :: TimeZone
+  OffsetZone      :: Signed Nat -> TimeZone
+  NamedZone       :: Symbol     -> TimeZone
+  UnspecifiedZone :: TimeZone
+
+-- | Compute relative times since the epoch.
+data Epoch
+
+
+{-
 
 import Control.DeepSeq
 import Control.Monad
@@ -226,3 +249,4 @@ instance Duration Milli
 instance Duration Nano
 instance Duration Pico
 
+-}
