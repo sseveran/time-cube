@@ -20,8 +20,7 @@
 module Data.Time.Cube.Structs where
 
 import Data.Time.Cube.Base
-import Data.Time.Cube.Calendar.Gregorian
-import Data.Time.Cube.Zones
+import Data.Time.Cube.Zones (TimeZone)
 import GHC.Generics (Generic)
 
 -- | A struct with date components.
