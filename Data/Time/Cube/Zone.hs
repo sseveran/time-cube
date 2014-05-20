@@ -2,7 +2,7 @@
 {-# OPTIONS -Wall          #-}
 
 -- |
--- Module      : Data.Time.Cube.Zones
+-- Module      : Data.Time.Cube.Zone
 -- Copyright   : Copyright (c) 2014, Alpha Heavy Industries, Inc. All rights reserved.
 -- License     : Apache License, Version 2.0
 -- Maintainer  : Enzo Haussecker <enzo@ucsd.edu>
@@ -11,7 +11,7 @@
 --
 -- Time zones.
 --
-module Data.Time.Cube.Zones where
+module Data.Time.Cube.Zone where
 
 import GHC.Generics (Generic)
 
