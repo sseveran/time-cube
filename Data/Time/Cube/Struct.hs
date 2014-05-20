@@ -7,20 +7,19 @@
 {-# OPTIONS -Wall                 #-}
 
 -- |
--- Module      : Data.Time.Cube.Structs
+-- Module      : Data.Time.Cube.Struct
 -- Copyright   : Copyright (c) 2014, Alpha Heavy Industries, Inc. All rights reserved.
 -- License     : Apache License, Version 2.0
 -- Maintainer  : Enzo Haussecker <enzo@ucsd.edu>
 -- Stability   : Experimental
 -- Portability : Untested
 --
---
 -- Struct datatypes for dates and time.
 --
-module Data.Time.Cube.Structs where
+module Data.Time.Cube.Struct where
 
 import Data.Time.Cube.Base
-import Data.Time.Cube.Zones (TimeZone)
+import Data.Time.Cube.Zone (TimeZone)
 import GHC.Generics (Generic)
 
 -- | A struct with date components.
