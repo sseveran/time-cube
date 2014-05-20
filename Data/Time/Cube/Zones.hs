@@ -1,0 +1,72 @@
+{-# OPTIONS -Wall #-}
+
+-- |
+-- Module      : Data.Time.Cube.Zones
+-- Copyright   : Copyright (c) 2014, Alpha Heavy Industries, Inc. All rights reserved.
+-- License     : Apache License, Version 2.0
+-- Maintainer  : Enzo Haussecker <enzo@ucsd.edu>
+-- Stability   : Stable
+-- Portability : Portable
+--
+--
+-- Time zones.
+--
+module Data.Time.Cube.Zones where
+
+import GHC.Generics (Generic)
+
+data TimeZone where
+     AfghanistanTime
+   | AlaskaDaylightTime
+   | AlaskaHawaiiDaylightTime
+   | AlaskaHawaiiStandardTime
+   | AlaskaStandardTime
+   | ArabiaDaylightTime
+   | ArabiaStandardTime
+   | BrasiliaSummerTime
+   | BrasiliaTime
+   | BritishSummerTime
+   | CentralAfricaTime
+   | CentralDaylightTime
+   | CentralEuropeanSummerTime
+   | CentralEuropeanTime
+   | CentralStandardTime
+   | ChinaDaylightTime
+   | ChinaStandardTime
+   | CoordinatedUniversalTime
+   | EastAfricaTime
+   | EasternDaylightTime
+   | EasternEuropeanSummerTime
+   | EasternEuropeanTime
+   | EasternStandardTime
+   | FurtherEasternEuropeanTime
+   | GreenwichMeanTime
+   | GulfStandardTime
+   | HawaiiAleutianStandardTime
+   | HongKongSummerTime
+   | HongKongTime
+   | IndiaStandardTime
+   | IranDaylightTime
+   | IranStandardTime
+   | IsraelDaylightTime
+   | IsraelStandardTime
+   | JapanStandardTime
+   | KarachiTime
+   | KoreaDaylightTime
+   | KoreaStandardTime
+   | MoscowDaylightTime
+   | MoscowStandardTime
+   | MountainDaylightTime
+   | MountainStandardTime
+   | NewZealandDaylightTime
+   | NewZealandStandardTime
+   | PacificDaylightTime
+   | PacificStandardTime
+   | PakistanStandardTime
+   | PakistanSummerTime
+   | SingaporeTime
+   | SouthAfricaStandardTime
+   | UnspecifiedTime
+   | WestAfricaTime
+   | YukonStandardTime
+   deriving (Eq, Enum, Generic, Ord, Read, Show)
