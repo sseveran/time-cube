@@ -11,7 +11,12 @@
 --
 -- Time zones.
 --
-module Data.Time.Cube.Zone where
+module Data.Time.Cube.Zone (
+
+ -- ** Time Zones
+       TimeZone(..)
+
+     ) where
 
 import GHC.Generics (Generic)
 
