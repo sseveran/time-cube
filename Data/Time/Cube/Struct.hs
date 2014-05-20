@@ -78,7 +78,7 @@ data DateTimeStruct (cal :: Calendar) =
 deriving instance (Eq   (Month          (cal :: Calendar)),
                    Eq   (DayOfWeek      (cal :: Calendar))) =>
                    Eq   (DateTimeStruct (cal :: Calendar))
- 
+
 deriving instance (Ord  (Month          (cal :: Calendar)),
                    Ord  (DayOfWeek      (cal :: Calendar))) =>
                    Ord  (DateTimeStruct (cal :: Calendar))
@@ -100,7 +100,7 @@ data LocalDateStruct (cal :: Calendar) =
 deriving instance (Eq   (Month           (cal :: Calendar)),
                    Eq   (DayOfWeek       (cal :: Calendar))) =>
                    Eq   (LocalDateStruct (cal :: Calendar))
- 
+
 deriving instance (Ord  (Month           (cal :: Calendar)),
                    Ord  (DayOfWeek       (cal :: Calendar))) =>
                    Ord  (LocalDateStruct (cal :: Calendar))
