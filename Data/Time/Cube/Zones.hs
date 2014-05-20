@@ -9,7 +9,6 @@
 -- Stability   : Stable
 -- Portability : Portable
 --
---
 -- Time zones.
 --
 module Data.Time.Cube.Zones where
