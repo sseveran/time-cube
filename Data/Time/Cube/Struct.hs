@@ -11,12 +11,24 @@
 -- Copyright   : Copyright (c) 2014, Alpha Heavy Industries, Inc. All rights reserved.
 -- License     : Apache License, Version 2.0
 -- Maintainer  : Enzo Haussecker <enzo@ucsd.edu>
--- Stability   : Experimental
--- Portability : Untested
+-- Stability   : Stable
+-- Portability : Portable
 --
 -- Struct datatypes for dates and time.
 --
-module Data.Time.Cube.Struct where
+module Data.Time.Cube.Struct (
+
+ -- ** Structs
+       DateStruct
+     , TimeStruct
+     , DateTimeStruct
+
+ -- ** Local Structs 
+     , LocalDateStruct
+     , LocalTimeStruct
+     , LocalDateTimeStruct
+
+     ) where
 
 import Data.Time.Cube.Base
 import Data.Time.Cube.Zone (TimeZone)
@@ -76,8 +88,8 @@ deriving instance (Show (Month          (cal :: Calendar)),
                    Show (DateTimeStruct (cal :: Calendar))
 
 -- | A struct with date and time zone components.
-data ZonedDateStruct (cal :: Calendar) =
-     ZonedDateStruct
+data LocalDateStruct (cal :: Calendar) =
+     LocalDateStruct
        { _zd_year :: {-# UNPACK #-} !(Year)
        , _zd_mon  ::                !(Month     (cal :: Calendar))
        , _zd_mday :: {-# UNPACK #-} !(Day)
@@ -87,19 +99,19 @@ data ZonedDateStruct (cal :: Calendar) =
 
 deriving instance (Eq   (Month           (cal :: Calendar)),
                    Eq   (DayOfWeek       (cal :: Calendar))) =>
-                   Eq   (ZonedDateStruct (cal :: Calendar))
+                   Eq   (LocalDateStruct (cal :: Calendar))
  
 deriving instance (Ord  (Month           (cal :: Calendar)),
                    Ord  (DayOfWeek       (cal :: Calendar))) =>
-                   Ord  (ZonedDateStruct (cal :: Calendar))
+                   Ord  (LocalDateStruct (cal :: Calendar))
 
 deriving instance (Show (Month           (cal :: Calendar)),
                    Show (DayOfWeek       (cal :: Calendar))) =>
-                   Show (ZonedDateStruct (cal :: Calendar))
+                   Show (LocalDateStruct (cal :: Calendar))
 
 -- | A struct with time and time zone components.
-data ZonedTimeStruct =
-     ZonedTimeStruct
+data LocalTimeStruct =
+     LocalTimeStruct
        { _zt_hour :: {-# UNPACK #-} !Hour
        , _zt_min  :: {-# UNPACK #-} !Minute
        , _zt_sec  :: {-# UNPACK #-} !Double
@@ -107,8 +119,8 @@ data ZonedTimeStruct =
        } deriving (Eq, Generic, Ord, Show)
 
 -- | A struct with date, time and time zone components.
-data ZonedDateTimeStruct (cal :: Calendar) =
-     ZonedDateTimeStruct
+data LocalDateTimeStruct (cal :: Calendar) =
+     LocalDateTimeStruct
        { _zdt_year :: {-# UNPACK #-} !(Year)
        , _zdt_mon  ::                !(Month     (cal :: Calendar))
        , _zdt_mday :: {-# UNPACK #-} !(Day)
@@ -121,12 +133,12 @@ data ZonedDateTimeStruct (cal :: Calendar) =
 
 deriving instance (Eq   (Month               (cal :: Calendar)),
                    Eq   (DayOfWeek           (cal :: Calendar))) =>
-                   Eq   (ZonedDateTimeStruct (cal :: Calendar))
+                   Eq   (LocalDateTimeStruct (cal :: Calendar))
 
 deriving instance (Ord  (Month               (cal :: Calendar)),
                    Ord  (DayOfWeek           (cal :: Calendar))) =>
-                   Ord  (ZonedDateTimeStruct (cal :: Calendar))
+                   Ord  (LocalDateTimeStruct (cal :: Calendar))
 
 deriving instance (Show (Month               (cal :: Calendar)),
                    Show (DayOfWeek           (cal :: Calendar))) =>
-                   Show (ZonedDateTimeStruct (cal :: Calendar))
+                   Show (LocalDateTimeStruct (cal :: Calendar))
