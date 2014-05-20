@@ -1,4 +1,5 @@
-{-# OPTIONS -Wall #-}
+{-# LANGUAGE DeriveGeneric #-}
+{-# OPTIONS -Wall          #-}
 
 -- |
 -- Module      : Data.Time.Cube.Zones
@@ -15,7 +16,7 @@ module Data.Time.Cube.Zones where
 
 import GHC.Generics (Generic)
 
-data TimeZone where
+data TimeZone =
      AfghanistanTime
    | AlaskaDaylightTime
    | AlaskaHawaiiDaylightTime
