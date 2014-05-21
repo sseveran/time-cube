@@ -18,14 +18,14 @@
 module Data.Time.Cube.Struct (
 
  -- ** Structs
-       DateStruct
-     , TimeStruct
-     , DateTimeStruct
+       DateStruct(..)
+     , TimeStruct(..)
+     , DateTimeStruct(..)
 
  -- ** Local Structs 
-     , LocalDateStruct
-     , LocalTimeStruct
-     , LocalDateTimeStruct
+     , LocalDateStruct(..)
+     , LocalTimeStruct(..)
+     , LocalDateTimeStruct(..)
 
      ) where
 
