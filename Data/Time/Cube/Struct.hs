@@ -90,7 +90,7 @@ deriving instance (Show (Month          (cal :: Calendar)),
                    Show (DateTimeStruct (cal :: Calendar))
 
 -- |
--- A struct with date and time zone components.
+-- A struct with date and location components.
 data LocalDateStruct (cal :: Calendar) =
      LocalDateStruct
        { _zd_year :: {-# UNPACK #-} !(Year)
@@ -113,7 +113,7 @@ deriving instance (Show (Month           (cal :: Calendar)),
                    Show (LocalDateStruct (cal :: Calendar))
 
 -- |
--- A struct with time and time zone components.
+-- A struct with time and location components.
 data LocalTimeStruct =
      LocalTimeStruct
        { _zt_hour :: {-# UNPACK #-} !Hour
@@ -123,7 +123,7 @@ data LocalTimeStruct =
        } deriving (Eq, Generic, Ord, Show)
 
 -- |
--- A struct with date, time and time zone components.
+-- A struct with date, time and location components.
 data LocalDateTimeStruct (cal :: Calendar) =
      LocalDateTimeStruct
        { _zdt_year :: {-# UNPACK #-} !(Year)
