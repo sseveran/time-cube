@@ -12,7 +12,7 @@
 -- Stability   : Stable
 -- Portability : Portable
 --
--- Basic definitions, including data families, types, and functions.
+-- Basic definitions, including datatypes, data families, and new types.
 --
 module Data.Time.Cube.Base (
 
