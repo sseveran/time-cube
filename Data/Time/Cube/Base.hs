@@ -12,8 +12,7 @@
 -- Stability   : Stable
 -- Portability : Portable
 --
--- Basic definitions, including datatypes, data families, and new types.
---
+-- Basic definitions, including data types, data families, and new types.
 module Data.Time.Cube.Base (
 
  -- ** Chronologies
@@ -45,7 +44,8 @@ module Data.Time.Cube.Base (
 import Data.Int (Int32, Int64)
 import GHC.Generics (Generic)
 
--- | System for organizing dates.
+-- |
+-- System for organizing dates.
 data Calendar =
      Gregorian
    | Hebrew
@@ -54,73 +54,90 @@ data Calendar =
    | Julian
    deriving (Eq, Enum, Generic, Ord, Read, Show)
 
--- | System for numbering years.
+-- |
+-- System for numbering years.
 data family Era (cal :: Calendar) :: *
 
--- | System origin.
+-- |
+-- System origin.
 data Epoch =
      Midnight
    | UnixEpoch
    deriving (Eq, Enum, Generic, Ord, Read, Show)
 
--- | Year.
+-- |
+-- Year.
 newtype Year = Year Int32
    deriving (Bounded, Enum, Eq, Generic, Integral, Num, Ord, Real, Show)
 
--- | Month.
+-- |
+-- Month.
 data family Month (cal :: Calendar) :: *
 
--- | Day.
+-- |
+-- Day.
 newtype Day = Day Int32
    deriving (Bounded, Enum, Eq, Generic, Integral, Num, Ord, Real, Show)
 
--- | Day of week.
+-- |
+-- Day of week.
 data family DayOfWeek (cal :: Calendar) :: *
 
--- | Hour.
+-- |
+-- Hour.
 newtype Hour = Hour Int64
    deriving (Bounded, Enum, Eq, Generic, Integral, Num, Ord, Real, Show)
 
--- | Minute.
+-- |
+-- Minute.
 newtype Minute = Minute Int64
    deriving (Bounded, Enum, Eq, Generic, Integral, Num, Ord, Real, Show)
 
--- | Second.
+-- |
+-- Second.
 newtype Second = Second Int64
    deriving (Bounded, Enum, Eq, Generic, Integral, Num, Ord, Real, Show)
 
--- | Millisecond.
+-- |
+-- Millisecond.
 newtype Millis = Millis Int64
    deriving (Bounded, Enum, Eq, Generic, Integral, Num, Ord, Real, Show)
 
--- | Microsecond.
+-- |
+-- Microsecond.
 newtype Micros = Micros Int64
    deriving (Bounded, Enum, Eq, Generic, Integral, Num, Ord, Real, Show)
 
--- | Nanosecond.
+-- |
+-- Nanosecond.
 newtype Nanos = Nanos Int64
    deriving (Bounded, Enum, Eq, Generic, Integral, Num, Ord, Real, Show)
 
--- | Picosecond.
+-- |
+-- Picosecond.
 newtype Picos = Picos Int64
    deriving (Bounded, Enum, Eq, Generic, Integral, Num, Ord, Real, Show)
 
--- | Decompose a floating point number into second and millisecond components.
+-- |
+-- Decompose a floating point number into second and millisecond components.
 properFracMillis :: RealFrac a => a -> (Second, Millis)
 properFracMillis frac = if millis == 1000 then (sec + 1, 0) else res
    where res@(sec, millis) = fmap (round . (*) 1000) $ properFraction frac
 
--- | Decompose a floating point number into second and microsecond components.
+-- |
+-- Decompose a floating point number into second and microsecond components.
 properFracMicros :: RealFrac a => a -> (Second, Micros)
 properFracMicros frac = if micros == 1000000 then (sec + 1, 0) else res
    where res@(sec, micros) = fmap (round . (*) 1000000) $ properFraction frac
 
--- | Decompose a floating point number into second and nanosecond components.
+-- |
+-- Decompose a floating point number into second and nanosecond components.
 properFracNanos :: RealFrac a => a -> (Second, Nanos)
 properFracNanos frac = if nanos == 1000000000 then (sec + 1, 0) else res
    where res@(sec, nanos) = fmap (round . (*) 1000000000) $ properFraction frac
 
--- | Decompose a floating point number into second and picosecond components.
+-- |
+-- Decompose a floating point number into second and picosecond components.
 properFracPicos :: RealFrac a => a -> (Second, Picos)
 properFracPicos frac = if picos == 1000000000000 then (sec + 1, 0) else res
    where res@(sec, picos) = fmap (round . (*) 1000000000000) $ properFraction frac 
