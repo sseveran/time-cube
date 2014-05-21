@@ -14,8 +14,7 @@
 -- Stability   : Stable
 -- Portability : Portable
 --
--- Struct datatypes for dates and time.
---
+-- Struct data types for dates and time.
 module Data.Time.Cube.Struct (
 
  -- ** Structs
@@ -34,7 +33,8 @@ import Data.Time.Cube.Base
 import Data.Time.Cube.Zone (TimeZone)
 import GHC.Generics (Generic)
 
--- | A struct with date components.
+-- |
+-- A struct with date components.
 data DateStruct (cal :: Calendar) =
      DateStruct
        { _d_year :: {-# UNPACK #-} !(Year)
@@ -63,7 +63,8 @@ data TimeStruct =
        , _t_sec  :: {-# UNPACK #-} !Double
        } deriving (Eq, Generic, Ord, Show)
 
--- | A struct with date and time components.
+-- |
+-- A struct with date and time components.
 data DateTimeStruct (cal :: Calendar) =
      DateTimeStruct
        { _dt_year :: {-# UNPACK #-} !(Year)
@@ -87,7 +88,8 @@ deriving instance (Show (Month          (cal :: Calendar)),
                    Show (DayOfWeek      (cal :: Calendar))) =>
                    Show (DateTimeStruct (cal :: Calendar))
 
--- | A struct with date and time zone components.
+-- |
+-- A struct with date and time zone components.
 data LocalDateStruct (cal :: Calendar) =
      LocalDateStruct
        { _zd_year :: {-# UNPACK #-} !(Year)
@@ -109,7 +111,8 @@ deriving instance (Show (Month           (cal :: Calendar)),
                    Show (DayOfWeek       (cal :: Calendar))) =>
                    Show (LocalDateStruct (cal :: Calendar))
 
--- | A struct with time and time zone components.
+-- |
+-- A struct with time and time zone components.
 data LocalTimeStruct =
      LocalTimeStruct
        { _zt_hour :: {-# UNPACK #-} !Hour
@@ -118,7 +121,8 @@ data LocalTimeStruct =
        , _zt_zone ::                !TimeZone
        } deriving (Eq, Generic, Ord, Show)
 
--- | A struct with date, time and time zone components.
+-- |
+-- A struct with date, time and time zone components.
 data LocalDateTimeStruct (cal :: Calendar) =
      LocalDateTimeStruct
        { _zdt_year :: {-# UNPACK #-} !(Year)

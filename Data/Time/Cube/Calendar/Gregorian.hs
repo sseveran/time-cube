@@ -15,18 +15,19 @@
 -- Portability : Portable
 --
 -- The Gregorian calendar system.
---
 module Data.Time.Cube.Calendar.Gregorian where
 
 import Data.Time.Cube.Base (Calendar(Gregorian), Era, Month, DayOfWeek)
 import GHC.Generics (Generic)
 
--- | Eras.
+-- |
+-- Eras.
 data instance Era Gregorian =
      BeforeChrist
    | AnnoDomini
 
--- | Months.
+-- |
+-- Months.
 data instance Month Gregorian =
      January
    | February
@@ -41,7 +42,8 @@ data instance Month Gregorian =
    | November
    | December
 
--- | Days of the week.
+-- |
+-- Days of the week.
 data instance DayOfWeek Gregorian =
      Sunday
    | Monday

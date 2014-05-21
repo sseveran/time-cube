@@ -9,8 +9,7 @@
 -- Stability   : Stable
 -- Portability : Portable
 --
--- Time zones.
---
+-- Time zone data types.
 module Data.Time.Cube.Zone (
 
  -- ** Time Zones
@@ -20,6 +19,8 @@ module Data.Time.Cube.Zone (
 
 import GHC.Generics (Generic)
 
+-- |
+-- Time zones.
 data TimeZone =
      AfghanistanTime
    | AlaskaDaylightTime
