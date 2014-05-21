@@ -55,7 +55,8 @@ deriving instance (Show (Month      (cal :: Calendar)),
                    Show (DayOfWeek  (cal :: Calendar))) =>
                    Show (DateStruct (cal :: Calendar))
 
--- | A struct with time components.
+-- |
+-- A struct with time components.
 data TimeStruct =
      TimeStruct
        { _t_hour :: {-# UNPACK #-} !Hour
