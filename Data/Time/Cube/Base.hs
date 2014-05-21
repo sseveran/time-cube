@@ -47,7 +47,8 @@ import GHC.Generics (Generic)
 -- |
 -- System for organizing dates.
 data Calendar =
-     Gregorian
+     Darian
+   | Gregorian
    | Hebrew
    | Islamic
    | Japanese
