@@ -21,7 +21,7 @@ class Human x where
 
    -- |
    -- Define the human-readable components of a timestamp.
-   data Components x :: *
+   type Components x :: *
 
    -- |
    -- Compose a timestamp from human-readable components.
