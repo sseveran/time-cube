@@ -72,7 +72,7 @@ data TimeZone =
    | PakistanSummerTime
    | SingaporeTime
    | SouthAfricaStandardTime
-   | UnspecifiedTime
+   | Unspecified
    | WestAfricaTime
    | YukonStandardTime
    deriving (Eq, Enum, Generic, Ord, Read, Show)
