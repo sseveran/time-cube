@@ -30,28 +30,26 @@ import GHC.Generics (Generic)
 
 -- |
 -- A struct with date components.
-data DateStruct (cal :: Calendar) =
+data DateStruct (cal :: Calendar) (tz :: TimeZone) =
      DateStruct
        { _d_year :: {-# UNPACK #-} !(Year)
        , _d_mon  ::                !(Month     (cal :: Calendar))
        , _d_mday :: {-# UNPACK #-} !(Day)
        , _d_wday ::                !(DayOfWeek (cal :: Calendar))
-       , _d_zone ::                !(TimeZone)
        } deriving (Generic)
 
 -- |
 -- A struct with time components.
-data TimeStruct =
+data TimeStruct (tz :: TimeZone) =
      TimeStruct
        { _t_hour :: {-# UNPACK #-} !Hour
        , _t_min  :: {-# UNPACK #-} !Minute
        , _t_sec  :: {-# UNPACK #-} !Double
-       , _t_zone ::                !TimeZone
        } deriving (Eq, Generic, Ord, Show)
 
 -- |
 -- A struct with date and time components.
-data DateTimeStruct (cal :: Calendar) =
+data DateTimeStruct (cal :: Calendar) (tz :: TimeZone) =
      DateTimeStruct
        { _dt_year :: {-# UNPACK #-} !(Year)
        , _dt_mon  ::                !(Month     (cal :: Calendar))
@@ -60,29 +58,28 @@ data DateTimeStruct (cal :: Calendar) =
        , _dt_hour :: {-# UNPACK #-} !(Hour)
        , _dt_min  :: {-# UNPACK #-} !(Minute)
        , _dt_sec  :: {-# UNPACK #-} !(Double)
-       , _dt_zone ::                !(TimeZone)
        } deriving (Generic)
 
 deriving instance (Eq   (Month          (cal :: Calendar)),
                    Eq   (DayOfWeek      (cal :: Calendar))) =>
-                   Eq   (DateStruct     (cal :: Calendar))
+                   Eq   (DateStruct     (cal :: Calendar) (tz :: TimeZone))
 
 deriving instance (Eq   (Month          (cal :: Calendar)),
                    Eq   (DayOfWeek      (cal :: Calendar))) =>
-                   Eq   (DateTimeStruct (cal :: Calendar))
+                   Eq   (DateTimeStruct (cal :: Calendar) (tz :: TimeZone))
 
 deriving instance (Ord  (Month          (cal :: Calendar)),
                    Ord  (DayOfWeek      (cal :: Calendar))) =>
-                   Ord  (DateStruct     (cal :: Calendar))
+                   Ord  (DateStruct     (cal :: Calendar) (tz :: TimeZone))
 
 deriving instance (Ord  (Month          (cal :: Calendar)),
                    Ord  (DayOfWeek      (cal :: Calendar))) =>
-                   Ord  (DateTimeStruct (cal :: Calendar))
+                   Ord  (DateTimeStruct (cal :: Calendar) (tz :: TimeZone))
 
 deriving instance (Show (Month          (cal :: Calendar)),
                    Show (DayOfWeek      (cal :: Calendar))) =>
-                   Show (DateStruct     (cal :: Calendar))
+                   Show (DateStruct     (cal :: Calendar) (tz :: TimeZone))
 
 deriving instance (Show (Month          (cal :: Calendar)),
                    Show (DayOfWeek      (cal :: Calendar))) =>
-                   Show (DateTimeStruct (cal :: Calendar))
+                   Show (DateTimeStruct (cal :: Calendar) (tz :: TimeZone))
