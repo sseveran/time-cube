@@ -20,7 +20,7 @@ module Data.Time.Cube.Unix.Date (
 
      ) where
 
-import Control.DeepSeq
+import Control.DeepSeq (NFData)
 import Data.Int (Int32)
 import Data.Time.Cube.Base (Calendar)
 import GHC.Generics (Generic)
