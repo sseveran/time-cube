@@ -15,11 +15,17 @@
 -- Stability   : Stable
 -- Portability : Portable
 --
--- Gregorian instances and utilities for Unix dates.
+-- A Gregorian-based implementation of Unix dates.
 module Data.Time.Cube.Unix.Date.Gregorian (
 
+ -- ** Type
+       UnixDate(..)
+
  -- ** Create
-       createUnixDate
+     , createUnixDate
+
+ -- ** Current
+     , getCurrentUnixDate
 
  -- ** Utilities
      , isLeapYear
@@ -31,27 +37,27 @@ import Data.Time.Cube.Base (Calendar(Gregorian), Year(..), Day(..))
 import Data.Time.Cube.Calendar.Gregorian (Month(..))
 import Data.Time.Cube.Class (Human(..), Math(..))
 import Data.Time.Cube.Struct (DateStruct(..))
-import Data.Time.Cube.Unix.Date (UnixDate(..))
+import Data.Time.Cube.Unix.Date (UnixDate(..), getCurrentUnixDate)
 import Text.Printf (printf)
 
-instance Bounded (UnixDate 'Gregorian) where
+instance Bounded (UnixDate Gregorian) where
     minBound = UnixDate 0
     maxBound = UnixDate 2932896
 
-instance Enum (UnixDate 'Gregorian) where
+instance Enum (UnixDate Gregorian) where
     succ = flip plus $ Day 1
     pred = flip plus . Day $ - 1
     fromEnum = fromIntegral . getBase
     toEnum x = 
         if minBound <= date && date <= maxBound
-        then date else error "toEnum{UnixDate 'Gregorian}: date out of range" where
+        then date else error "toEnum{UnixDate Gregorian}: date out of range" where
              date = UnixDate $ fromIntegral x
 
-instance Human (UnixDate 'Gregorian) where
+instance Human (UnixDate Gregorian) where
 
     -- |
     -- Define the Gregorian components of a Unix date.
-    type Components (UnixDate 'Gregorian) = DateStruct 'Gregorian
+    type Components (UnixDate Gregorian) = DateStruct Gregorian
 
     -- |
     -- Compose a Unix date from Gregorian components.
@@ -117,7 +123,7 @@ instance Human (UnixDate 'Gregorian) where
                                          then (February, days - 030)
                                          else (January , days + 001)
 
-instance Math (UnixDate 'Gregorian) Day where
+instance Math (UnixDate Gregorian) Day where
 
     -- |
     -- Compute the day duration between two Unix dates.
@@ -127,10 +133,10 @@ instance Math (UnixDate 'Gregorian) Day where
     -- Add days to a Unix date.
     plus UnixDate{..} Day{..} =
       if minBound <= date && date <= maxBound
-      then date else error "plus{UnixDate 'Gregorian, Day}: date out of range" where
+      then date else error "plus{UnixDate Gregorian, Day}: date out of range" where
            date = UnixDate $ getBase + getDay
 
-instance Show (UnixDate 'Gregorian) where
+instance Show (UnixDate Gregorian) where
     show date = printf "%04d-%02d-%02d" _d_year mon _d_mday where
          mon  = fromEnum _d_mon + 1
          DateStruct{..} = unpack date
@@ -141,7 +147,7 @@ instance Show (UnixDate 'Gregorian) where
 -- > >>> createUnixDate 2013 November 03
 -- > 2013-11-03
 --
-createUnixDate :: Year -> Month 'Gregorian -> Day -> UnixDate 'Gregorian
+createUnixDate :: Year -> Month Gregorian -> Day -> UnixDate Gregorian
 createUnixDate year month day =
   if minBound <= date && date <= maxBound
   then date else error "createUnixDate: date out of range" where
@@ -156,7 +162,7 @@ isLeapYear year = year `mod` 400 == 0 || (year `mod` 100 /= 0 && year `mod` 4 ==
 -- Calculate the number of days that have elapsed
 -- between Unix epoch and the given Gregorian date
 -- without performing any bounds check.
-unsafeEpochToDate :: Year -> Month 'Gregorian -> Day -> Day
+unsafeEpochToDate :: Year -> Month Gregorian -> Day -> Day
 unsafeEpochToDate year month day =
   unsafeEpochToYear year + yearToMonth month leap + day - 1
   where leap = isLeapYear year
@@ -173,7 +179,7 @@ unsafeEpochToYear (Year year) =
 -- |
 -- Calculate the number of days that have elapsed
 -- between January 1st and the given Gregorian month.
-yearToMonth :: Month 'Gregorian -> Bool -> Day
+yearToMonth :: Month Gregorian -> Bool -> Day
 yearToMonth month leap =
   if leap
   then case month of
