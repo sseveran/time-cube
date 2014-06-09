@@ -41,6 +41,7 @@ module Data.Time.Cube.Base (
 
      ) where
 
+import Control.DeepSeq (NFData)
 import Data.Int (Int32, Int64)
 import GHC.Generics (Generic)
 import Text.Printf (PrintfArg)
@@ -70,7 +71,7 @@ data Epoch =
 -- |
 -- Year.
 newtype Year = Year {getYear :: Int32}
-   deriving (Bounded, Enum, Eq, Generic, Integral, Num, Ord, PrintfArg, Real, Show)
+   deriving (Bounded, Enum, Eq, Generic, Integral, NFData, Num, Ord, PrintfArg, Real, Show)
 
 -- |
 -- Month.
@@ -79,7 +80,7 @@ data family Month (cal :: Calendar) :: *
 -- |
 -- Day.
 newtype Day = Day {getDay :: Int32}
-   deriving (Bounded, Enum, Eq, Generic, Integral, Num, Ord, PrintfArg, Real, Show)
+   deriving (Bounded, Enum, Eq, Generic, Integral, NFData, Num, Ord, PrintfArg, Real, Show)
 
 -- |
 -- Day of week.
@@ -88,37 +89,37 @@ data family DayOfWeek (cal :: Calendar) :: *
 -- |
 -- Hour.
 newtype Hour = Hour {getHour :: Int64}
-   deriving (Bounded, Enum, Eq, Generic, Integral, Num, Ord, PrintfArg, Real, Show)
+   deriving (Bounded, Enum, Eq, Generic, Integral, NFData, Num, Ord, PrintfArg, Real, Show)
 
 -- |
 -- Minute.
 newtype Minute = Minute {getMinute :: Int64}
-   deriving (Bounded, Enum, Eq, Generic, Integral, Num, Ord, PrintfArg, Real, Show)
+   deriving (Bounded, Enum, Eq, Generic, Integral, NFData, Num, Ord, PrintfArg, Real, Show)
 
 -- |
 -- Second.
 newtype Second = Second {getSecond :: Int64}
-   deriving (Bounded, Enum, Eq, Generic, Integral, Num, Ord, PrintfArg, Real, Show)
+   deriving (Bounded, Enum, Eq, Generic, Integral, NFData, Num, Ord, PrintfArg, Real, Show)
 
 -- |
 -- Millisecond.
 newtype Millis = Millis {getMillis :: Int64}
-   deriving (Bounded, Enum, Eq, Generic, Integral, Num, Ord, PrintfArg, Real, Show)
+   deriving (Bounded, Enum, Eq, Generic, Integral, NFData, Num, Ord, PrintfArg, Real, Show)
 
 -- |
 -- Microsecond.
 newtype Micros = Micros {getMicros :: Int64}
-   deriving (Bounded, Enum, Eq, Generic, Integral, Num, Ord, PrintfArg, Real, Show)
+   deriving (Bounded, Enum, Eq, Generic, Integral, NFData, Num, Ord, PrintfArg, Real, Show)
 
 -- |
 -- Nanosecond.
 newtype Nanos = Nanos {getNanos :: Int64}
-   deriving (Bounded, Enum, Eq, Generic, Integral, Num, Ord, PrintfArg, Real, Show)
+   deriving (Bounded, Enum, Eq, Generic, Integral, NFData, Num, Ord, PrintfArg, Real, Show)
 
 -- |
 -- Picosecond.
 newtype Picos = Picos {getPicos :: Int64}
-   deriving (Bounded, Enum, Eq, Generic, Integral, Num, Ord, PrintfArg, Real, Show)
+   deriving (Bounded, Enum, Eq, Generic, Integral, NFData, Num, Ord, PrintfArg, Real, Show)
 
 -- |
 -- Decompose a floating point number into second and millisecond components.

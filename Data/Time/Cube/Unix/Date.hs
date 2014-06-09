@@ -1,7 +1,8 @@
-{-# LANGUAGE DataKinds      #-}
-{-# LANGUAGE DeriveGeneric  #-}
-{-# LANGUAGE KindSignatures #-}
-{-# OPTIONS -Wall           #-}
+{-# LANGUAGE DataKinds                  #-}
+{-# LANGUAGE DeriveGeneric              #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE KindSignatures             #-}
+{-# OPTIONS -Wall                       #-}
 
 -- |
 -- Module      : Data.Time.Cube.Unix.Date
@@ -19,6 +20,7 @@ module Data.Time.Cube.Unix.Date (
 
      ) where
 
+import Control.DeepSeq
 import Data.Int (Int32)
 import Data.Time.Cube.Base (Calendar)
 import GHC.Generics (Generic)
@@ -26,4 +28,4 @@ import GHC.Generics (Generic)
 -- |
 -- Days since Unix epoch. 
 newtype UnixDate (cal :: Calendar) = UnixDate {getBase :: Int32}
-    deriving (Eq, Generic, Ord)
+    deriving (Eq, Generic, NFData, Ord)
