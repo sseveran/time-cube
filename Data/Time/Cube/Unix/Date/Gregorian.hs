@@ -36,6 +36,15 @@ instance Bounded (UnixDate 'Gregorian) where
     minBound = UnixDate 0
     maxBound = UnixDate 2932896
 
+instance Enum (UnixDate 'Gregorian) where
+    succ = flip plus $ Day 1
+    pred = flip plus . Day $ - 1
+    fromEnum = fromIntegral . getBase
+    toEnum x = 
+        if minBound <= date && date <= maxBound
+        then date else error "toEnum{UnixDate 'Gregorian}: date out of range" where
+             date = UnixDate $ fromIntegral x
+
 instance Human (UnixDate 'Gregorian) where
 
     -- |

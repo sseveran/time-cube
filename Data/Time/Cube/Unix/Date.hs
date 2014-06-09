@@ -23,9 +23,10 @@ module Data.Time.Cube.Unix.Date (
 import Control.DeepSeq (NFData)
 import Data.Int (Int32)
 import Data.Time.Cube.Base (Calendar)
+import Foreign.Storable (Storable)
 import GHC.Generics (Generic)
 
 -- |
 -- Days since Unix epoch. 
 newtype UnixDate (cal :: Calendar) = UnixDate {getBase :: Int32}
-    deriving (Eq, Generic, NFData, Ord)
+    deriving (Eq, Generic, NFData, Ord, Storable)
