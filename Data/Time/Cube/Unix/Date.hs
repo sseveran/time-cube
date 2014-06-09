@@ -27,6 +27,6 @@ import Foreign.Storable (Storable)
 import GHC.Generics (Generic)
 
 -- |
--- Days since Unix epoch. 
+-- Days since Unix epoch.
 newtype UnixDate (cal :: Calendar) = UnixDate {getBase :: Int32}
     deriving (Eq, Generic, NFData, Ord, Storable)
