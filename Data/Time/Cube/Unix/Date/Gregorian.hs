@@ -24,8 +24,8 @@ module Data.Time.Cube.Unix.Date.Gregorian (
 
      ) where
 
-import Data.Time.Cube.Base (Calendar(Gregorian), Year(..), Month, Day(..))
-import Data.Time.Cube.Calendar.Gregorian
+import Data.Time.Cube.Base (Calendar(Gregorian), Year(..), Day(..))
+import Data.Time.Cube.Calendar.Gregorian (Month(..))
 import Data.Time.Cube.Human (Human(..))
 import Data.Time.Cube.Math (Math(..))
 import Data.Time.Cube.Struct (DateStruct(..))
