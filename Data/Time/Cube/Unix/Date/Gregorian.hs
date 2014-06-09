@@ -41,17 +41,25 @@ import Data.Time.Cube.Unix.Date (UnixDate(..), getCurrentUnixDate)
 import Text.Printf (printf)
 
 instance Bounded (UnixDate Gregorian) where
+
+    -- |
+    -- Minimum bound, 1970-01-01.
     minBound = UnixDate 0
+
+    -- |
+    -- Maximum bound, 9999-12-31.
     maxBound = UnixDate 2932896
 
 instance Enum (UnixDate Gregorian) where
+
     succ = flip plus $ Day 1
     pred = flip plus . Day $ - 1
+
     fromEnum = fromIntegral . getBase
     toEnum x = 
-        if minBound <= date && date <= maxBound
-        then date else error "toEnum{UnixDate Gregorian}: date out of range" where
-             date = UnixDate $ fromIntegral x
+      if minBound <= date && date <= maxBound
+      then date else error "toEnum{UnixDate Gregorian}: date out of range" where
+           date = UnixDate $ fromIntegral x
 
 instance Human (UnixDate Gregorian) where
 
