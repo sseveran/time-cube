@@ -69,7 +69,7 @@ data Epoch =
 
 -- |
 -- Year.
-newtype Year = Year Int32
+newtype Year = Year {getYear :: Int32}
    deriving (Bounded, Enum, Eq, Generic, Integral, Num, Ord, PrintfArg, Real, Show)
 
 -- |
@@ -78,7 +78,7 @@ data family Month (cal :: Calendar) :: *
 
 -- |
 -- Day.
-newtype Day = Day Int32
+newtype Day = Day {getDay :: Int32}
    deriving (Bounded, Enum, Eq, Generic, Integral, Num, Ord, PrintfArg, Real, Show)
 
 -- |
@@ -87,37 +87,37 @@ data family DayOfWeek (cal :: Calendar) :: *
 
 -- |
 -- Hour.
-newtype Hour = Hour Int64
+newtype Hour = Hour {getHour :: Int64}
    deriving (Bounded, Enum, Eq, Generic, Integral, Num, Ord, PrintfArg, Real, Show)
 
 -- |
 -- Minute.
-newtype Minute = Minute Int64
+newtype Minute = Minute {getMinute :: Int64}
    deriving (Bounded, Enum, Eq, Generic, Integral, Num, Ord, PrintfArg, Real, Show)
 
 -- |
 -- Second.
-newtype Second = Second Int64
+newtype Second = Second {getSecond :: Int64}
    deriving (Bounded, Enum, Eq, Generic, Integral, Num, Ord, PrintfArg, Real, Show)
 
 -- |
 -- Millisecond.
-newtype Millis = Millis Int64
+newtype Millis = Millis {getMillis :: Int64}
    deriving (Bounded, Enum, Eq, Generic, Integral, Num, Ord, PrintfArg, Real, Show)
 
 -- |
 -- Microsecond.
-newtype Micros = Micros Int64
+newtype Micros = Micros {getMicros :: Int64}
    deriving (Bounded, Enum, Eq, Generic, Integral, Num, Ord, PrintfArg, Real, Show)
 
 -- |
 -- Nanosecond.
-newtype Nanos = Nanos Int64
+newtype Nanos = Nanos {getNanos :: Int64}
    deriving (Bounded, Enum, Eq, Generic, Integral, Num, Ord, PrintfArg, Real, Show)
 
 -- |
 -- Picosecond.
-newtype Picos = Picos Int64
+newtype Picos = Picos {getPicos :: Int64}
    deriving (Bounded, Enum, Eq, Generic, Integral, Num, Ord, PrintfArg, Real, Show)
 
 -- |
