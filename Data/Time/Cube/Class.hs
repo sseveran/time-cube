@@ -10,7 +10,7 @@
 -- Stability   : Stable
 -- Portability : Portable
 --
--- Basic timestamp type classes.
+-- Type classes for dates and time.
 module Data.Time.Cube.Class (
 
  -- ** Classes
