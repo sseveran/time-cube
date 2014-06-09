@@ -1,10 +1,11 @@
-{-# LANGUAGE BangPatterns      #-}
-{-# LANGUAGE DataKinds         #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE RecordWildCards   #-}
-{-# LANGUAGE TypeFamilies      #-}
-{-# OPTIONS -Wall              #-}
-{-# OPTIONS -fno-warn-orphans  #-}
+{-# LANGUAGE BangPatterns          #-}
+{-# LANGUAGE DataKinds             #-}
+{-# LANGUAGE FlexibleInstances     #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE RecordWildCards       #-}
+{-# LANGUAGE TypeFamilies          #-}
+{-# OPTIONS -Wall                  #-}
+{-# OPTIONS -fno-warn-orphans      #-}
 
 -- |
 -- Module      : Data.Time.Cube.Unix.Date.Gregorian
@@ -26,6 +27,7 @@ module Data.Time.Cube.Unix.Date.Gregorian (
 import Data.Time.Cube.Base (Calendar(Gregorian), Year(..), Month, Day(..))
 import Data.Time.Cube.Calendar.Gregorian
 import Data.Time.Cube.Human (Human(..))
+import Data.Time.Cube.Math (Math(..))
 import Data.Time.Cube.Struct (DateStruct(..))
 import Data.Time.Cube.Unix.Date (UnixDate(..))
 import Text.Printf (printf)
@@ -108,10 +110,16 @@ instance Human (UnixDate 'Gregorian) where
                                          then (February, days - 030)
                                          else (January , days + 001)
 
+instance Math (UnixDate 'Gregorian) Day where
+    plus UnixDate{..} Day{..} =
+      if minBound <= date && date <= maxBound
+      then date else error "plus{UnixDate 'Gregorian, Day}: date out of range" where
+           date = UnixDate $ getBase + getDay
+
 instance Show (UnixDate 'Gregorian) where
-    show date = printf "%04d-%02d-%02d" _d_year mon _d_mday
-        where DateStruct{..} = unpack date
-              mon = fromEnum _d_mon + 1
+    show date = printf "%04d-%02d-%02d" _d_year mon _d_mday where
+         mon  = fromEnum _d_mon + 1
+         DateStruct{..} = unpack date
 
 -- |
 -- Check if the given year is a leap year.
