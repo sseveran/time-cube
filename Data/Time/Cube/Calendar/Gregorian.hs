@@ -17,6 +17,13 @@
 -- The Gregorian calendar system.
 module Data.Time.Cube.Calendar.Gregorian (
 
+ -- ** Chronology
+       Era(..)
+
+ -- ** Components
+     , Month(..)
+     , DayOfWeek(..)
+
      ) where
 
 import Data.Time.Cube.Base (Calendar(Gregorian), Era, Month, DayOfWeek)
