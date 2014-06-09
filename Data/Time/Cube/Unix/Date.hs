@@ -1,3 +1,4 @@
+{-# LANGUAGE DataKinds      #-}
 {-# LANGUAGE DeriveGeneric  #-}
 {-# LANGUAGE KindSignatures #-}
 {-# OPTIONS -Wall           #-}
