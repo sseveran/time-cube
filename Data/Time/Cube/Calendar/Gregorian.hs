@@ -15,7 +15,9 @@
 -- Portability : Portable
 --
 -- The Gregorian calendar system.
-module Data.Time.Cube.Calendar.Gregorian where
+module Data.Time.Cube.Calendar.Gregorian (
+
+     ) where
 
 import Data.Time.Cube.Base (Calendar(Gregorian), Era, Month, DayOfWeek)
 import GHC.Generics (Generic)
