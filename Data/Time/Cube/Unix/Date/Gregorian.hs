@@ -3,6 +3,8 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE RecordWildCards   #-}
 {-# LANGUAGE TypeFamilies      #-}
+{-# OPTIONS -Wall              #-}
+{-# OPTIONS -fno-warn-orphans  #-}
 
 -- |
 -- Module      : Data.Time.Cube.Unix.Date.Gregorian
