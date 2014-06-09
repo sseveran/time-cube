@@ -15,7 +15,7 @@
 -- Stability   : Stable
 -- Portability : Portable
 --
--- Gregorian instances and utilities for Unix datestamps.
+-- Gregorian instances and utilities for Unix dates.
 module Data.Time.Cube.Unix.Date.Gregorian (
 
  -- ** Create
@@ -29,8 +29,7 @@ module Data.Time.Cube.Unix.Date.Gregorian (
 
 import Data.Time.Cube.Base (Calendar(Gregorian), Year(..), Day(..))
 import Data.Time.Cube.Calendar.Gregorian (Month(..))
-import Data.Time.Cube.Human (Human(..))
-import Data.Time.Cube.Math (Math(..))
+import Data.Time.Cube.Class (Human(..), Math(..))
 import Data.Time.Cube.Struct (DateStruct(..))
 import Data.Time.Cube.Unix.Date (UnixDate(..))
 import Text.Printf (printf)
@@ -119,6 +118,13 @@ instance Human (UnixDate 'Gregorian) where
                                          else (January , days + 001)
 
 instance Math (UnixDate 'Gregorian) Day where
+
+    -- |
+    -- Compute the day duration between two Unix dates.
+    duration (UnixDate old) (UnixDate new) = Day (new - old)
+
+    -- |
+    -- Add days to a Unix date.
     plus UnixDate{..} Day{..} =
       if minBound <= date && date <= maxBound
       then date else error "plus{UnixDate 'Gregorian, Day}: date out of range" where
