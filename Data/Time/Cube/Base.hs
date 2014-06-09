@@ -43,6 +43,7 @@ module Data.Time.Cube.Base (
 
 import Data.Int (Int32, Int64)
 import GHC.Generics (Generic)
+import Text.Printf (PrintfArg)
 
 -- |
 -- System for organizing dates.
@@ -69,7 +70,7 @@ data Epoch =
 -- |
 -- Year.
 newtype Year = Year Int32
-   deriving (Bounded, Enum, Eq, Generic, Integral, Num, Ord, Real, Show)
+   deriving (Bounded, Enum, Eq, Generic, Integral, Num, Ord, PrintfArg, Real, Show)
 
 -- |
 -- Month.
@@ -78,7 +79,7 @@ data family Month (cal :: Calendar) :: *
 -- |
 -- Day.
 newtype Day = Day Int32
-   deriving (Bounded, Enum, Eq, Generic, Integral, Num, Ord, Real, Show)
+   deriving (Bounded, Enum, Eq, Generic, Integral, Num, Ord, PrintfArg, Real, Show)
 
 -- |
 -- Day of week.
@@ -87,37 +88,37 @@ data family DayOfWeek (cal :: Calendar) :: *
 -- |
 -- Hour.
 newtype Hour = Hour Int64
-   deriving (Bounded, Enum, Eq, Generic, Integral, Num, Ord, Real, Show)
+   deriving (Bounded, Enum, Eq, Generic, Integral, Num, Ord, PrintfArg, Real, Show)
 
 -- |
 -- Minute.
 newtype Minute = Minute Int64
-   deriving (Bounded, Enum, Eq, Generic, Integral, Num, Ord, Real, Show)
+   deriving (Bounded, Enum, Eq, Generic, Integral, Num, Ord, PrintfArg, Real, Show)
 
 -- |
 -- Second.
 newtype Second = Second Int64
-   deriving (Bounded, Enum, Eq, Generic, Integral, Num, Ord, Real, Show)
+   deriving (Bounded, Enum, Eq, Generic, Integral, Num, Ord, PrintfArg, Real, Show)
 
 -- |
 -- Millisecond.
 newtype Millis = Millis Int64
-   deriving (Bounded, Enum, Eq, Generic, Integral, Num, Ord, Real, Show)
+   deriving (Bounded, Enum, Eq, Generic, Integral, Num, Ord, PrintfArg, Real, Show)
 
 -- |
 -- Microsecond.
 newtype Micros = Micros Int64
-   deriving (Bounded, Enum, Eq, Generic, Integral, Num, Ord, Real, Show)
+   deriving (Bounded, Enum, Eq, Generic, Integral, Num, Ord, PrintfArg, Real, Show)
 
 -- |
 -- Nanosecond.
 newtype Nanos = Nanos Int64
-   deriving (Bounded, Enum, Eq, Generic, Integral, Num, Ord, Real, Show)
+   deriving (Bounded, Enum, Eq, Generic, Integral, Num, Ord, PrintfArg, Real, Show)
 
 -- |
 -- Picosecond.
 newtype Picos = Picos Int64
-   deriving (Bounded, Enum, Eq, Generic, Integral, Num, Ord, Real, Show)
+   deriving (Bounded, Enum, Eq, Generic, Integral, Num, Ord, PrintfArg, Real, Show)
 
 -- |
 -- Decompose a floating point number into second and millisecond components.
