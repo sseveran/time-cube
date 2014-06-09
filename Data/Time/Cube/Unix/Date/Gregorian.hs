@@ -18,8 +18,11 @@
 -- Gregorian instances and utilities for Unix datestamps.
 module Data.Time.Cube.Unix.Date.Gregorian (
 
+ -- ** Create
+       createUnixDate
+
  -- ** Utilities
-       isLeapYear
+     , isLeapYear
      , unsafeEpochToDate
 
      ) where
@@ -53,11 +56,7 @@ instance Human (UnixDate 'Gregorian) where
 
     -- |
     -- Compose a Unix date from Gregorian components.
-    pack DateStruct{..} =
-      if minBound <= date && date <= maxBound
-      then date else error "pack{DateStruct 'Gregorian}: date out of range" where
-           date = UnixDate base
-           base = getDay $ unsafeEpochToDate _d_year _d_mon _d_mday
+    pack DateStruct{..} = createUnixDate _d_year _d_mon _d_mday
 
     -- |
     -- Decompose a Unix date into Gregorian components.
@@ -129,6 +128,18 @@ instance Show (UnixDate 'Gregorian) where
     show date = printf "%04d-%02d-%02d" _d_year mon _d_mday where
          mon  = fromEnum _d_mon + 1
          DateStruct{..} = unpack date
+
+-- |
+-- Create a Unix date.
+--
+-- > >>> createUnixDate 2013 November 03
+-- > 2013-11-03
+--
+createUnixDate :: Year -> Month 'Gregorian -> Day -> UnixDate 'Gregorian
+createUnixDate year month day =
+  if minBound <= date && date <= maxBound
+  then date else error "createUnixDate: date out of range" where
+       date = UnixDate . getDay $ unsafeEpochToDate year month day
 
 -- |
 -- Check if the given year is a leap year.
