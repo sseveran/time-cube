@@ -10,9 +10,8 @@
 
 -- |
 -- Module      : Data.Time.Cube.Base
--- Copyright   : Copyright (c) 2014, Alpha Heavy Industries, Inc.
 -- License     : BSD3
--- Maintainer  : Enzo Haussecker <enzo@ucsd.edu>
+-- Maintainer  : Enzo Haussecker
 -- Stability   : Stable
 -- Portability : Portable
 --
