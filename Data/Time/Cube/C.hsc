@@ -4,17 +4,17 @@
 {-# OPTIONS -fno-warn-orphans      #-}
 
 -- |
--- Module      : Data.Time.Cube.Unix
+-- Module      : Data.Time.Cube.C
 -- Copyright   : Copyright (c) 2014, Alpha Heavy Industries, Inc.
 -- License     : BSD3
 -- Maintainer  : Enzo Haussecker <enzo@ucsd.edu>
 -- Stability   : Stable
 -- Portability : Unix
 --
--- Bindings to the GNU C time library.
-module Data.Time.Cube.Unix where
+-- Bindings to the C time library.
+module Data.Time.Cube.C where
 
-import Data.Time.Cube.Class (Human(..))
+import Data.Time.Cube.Base (Human(..))
 import Foreign.C.String (CString)
 import Foreign.C.Types (CInt(..), CLong, CTime(..))
 import Foreign.Marshal.Alloc (alloca)
