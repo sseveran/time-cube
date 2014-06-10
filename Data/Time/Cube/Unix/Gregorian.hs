@@ -18,7 +18,7 @@
 -- Portability : Portable
 --
 -- A Gregorian-based implementation of Unix timestamps.
-module Data.Time.Cube.Unix.Gregorian (
+module Data.Time.Cube.Unix.Gregorian {-(
 
  -- ** Type
        UnixDate(..)
@@ -33,10 +33,11 @@ module Data.Time.Cube.Unix.Gregorian (
      , isLeapYear
      , unsafeEpochToDate
 
-     ) where
+     )-} where
 
 import Data.Time.Cube.Base
 import Data.Time.Cube.Unix
+import Data.Time.Cube.Zone
 import Foreign.C.Time (C'timeval(..), getTimeOfDay)
 import GHC.Generics (Generic)
 import Text.Printf (printf)
@@ -92,7 +93,7 @@ deriving instance Show (Era Gregorian)
 deriving instance Show (Month Gregorian)
 deriving instance Show (DayOfWeek Gregorian)
 
-instance Bounded (UnixDate Gregorian) where
+instance Bounded (UnixDate Gregorian tz) where
 
     -- |
     -- Minimum bound, 1970-01-01.
@@ -102,7 +103,7 @@ instance Bounded (UnixDate Gregorian) where
     -- Maximum bound, 9999-12-31.
     maxBound = UnixDate 2932896
 
-instance Enum (UnixDate Gregorian) where
+instance Enum (UnixDate Gregorian tz) where
 
     succ = flip plus $ Day 1
     pred = flip plus . Day $ - 1
@@ -110,14 +111,14 @@ instance Enum (UnixDate Gregorian) where
     fromEnum = fromIntegral . getDate
     toEnum x = 
       if minBound <= date && date <= maxBound
-      then date else error "toEnum{UnixDate Gregorian}: date out of range" where
+      then date else error "toEnum{UnixDate Gregorian tz}: date out of range" where
            date = UnixDate $ fromIntegral x
 
-instance Human (UnixDate Gregorian) where
+instance Human (UnixDate Gregorian tz) where
 
     -- |
     -- Define the Gregorian components of a Unix date.
-    type Components (UnixDate Gregorian) = DateStruct Gregorian
+    type Components (UnixDate Gregorian tz) = DateStruct Gregorian tz
 
     -- |
     -- Compose a Unix date from Gregorian components.
@@ -183,7 +184,7 @@ instance Human (UnixDate Gregorian) where
                                          then (February, days - 030)
                                          else (January , days + 001)
 
-instance Math (UnixDate Gregorian) Day where
+instance Math (UnixDate Gregorian tz) Day where -- FIXME: test for different TZs
 
     -- |
     -- Compute the day duration between two Unix dates.
@@ -196,14 +197,29 @@ instance Math (UnixDate Gregorian) Day where
       then date else error "plus{UnixDate Gregorian, Day}: date out of range" where
            date = UnixDate $ getDate + getDay
 
-instance Show (UnixDate Gregorian) where
+instance Show (UnixDate Gregorian CoordinatedUniversalTime) where
+    show date = printf "%04d-%02d-%02d UTC" _d_year mon _d_mday where
+         mon  = fromEnum _d_mon + 1
+         DateStruct{..} = unpack date
+
+instance Show (UnixDate Gregorian PacificDaylightTime) where
+    show date = printf "%04d-%02d-%02d PDT" _d_year mon _d_mday where
+         mon  = fromEnum _d_mon + 1
+         DateStruct{..} = unpack date
+
+instance Show (UnixDate Gregorian PacificStandardTime) where
+    show date = printf "%04d-%02d-%02d PST" _d_year mon _d_mday where
+         mon  = fromEnum _d_mon + 1
+         DateStruct{..} = unpack date
+
+instance Show (UnixDate Gregorian Unspecified) where
     show date = printf "%04d-%02d-%02d" _d_year mon _d_mday where
          mon  = fromEnum _d_mon + 1
          DateStruct{..} = unpack date
 
 -- |
 -- Create a Unix date.
-createUnixDate :: Year -> Month Gregorian -> Day -> UnixDate Gregorian
+createUnixDate :: Year -> Month Gregorian -> Day -> UnixDate Gregorian tz
 createUnixDate year month day =
   if minBound <= date && date <= maxBound
   then date else error "createUnixDate: date out of range" where
@@ -211,7 +227,7 @@ createUnixDate year month day =
 
 -- |
 -- Get the current Unix date from the system clock.
-getCurrentUnixDate :: IO (UnixDate Gregorian)
+getCurrentUnixDate :: IO (UnixDate Gregorian Unspecified)
 getCurrentUnixDate =
    getTimeOfDay >>= \ (C'timeval base _) ->
    return $! UnixDate . fromIntegral $ base `div` 86400
