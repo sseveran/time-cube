@@ -16,10 +16,10 @@ Description:        Haskell timestamps in various bit length and granularity.
 Library
   Default-Language: Haskell2010
   Exposed-Modules:  Data.Time.Cube.Base
-                    Data.Time.Cube.Bindings
-                    Data.Time.Cube.Unix.Date
-                    Data.Time.Cube.Unix.Date.Gregorian
+                    Data.Time.Cube.Unix
+                    Data.Time.Cube.Unix.Gregorian
                     Data.Time.Cube.Zone
+                    Foreign.C.Time
   Build-Depends:    base         >= 4      && < 5,
                     bindings-DSL >= 1.0.11 && < 1.1,
                     deepseq      == 1.3.*
