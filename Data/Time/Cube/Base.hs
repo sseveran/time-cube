@@ -100,7 +100,7 @@ data Calendar =
 
 -- |
 -- System for numbering years.
-data family Era (calendar :: Calendar) :: *
+data family Era (cal :: Calendar) :: *
 
 -- |
 -- System origin.
@@ -115,7 +115,7 @@ newtype Year = Year {getYear :: Int32}
 
 -- |
 -- Month.
-data family Month (calendar :: Calendar) :: *
+data family Month (cal :: Calendar) :: *
 
 -- |
 -- Day.
@@ -124,7 +124,7 @@ newtype Day = Day {getDay :: Int32}
 
 -- |
 -- Day of week.
-data family DayOfWeek (calendar :: Calendar) :: *
+data family DayOfWeek (cal :: Calendar) :: *
 
 -- |
 -- Hour.
@@ -163,12 +163,12 @@ newtype Picos = Picos {getPicos :: Int64}
 
 -- |
 -- A struct with date components.
-data DateStruct (calendar :: Calendar) =
+data DateStruct (cal :: Calendar) =
      DateStruct
        { _d_year :: {-# UNPACK #-} !Year
-       , _d_mon  ::                !(Month calendar)
+       , _d_mon  ::                !(Month     cal)
        , _d_mday :: {-# UNPACK #-} !Day
-       , _d_wday ::                !(DayOfWeek calendar)
+       , _d_wday ::                !(DayOfWeek cal)
        } deriving Generic
 
 -- |
@@ -182,12 +182,12 @@ data TimeStruct =
 
 -- |
 -- A struct with date and time components.
-data DateTimeStruct (calendar :: Calendar) =
+data DateTimeStruct (cal :: Calendar) =
      DateTimeStruct
        { _dt_year :: {-# UNPACK #-} !Year
-       , _dt_mon  ::                !(Month calendar)
+       , _dt_mon  ::                !(Month     cal)
        , _dt_mday :: {-# UNPACK #-} !Day
-       , _dt_wday ::                !(DayOfWeek calendar)
+       , _dt_wday ::                !(DayOfWeek cal)
        , _dt_hour :: {-# UNPACK #-} !Hour
        , _dt_min  :: {-# UNPACK #-} !Minute
        , _dt_sec  :: {-# UNPACK #-} !Double
@@ -195,12 +195,12 @@ data DateTimeStruct (calendar :: Calendar) =
 
 -- |
 -- A struct with date and location components.
-data LocalDateStruct (calendar :: Calendar) =
+data LocalDateStruct (cal :: Calendar) =
      LocalDateStruct
        { _ld_year :: {-# UNPACK #-} !Year
-       , _ld_mon  ::                !(Month calendar)
+       , _ld_mon  ::                !(Month     cal)
        , _ld_mday :: {-# UNPACK #-} !Day
-       , _ld_wday ::                !(DayOfWeek calendar)
+       , _ld_wday ::                !(DayOfWeek cal)
        , _ld_zone ::                !TimeZone
        } deriving Generic
 
@@ -216,12 +216,12 @@ data LocalTimeStruct =
 
 -- |
 -- A struct with date, time and location components.
-data LocalDateTimeStruct (calendar :: Calendar) =
+data LocalDateTimeStruct (cal :: Calendar) =
      LocalDateTimeStruct
        { _ldt_year :: {-# UNPACK #-} !Year
-       , _ldt_mon  ::                !(Month calendar)
+       , _ldt_mon  ::                !(Month     cal)
        , _ldt_mday :: {-# UNPACK #-} !Day
-       , _ldt_wday ::                !(DayOfWeek calendar)
+       , _ldt_wday ::                !(DayOfWeek cal)
        , _ldt_hour :: {-# UNPACK #-} !Hour
        , _ldt_min  :: {-# UNPACK #-} !Minute
        , _ldt_sec  :: {-# UNPACK #-} !Double
