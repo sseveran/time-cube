@@ -166,7 +166,7 @@ newtype Picos = Picos {getPicos :: Int64}
 data DateStruct (cal :: Calendar) =
      DateStruct
        { _d_year :: {-# UNPACK #-} !Year
-       , _d_mon  ::                !(Month     cal)
+       , _d_mon  ::                !(Month cal)
        , _d_mday :: {-# UNPACK #-} !Day
        , _d_wday ::                !(DayOfWeek cal)
        } deriving Generic
@@ -185,7 +185,7 @@ data TimeStruct =
 data DateTimeStruct (cal :: Calendar) =
      DateTimeStruct
        { _dt_year :: {-# UNPACK #-} !Year
-       , _dt_mon  ::                !(Month     cal)
+       , _dt_mon  ::                !(Month cal)
        , _dt_mday :: {-# UNPACK #-} !Day
        , _dt_wday ::                !(DayOfWeek cal)
        , _dt_hour :: {-# UNPACK #-} !Hour
@@ -198,7 +198,7 @@ data DateTimeStruct (cal :: Calendar) =
 data LocalDateStruct (cal :: Calendar) =
      LocalDateStruct
        { _ld_year :: {-# UNPACK #-} !Year
-       , _ld_mon  ::                !(Month     cal)
+       , _ld_mon  ::                !(Month cal)
        , _ld_mday :: {-# UNPACK #-} !Day
        , _ld_wday ::                !(DayOfWeek cal)
        , _ld_zone ::                !TimeZone
@@ -219,7 +219,7 @@ data LocalTimeStruct =
 data LocalDateTimeStruct (cal :: Calendar) =
      LocalDateTimeStruct
        { _ldt_year :: {-# UNPACK #-} !Year
-       , _ldt_mon  ::                !(Month     cal)
+       , _ldt_mon  ::                !(Month cal)
        , _ldt_mday :: {-# UNPACK #-} !Day
        , _ldt_wday ::                !(DayOfWeek cal)
        , _ldt_hour :: {-# UNPACK #-} !Hour
@@ -228,19 +228,19 @@ data LocalDateTimeStruct (cal :: Calendar) =
        , _ldt_zone ::                !TimeZone
        } deriving Generic
 
-deriving instance (Eq (Month cal), Eq (DayOfWeek cal)) => Eq (DateStruct          cal)
-deriving instance (Eq (Month cal), Eq (DayOfWeek cal)) => Eq (DateTimeStruct      cal)
-deriving instance (Eq (Month cal), Eq (DayOfWeek cal)) => Eq (LocalDateStruct     cal)
+deriving instance (Eq (Month cal), Eq (DayOfWeek cal)) => Eq (DateStruct cal)
+deriving instance (Eq (Month cal), Eq (DayOfWeek cal)) => Eq (DateTimeStruct cal)
+deriving instance (Eq (Month cal), Eq (DayOfWeek cal)) => Eq (LocalDateStruct cal)
 deriving instance (Eq (Month cal), Eq (DayOfWeek cal)) => Eq (LocalDateTimeStruct cal)
 
-deriving instance (Ord (Month cal), Ord (DayOfWeek cal)) => Ord (DateStruct          cal)
-deriving instance (Ord (Month cal), Ord (DayOfWeek cal)) => Ord (DateTimeStruct      cal)
-deriving instance (Ord (Month cal), Ord (DayOfWeek cal)) => Ord (LocalDateStruct     cal)
+deriving instance (Ord (Month cal), Ord (DayOfWeek cal)) => Ord (DateStruct cal)
+deriving instance (Ord (Month cal), Ord (DayOfWeek cal)) => Ord (DateTimeStruct cal)
+deriving instance (Ord (Month cal), Ord (DayOfWeek cal)) => Ord (LocalDateStruct cal)
 deriving instance (Ord (Month cal), Ord (DayOfWeek cal)) => Ord (LocalDateTimeStruct cal)
 
-deriving instance (Show (Month cal), Show (DayOfWeek cal)) => Show (DateStruct          cal)
-deriving instance (Show (Month cal), Show (DayOfWeek cal)) => Show (DateTimeStruct      cal)
-deriving instance (Show (Month cal), Show (DayOfWeek cal)) => Show (LocalDateStruct     cal)
+deriving instance (Show (Month cal), Show (DayOfWeek cal)) => Show (DateStruct cal)
+deriving instance (Show (Month cal), Show (DayOfWeek cal)) => Show (DateTimeStruct cal)
+deriving instance (Show (Month cal), Show (DayOfWeek cal)) => Show (LocalDateStruct cal)
 deriving instance (Show (Month cal), Show (DayOfWeek cal)) => Show (LocalDateTimeStruct cal)
 
 -- |
