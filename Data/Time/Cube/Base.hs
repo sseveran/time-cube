@@ -1,6 +1,7 @@
 {-# LANGUAGE DataKinds                  #-}
 {-# LANGUAGE DeriveGeneric              #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE MultiParamTypeClasses      #-}
 {-# LANGUAGE TypeFamilies               #-}
 {-# OPTIONS -Wall                       #-}
 
@@ -15,8 +16,12 @@
 -- Basic definitions, including data types, data families, and new types.
 module Data.Time.Cube.Base (
 
+ -- ** Classes
+       Human(..)
+     , Math(..)
+
  -- ** Chronologies
-       Calendar(..)
+     , Calendar(..)
      , Era
      , Epoch(..)
 
@@ -45,6 +50,30 @@ import Control.DeepSeq (NFData)
 import Data.Int (Int32, Int64)
 import GHC.Generics (Generic)
 import Text.Printf (PrintfArg)
+
+class Human x where
+
+   -- |
+   -- Define the human-readable components of a timestamp.
+   type Components x :: *
+
+   -- |
+   -- Pack a timestamp from human-readable components.
+   pack :: Components x -> x
+
+   -- |
+   -- Unpack a timestamp into human-readable components.
+   unpack :: x -> Components x
+
+class Math x c where
+
+   -- |
+   -- Compute the duration between two timestamps.
+   duration :: x -> x -> c
+
+   -- |
+   -- Add time to a timestamp.
+   plus :: x -> c -> x
 
 -- |
 -- System for organizing dates.
