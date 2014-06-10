@@ -44,6 +44,9 @@ module Data.Time.Cube.Base (
      , DateStruct(..)
      , TimeStruct(..)
      , DateTimeStruct(..)
+     , LocalDateStruct(..)
+     , LocalTimeStruct(..)
+     , LocalDateTimeStruct(..)
 
  -- ** Fractions
      , properFracMillis
@@ -159,7 +162,7 @@ newtype Picos = Picos {getPicos :: Int64}
 
 -- |
 -- A struct with date components.
-data DateStruct (cal :: Calendar) (tz :: TimeZone) =
+data DateStruct (cal :: Calendar) =
      DateStruct
        { _d_year :: {-# UNPACK #-} !Year
        , _d_mon  ::                !(Month cal)
@@ -169,7 +172,7 @@ data DateStruct (cal :: Calendar) (tz :: TimeZone) =
 
 -- |
 -- A struct with time components.
-data TimeStruct (tz :: TimeZone) =
+data TimeStruct =
      TimeStruct
        { _t_hour :: {-# UNPACK #-} !Hour
        , _t_min  :: {-# UNPACK #-} !Minute
@@ -178,7 +181,7 @@ data TimeStruct (tz :: TimeZone) =
 
 -- |
 -- A struct with date and time components.
-data DateTimeStruct (cal :: Calendar) (tz :: TimeZone) =
+data DateTimeStruct (cal :: Calendar) =
      DateTimeStruct
        { _dt_year :: {-# UNPACK #-} !Year
        , _dt_mon  ::                !(Month cal)
@@ -189,14 +192,55 @@ data DateTimeStruct (cal :: Calendar) (tz :: TimeZone) =
        , _dt_sec  :: {-# UNPACK #-} !Double
        } deriving Generic
 
-deriving instance (Eq (Month cal), Eq (DayOfWeek cal)) => Eq (DateStruct cal tz)
-deriving instance (Eq (Month cal), Eq (DayOfWeek cal)) => Eq (DateTimeStruct cal tz)
+-- |
+-- A struct with date and location components.
+data LocalDateStruct (cal :: Calendar) =
+     LocalDateStruct
+       { _ld_year :: {-# UNPACK #-} !Year
+       , _ld_mon  ::                !(Month cal)
+       , _ld_mday :: {-# UNPACK #-} !Day
+       , _ld_wday ::                !(DayOfWeek cal)
+       , _ld_zone ::                !TimeZone
+       } deriving Generic
 
-deriving instance (Ord (Month cal), Ord (DayOfWeek cal)) => Ord (DateStruct cal tz)
-deriving instance (Ord (Month cal), Ord (DayOfWeek cal)) => Ord (DateTimeStruct cal tz)
+-- |
+-- A struct with time and location components.
+data LocalTimeStruct =
+     LocalTimeStruct
+       { _lt_hour :: {-# UNPACK #-} !Hour
+       , _lt_min  :: {-# UNPACK #-} !Minute
+       , _lt_sec  :: {-# UNPACK #-} !Double
+       , _lt_zone ::                !TimeZone
+       } deriving (Eq, Generic, Ord, Show)
 
-deriving instance (Show (Month cal), Show (DayOfWeek cal)) => Show (DateStruct cal tz)
-deriving instance (Show (Month cal), Show (DayOfWeek cal)) => Show (DateTimeStruct cal tz)
+-- |
+-- A struct with date, time and location components.
+data LocalDateTimeStruct (cal :: Calendar) =
+     LocalDateTimeStruct
+       { _ldt_year :: {-# UNPACK #-} !Year
+       , _ldt_mon  ::                !(Month cal)
+       , _ldt_mday :: {-# UNPACK #-} !Day
+       , _ldt_wday ::                !(DayOfWeek cal)
+       , _ldt_hour :: {-# UNPACK #-} !Hour
+       , _ldt_min  :: {-# UNPACK #-} !Minute
+       , _ldt_sec  :: {-# UNPACK #-} !Double
+       , _ldt_zone ::                !TimeZone
+       } deriving Generic
+
+deriving instance (Eq (Month cal), Eq (DayOfWeek cal)) => Eq (DateStruct cal)
+deriving instance (Eq (Month cal), Eq (DayOfWeek cal)) => Eq (DateTimeStruct cal)
+deriving instance (Eq (Month cal), Eq (DayOfWeek cal)) => Eq (LocalDateStruct cal)
+deriving instance (Eq (Month cal), Eq (DayOfWeek cal)) => Eq (LocalDateTimeStruct cal)
+
+deriving instance (Ord (Month cal), Ord (DayOfWeek cal)) => Ord (DateStruct cal)
+deriving instance (Ord (Month cal), Ord (DayOfWeek cal)) => Ord (DateTimeStruct cal)
+deriving instance (Ord (Month cal), Ord (DayOfWeek cal)) => Ord (LocalDateStruct cal)
+deriving instance (Ord (Month cal), Ord (DayOfWeek cal)) => Ord (LocalDateTimeStruct cal)
+
+deriving instance (Show (Month cal), Show (DayOfWeek cal)) => Show (DateStruct cal)
+deriving instance (Show (Month cal), Show (DayOfWeek cal)) => Show (DateTimeStruct cal)
+deriving instance (Show (Month cal), Show (DayOfWeek cal)) => Show (LocalDateStruct cal)
+deriving instance (Show (Month cal), Show (DayOfWeek cal)) => Show (LocalDateTimeStruct cal)
 
 -- |
 -- Decompose a floating point number into second and millisecond components.
