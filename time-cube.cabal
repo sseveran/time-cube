@@ -16,7 +16,7 @@ Description:        Haskell timestamps in various bit length and granularity.
 Library
   Default-Language: Haskell2010
   Exposed-Modules:  Data.Time.Cube.Base
-                    Data.Time.Cube.C
+                    Data.Time.Cube.Bindings
                     Data.Time.Cube.Unix.Date
                     Data.Time.Cube.Unix.Date.Gregorian
                     Data.Time.Cube.Zone
