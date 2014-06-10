@@ -5,28 +5,34 @@
 {-# OPTIONS -Wall                       #-}
 
 -- |
--- Module      : Data.Time.Cube.Unix.Date
+-- Module      : Data.Time.Cube.Unix
 -- Copyright   : Copyright (c) 2014, Alpha Heavy Industries, Inc.
 -- License     : BSD3
 -- Maintainer  : Enzo Haussecker <enzo@ucsd.edu>
 -- Stability   : Stable
 -- Portability : Portable
 --
--- The Unix date.
-module Data.Time.Cube.Unix.Date (
+-- Unix timestamps.
+module Data.Time.Cube.Unix (
 
- -- ** Type
+ -- ** Types
        UnixDate(..)
+     , UnixTime(..)
 
      ) where
 
 import Control.DeepSeq (NFData)
-import Data.Int (Int32)
+import Data.Int (Int32, Int64)
 import Data.Time.Cube.Base (Calendar)
 import Foreign.Storable (Storable)
 import GHC.Generics (Generic)
 
 -- |
 -- Days since Unix epoch.
-newtype UnixDate (cal :: Calendar) = UnixDate {getBase :: Int32}
+newtype UnixDate (cal :: Calendar) = UnixDate {getDate :: Int32}
+   deriving (Eq, Generic, NFData, Ord, Storable)
+
+-- |
+-- Seconds since Unix epoch.
+newtype UnixTime (cal :: Calendar) = UnixTime {getTime :: Int64}
    deriving (Eq, Generic, NFData, Ord, Storable)
