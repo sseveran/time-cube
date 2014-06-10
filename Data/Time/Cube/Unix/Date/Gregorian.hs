@@ -3,6 +3,7 @@
 {-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE RecordWildCards       #-}
+{-# LANGUAGE StandaloneDeriving    #-}
 {-# LANGUAGE TypeFamilies          #-}
 {-# OPTIONS -Wall                  #-}
 {-# OPTIONS -fno-warn-orphans      #-}
@@ -33,12 +34,61 @@ module Data.Time.Cube.Unix.Date.Gregorian (
 
      ) where
 
-import Data.Time.Cube.Base (Calendar(Gregorian), Year(..), Day(..))
-import Data.Time.Cube.Calendar.Gregorian (Month(..))
-import Data.Time.Cube.Class (Human(..), Math(..))
-import Data.Time.Cube.Struct (DateStruct(..))
-import Data.Time.Cube.Unix.Date (UnixDate(..), getCurrentUnixDate)
+import Data.Time.Cube.Base
+import Data.Time.Cube.Unix.Date
+import GHC.Generics (Generic)
 import Text.Printf (printf)
+
+data instance Era Gregorian =
+     BeforeChrist
+   | AnnoDomini
+
+data instance Month Gregorian =
+     January
+   | February
+   | March
+   | April
+   | May
+   | June
+   | July
+   | August
+   | September
+   | October
+   | November
+   | December
+
+data instance DayOfWeek Gregorian =
+     Sunday
+   | Monday
+   | Tuesday
+   | Wednesday
+   | Thursday
+   | Friday
+   | Saturday
+
+deriving instance Eq (Era Gregorian)
+deriving instance Eq (Month Gregorian)
+deriving instance Eq (DayOfWeek Gregorian)
+
+deriving instance Enum (Era Gregorian)
+deriving instance Enum (Month Gregorian)
+deriving instance Enum (DayOfWeek Gregorian)
+
+deriving instance Generic (Era Gregorian)
+deriving instance Generic (Month Gregorian)
+deriving instance Generic (DayOfWeek Gregorian)
+
+deriving instance Ord (Era Gregorian)
+deriving instance Ord (Month Gregorian)
+deriving instance Ord (DayOfWeek Gregorian)
+
+deriving instance Read (Era Gregorian)
+deriving instance Read (Month Gregorian)
+deriving instance Read (DayOfWeek Gregorian)
+
+deriving instance Show (Era Gregorian)
+deriving instance Show (Month Gregorian)
+deriving instance Show (DayOfWeek Gregorian)
 
 instance Bounded (UnixDate Gregorian) where
 
