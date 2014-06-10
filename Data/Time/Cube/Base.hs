@@ -228,53 +228,20 @@ data LocalDateTimeStruct (calendar :: Calendar) =
        , _ldt_zone ::                !TimeZone
        } deriving Generic
 
-deriving instance (Eq   (Month               calendar),
-                   Eq   (DayOfWeek           calendar)) =>
-                   Eq   (DateStruct          calendar)
+deriving instance (Eq (Month cal), Eq (DayOfWeek cal)) => Eq (DateStruct          cal)
+deriving instance (Eq (Month cal), Eq (DayOfWeek cal)) => Eq (DateTimeStruct      cal)
+deriving instance (Eq (Month cal), Eq (DayOfWeek cal)) => Eq (LocalDateStruct     cal)
+deriving instance (Eq (Month cal), Eq (DayOfWeek cal)) => Eq (LocalDateTimeStruct cal)
 
-deriving instance (Eq   (Month               calendar),
-                   Eq   (DayOfWeek           calendar)) =>
-                   Eq   (DateTimeStruct      calendar)
+deriving instance (Ord (Month cal), Ord (DayOfWeek cal)) => Ord (DateStruct          cal)
+deriving instance (Ord (Month cal), Ord (DayOfWeek cal)) => Ord (DateTimeStruct      cal)
+deriving instance (Ord (Month cal), Ord (DayOfWeek cal)) => Ord (LocalDateStruct     cal)
+deriving instance (Ord (Month cal), Ord (DayOfWeek cal)) => Ord (LocalDateTimeStruct cal)
 
-deriving instance (Eq   (Month               calendar),
-                   Eq   (DayOfWeek           calendar)) =>
-                   Eq   (LocalDateStruct     calendar)
-
-deriving instance (Eq   (Month               calendar),
-                   Eq   (DayOfWeek           calendar)) =>
-                   Eq   (LocalDateTimeStruct calendar)
-
-deriving instance (Ord  (Month               calendar),
-                   Ord  (DayOfWeek           calendar)) =>
-                   Ord  (DateStruct          calendar)
-
-deriving instance (Ord  (Month               calendar),
-                   Ord  (DayOfWeek           calendar)) =>
-                   Ord  (DateTimeStruct      calendar)
-
-deriving instance (Ord  (Month               calendar),
-                   Ord  (DayOfWeek           calendar)) =>
-                   Ord  (LocalDateStruct     calendar)
-
-deriving instance (Ord  (Month               calendar),
-                   Ord  (DayOfWeek           calendar)) =>
-                   Ord  (LocalDateTimeStruct calendar)
-
-deriving instance (Show (Month               calendar),
-                   Show (DayOfWeek           calendar)) =>
-                   Show (DateStruct          calendar)
-
-deriving instance (Show (Month               calendar),
-                   Show (DayOfWeek           calendar)) =>
-                   Show (DateTimeStruct      calendar)
-
-deriving instance (Show (Month               calendar),
-                   Show (DayOfWeek           calendar)) =>
-                   Show (LocalDateStruct     calendar)
-
-deriving instance (Show (Month               calendar),
-                   Show (DayOfWeek           calendar)) =>
-                   Show (LocalDateTimeStruct calendar)
+deriving instance (Show (Month cal), Show (DayOfWeek cal)) => Show (DateStruct          cal)
+deriving instance (Show (Month cal), Show (DayOfWeek cal)) => Show (DateTimeStruct      cal)
+deriving instance (Show (Month cal), Show (DayOfWeek cal)) => Show (LocalDateStruct     cal)
+deriving instance (Show (Month cal), Show (DayOfWeek cal)) => Show (LocalDateTimeStruct cal)
 
 -- |
 -- Decompose a floating point number into second and millisecond components.
