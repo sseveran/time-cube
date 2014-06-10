@@ -1,5 +1,6 @@
 {-# LANGUAGE BangPatterns          #-}
 {-# LANGUAGE DataKinds             #-}
+{-# LANGUAGE DeriveGeneric         #-}
 {-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE RecordWildCards       #-}
@@ -9,15 +10,15 @@
 {-# OPTIONS -fno-warn-orphans      #-}
 
 -- |
--- Module      : Data.Time.Cube.Unix.Date.Gregorian
+-- Module      : Data.Time.Cube.Unix.Gregorian
 -- Copyright   : Copyright (c) 2014, Alpha Heavy Industries, Inc.
 -- License     : BSD3
 -- Maintainer  : Enzo Haussecker <enzo@ucsd.edu>
 -- Stability   : Stable
 -- Portability : Portable
 --
--- A Gregorian-based implementation of Unix dates.
-module Data.Time.Cube.Unix.Date.Gregorian (
+-- A Gregorian-based implementation of Unix timestamps.
+module Data.Time.Cube.Unix.Gregorian (
 
  -- ** Type
        UnixDate(..)
@@ -35,7 +36,8 @@ module Data.Time.Cube.Unix.Date.Gregorian (
      ) where
 
 import Data.Time.Cube.Base
-import Data.Time.Cube.Unix.Date
+import Data.Time.Cube.Unix
+import Foreign.C.Time (C'timeval(..), getTimeOfDay)
 import GHC.Generics (Generic)
 import Text.Printf (printf)
 
@@ -105,7 +107,7 @@ instance Enum (UnixDate Gregorian) where
     succ = flip plus $ Day 1
     pred = flip plus . Day $ - 1
 
-    fromEnum = fromIntegral . getBase
+    fromEnum = fromIntegral . getDate
     toEnum x = 
       if minBound <= date && date <= maxBound
       then date else error "toEnum{UnixDate Gregorian}: date out of range" where
@@ -124,12 +126,12 @@ instance Human (UnixDate Gregorian) where
     -- |
     -- Decompose a Unix date into Gregorian components.
     unpack UnixDate{..} =
-        go 1970 $ Day getBase where
+        go 1970 $ Day getDate where
         go !year !days =
            if days >= size
            then go (year + 1) (days - size)
            else DateStruct year month mday wday
-           where wday = toEnum $ (fromIntegral getBase + 4) `mod` 7
+           where wday = toEnum $ (fromIntegral getDate + 4) `mod` 7
                  leap = isLeapYear year
                  size = if leap then 366 else 365
                  (,) month mday =
@@ -192,7 +194,7 @@ instance Math (UnixDate Gregorian) Day where
     plus UnixDate{..} Day{..} =
       if minBound <= date && date <= maxBound
       then date else error "plus{UnixDate Gregorian, Day}: date out of range" where
-           date = UnixDate $ getBase + getDay
+           date = UnixDate $ getDate + getDay
 
 instance Show (UnixDate Gregorian) where
     show date = printf "%04d-%02d-%02d" _d_year mon _d_mday where
@@ -201,15 +203,18 @@ instance Show (UnixDate Gregorian) where
 
 -- |
 -- Create a Unix date.
---
--- > >>> createUnixDate 2013 November 03
--- > 2013-11-03
---
 createUnixDate :: Year -> Month Gregorian -> Day -> UnixDate Gregorian
 createUnixDate year month day =
   if minBound <= date && date <= maxBound
   then date else error "createUnixDate: date out of range" where
        date = UnixDate . getDay $ unsafeEpochToDate year month day
+
+-- |
+-- Get the current Unix date from the system clock.
+getCurrentUnixDate :: IO (UnixDate Gregorian)
+getCurrentUnixDate =
+   getTimeOfDay >>= \ (C'timeval base _) ->
+   return $! UnixDate . fromIntegral $ base `div` 86400
 
 -- |
 -- Check if the given year is a leap year.
