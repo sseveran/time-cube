@@ -6,8 +6,8 @@
 
 -- |
 -- Module      : Data.Time.Cube.Base
--- Copyright   : Copyright (c) 2014, Alpha Heavy Industries, Inc. All rights reserved.
--- License     : Apache License, Version 2.0
+-- Copyright   : Copyright (c) 2014, Alpha Heavy Industries, Inc.
+-- License     : BSD3
 -- Maintainer  : Enzo Haussecker <enzo@ucsd.edu>
 -- Stability   : Stable
 -- Portability : Portable
@@ -64,8 +64,7 @@ data family Era (cal :: Calendar) :: *
 -- |
 -- System origin.
 data Epoch =
-     Midnight
-   | UnixEpoch
+     UnixEpoch
    deriving (Eq, Enum, Generic, Ord, Read, Show)
 
 -- |

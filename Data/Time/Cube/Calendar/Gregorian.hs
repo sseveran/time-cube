@@ -8,8 +8,8 @@
 
 -- |
 -- Module      : Data.Time.Cube.Calendar.Gregorian
--- Copyright   : Copyright (c) 2014, Alpha Heavy Industries, Inc. All rights reserved.
--- License     : Apache License, Version 2.0
+-- Copyright   : Copyright (c) 2014, Alpha Heavy Industries, Inc.
+-- License     : BSD3
 -- Maintainer  : Enzo Haussecker <enzo@ucsd.edu>
 -- Stability   : Stable
 -- Portability : Portable
@@ -17,7 +17,7 @@
 -- The Gregorian calendar system.
 module Data.Time.Cube.Calendar.Gregorian (
 
- -- ** Chronology
+ -- ** Chronologies
        Era(..)
 
  -- ** Components
@@ -29,14 +29,10 @@ module Data.Time.Cube.Calendar.Gregorian (
 import Data.Time.Cube.Base (Calendar(Gregorian), Era, Month, DayOfWeek)
 import GHC.Generics (Generic)
 
--- |
--- Eras.
 data instance Era Gregorian =
      BeforeChrist
    | AnnoDomini
 
--- |
--- Months.
 data instance Month Gregorian =
      January
    | February
@@ -51,8 +47,6 @@ data instance Month Gregorian =
    | November
    | December
 
--- |
--- Days of the week.
 data instance DayOfWeek Gregorian =
      Sunday
    | Monday

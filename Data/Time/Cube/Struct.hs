@@ -8,8 +8,8 @@
 
 -- |
 -- Module      : Data.Time.Cube.Struct
--- Copyright   : Copyright (c) 2014, Alpha Heavy Industries, Inc. All rights reserved.
--- License     : Apache License, Version 2.0
+-- Copyright   : Copyright (c) 2014, Alpha Heavy Industries, Inc.
+-- License     : BSD3
 -- Maintainer  : Enzo Haussecker <enzo@ucsd.edu>
 -- Stability   : Stable
 -- Portability : Portable
@@ -69,35 +69,35 @@ data DateTimeStruct (cal :: Calendar) =
 -- A struct with date and location components.
 data LocalDateStruct (cal :: Calendar) =
      LocalDateStruct
-       { _zd_year :: {-# UNPACK #-} !(Year)
-       , _zd_mon  ::                !(Month     (cal :: Calendar))
-       , _zd_mday :: {-# UNPACK #-} !(Day)
-       , _zd_wday ::                !(DayOfWeek (cal :: Calendar))
-       , _zd_zone ::                !(TimeZone)
+       { _ld_year :: {-# UNPACK #-} !(Year)
+       , _ld_mon  ::                !(Month     (cal :: Calendar))
+       , _ld_mday :: {-# UNPACK #-} !(Day)
+       , _ld_wday ::                !(DayOfWeek (cal :: Calendar))
+       , _ld_zone ::                !(TimeZone)
        } deriving (Generic)
 
 -- |
 -- A struct with time and location components.
 data LocalTimeStruct =
      LocalTimeStruct
-       { _zt_hour :: {-# UNPACK #-} !Hour
-       , _zt_min  :: {-# UNPACK #-} !Minute
-       , _zt_sec  :: {-# UNPACK #-} !Double
-       , _zt_zone ::                !TimeZone
+       { _lt_hour :: {-# UNPACK #-} !Hour
+       , _lt_min  :: {-# UNPACK #-} !Minute
+       , _lt_sec  :: {-# UNPACK #-} !Double
+       , _lt_zone ::                !TimeZone
        } deriving (Eq, Generic, Ord, Show)
 
 -- |
 -- A struct with date, time and location components.
 data LocalDateTimeStruct (cal :: Calendar) =
      LocalDateTimeStruct
-       { _zdt_year :: {-# UNPACK #-} !(Year)
-       , _zdt_mon  ::                !(Month     (cal :: Calendar))
-       , _zdt_mday :: {-# UNPACK #-} !(Day)
-       , _zdt_wday ::                !(DayOfWeek (cal :: Calendar))
-       , _zdt_hour :: {-# UNPACK #-} !(Hour)
-       , _zdt_min  :: {-# UNPACK #-} !(Minute)
-       , _zdt_sec  :: {-# UNPACK #-} !(Double)
-       , _zdt_zone ::                !(TimeZone)
+       { _ldt_year :: {-# UNPACK #-} !(Year)
+       , _ldt_mon  ::                !(Month     (cal :: Calendar))
+       , _ldt_mday :: {-# UNPACK #-} !(Day)
+       , _ldt_wday ::                !(DayOfWeek (cal :: Calendar))
+       , _ldt_hour :: {-# UNPACK #-} !(Hour)
+       , _ldt_min  :: {-# UNPACK #-} !(Minute)
+       , _ldt_sec  :: {-# UNPACK #-} !(Double)
+       , _ldt_zone ::                !(TimeZone)
        } deriving (Generic)
 
 deriving instance (Eq   (Month               (cal :: Calendar)),
