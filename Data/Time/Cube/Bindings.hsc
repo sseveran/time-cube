@@ -4,7 +4,7 @@
 {-# OPTIONS -fno-warn-orphans      #-}
 
 -- |
--- Module      : Data.Time.Cube.C
+-- Module      : Data.Time.Cube.Bindings
 -- Copyright   : Copyright (c) 2014, Alpha Heavy Industries, Inc.
 -- License     : BSD3
 -- Maintainer  : Enzo Haussecker <enzo@ucsd.edu>
@@ -12,7 +12,7 @@
 -- Portability : Unix
 --
 -- Bindings to the C time library.
-module Data.Time.Cube.C where
+module Data.Time.Cube.Bindings where
 
 import Data.Time.Cube.Base (Human(..))
 import Foreign.C.String (CString)
