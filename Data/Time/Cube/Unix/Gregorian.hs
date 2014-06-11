@@ -23,6 +23,7 @@ module Data.Time.Cube.Unix.Gregorian (
  -- ** Types
        UnixDate(..)
      , UnixDateTime(..)
+     , UnixDateTimeNanos(..)
 
  -- ** Create
      , createUnixDate
@@ -36,7 +37,7 @@ module Data.Time.Cube.Unix.Gregorian (
 
 import Control.Arrow ((***), second)
 import Data.Time.Cube.Base
-import Data.Time.Cube.Unix (UnixDate(..), UnixDateTime(..))
+import Data.Time.Cube.Unix
 import Foreign.C.Types (CLong(..))
 import Foreign.C.Time (C'timeval(..), getTimeOfDay)
 import GHC.Generics (Generic)
@@ -109,6 +110,16 @@ instance Bounded (UnixDateTime Gregorian) where
     -- |
     -- 11:59:59 PM Friday 31 December 9999.
     maxBound = UnixDateTime 253402300799
+
+instance Bounded (UnixDateTimeNanos Gregorian) where
+
+    -- |
+    -- 12:00:00.000000000 AM Thursday 01 January 1970.
+    minBound = UnixDateTimeNanos 0 0
+
+    -- |
+    -- 11:59:59.999999999 PM Friday 31 December 9999.
+    maxBound = UnixDateTimeNanos 253402300799 999999999
 
 instance Enum (UnixDate Gregorian) where
 
