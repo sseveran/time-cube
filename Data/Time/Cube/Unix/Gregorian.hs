@@ -28,10 +28,12 @@ module Data.Time.Cube.Unix.Gregorian (
  -- ** Create
      , createUnixDate
      , createUnixDateTime
+     , createUnixDateTimeNanos
 
  -- ** Current
      , getCurrentUnixDate
      , getCurrentUnixDateTime
+     , getCurrentUnixDateTimeNanos
 
      ) where
 
@@ -254,6 +256,25 @@ instance Human (UnixDateTime Gregorian) where
             (,) hour mod2  = second fromIntegral   $ divMod mod1 03600
             (,) min  sec   = second realToFrac     $ divMod mod2 00060
 
+instance Human (UnixDateTimeNanos Gregorian) where
+
+    -- |
+    -- Define the Gregorian components of a Unix timestamp with nanosecond granularity.
+    type Components (UnixDateTimeNanos Gregorian) = DateTimeStruct Gregorian
+
+    -- |
+    -- Compose a Unix timestamp with nanosecond granularity from Gregorian components.
+    pack DateTimeStruct{..} =
+      createUnixDateTimeNanos _dt_year _dt_mon _dt_mday _dt_hour _dt_min sec nsec
+      where (,) sec nsec = properFracNanos _dt_sec
+
+    -- |
+    -- Decompose a Unix timestamp with nanosecond granularity into Gregorian components.
+    unpack (UnixDateTimeNanos base nsec) =
+      struct{_dt_sec = sec + realToFrac nsec / 1000000000}
+      where time = UnixDateTime base :: UnixDateTime Gregorian
+            struct@DateTimeStruct{_dt_sec = sec} = unpack time
+
 instance Math (UnixDate Gregorian) Day where
 
     -- |
@@ -354,6 +375,16 @@ createUnixDateTime year mon day hour min sec =
        time = UnixDateTime . getSecond $ unsafeEpochToTime year mon day hour min sec
 
 -- |
+-- Create a Unix timestamp with nanosecond granularity.
+createUnixDateTimeNanos :: Year -> Month Gregorian -> Day -> Hour -> Minute -> Second -> Nanos -> UnixDateTimeNanos Gregorian
+createUnixDateTimeNanos year mon day hour min sec Nanos{..} =
+  if minBound <= time && time <= maxBound
+  then time else error "createUnixDateTimeNanos: out of range" where
+       time = UnixDateTimeNanos (base + over) nsec
+       Second base = unsafeEpochToTime year mon day hour min sec
+       (,) over nsec = fmap fromIntegral $ divMod getNanos 1000000000
+
+-- |
 -- Get the current Unix datestamp from the system clock.
 getCurrentUnixDate :: IO (UnixDate Gregorian)
 getCurrentUnixDate =
@@ -366,6 +397,13 @@ getCurrentUnixDateTime :: IO (UnixDateTime Gregorian)
 getCurrentUnixDateTime =
    getTimeOfDay >>= \ (C'timeval (CLong base) _) ->
    return $! UnixDateTime base
+
+-- |
+-- Get the current Unix timestamp with nanosecond granularity from the system clock.
+getCurrentUnixDateTimeNanos :: IO (UnixDateTimeNanos Gregorian)
+getCurrentUnixDateTimeNanos =
+   getTimeOfDay >>= \ (C'timeval (CLong base) (CLong usec)) ->
+   return $! UnixDateTimeNanos base $ fromIntegral usec * 1000
 
 -- |
 -- Check if the given year is a leap year.
