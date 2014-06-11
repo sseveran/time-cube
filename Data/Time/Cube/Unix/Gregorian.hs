@@ -340,6 +340,19 @@ instance Math (UnixDateTime Gregorian) Second where
       then time else error "plus{UnixDateTime Gregorian, Second}: out of range" where
            time = UnixDateTime $ base + getSecond
 
+instance Math (UnixDateTimeNanos Gregorian) Day where
+
+    -- |
+    -- Compute the day duration between two Unix timestamps with nanosecond granularity.
+    duration (UnixDateTimeNanos old _) (UnixDateTimeNanos new _) = fromIntegral $ (new - old) `div` 86400
+
+    -- |
+    -- Add days to a Unix timestamp with nanosecond granularity.
+    plus (UnixDateTimeNanos base nsec) day =
+      if minBound <= time && time <= maxBound
+      then time else error "plus{UnixDateTimeNanos Gregorian, Day}: out of range" where
+           time = flip UnixDateTimeNanos nsec $ base + fromIntegral day * 86400
+
 instance Show (UnixDate Gregorian) where
     show date = printf "%s %02d %s %4d" wday _d_mday mon _d_year where
          mon  = show _d_mon
