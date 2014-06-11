@@ -351,7 +351,8 @@ instance Math (UnixDateTimeNanos Gregorian) Day where
     plus (UnixDateTimeNanos base nsec) day =
       if minBound <= time && time <= maxBound
       then time else error "plus{UnixDateTimeNanos Gregorian, Day}: out of range" where
-           time = flip UnixDateTimeNanos nsec $ base + fromIntegral day * 86400
+           time = UnixDateTimeNanos (base + over) nsec
+           over = fromIntegral day * 86400
 
 instance Math (UnixDateTimeNanos Gregorian) Hour where
 
@@ -364,7 +365,8 @@ instance Math (UnixDateTimeNanos Gregorian) Hour where
     plus (UnixDateTimeNanos base nsec) Hour{..} =
       if minBound <= time && time <= maxBound
       then time else error "plus{UnixDateTimeNanos Gregorian, Hour}: out of range" where
-           time = flip UnixDateTimeNanos nsec $ base + getHour * 3600
+           time = UnixDateTimeNanos (base + over) nsec
+           over = getHour * 3600
 
 instance Math (UnixDateTimeNanos Gregorian) Minute where
 
@@ -377,7 +379,8 @@ instance Math (UnixDateTimeNanos Gregorian) Minute where
     plus (UnixDateTimeNanos base nsec) Minute{..} =
       if minBound <= time && time <= maxBound
       then time else error "plus{UnixDateTimeNanos Gregorian, Minute}: out of range" where
-           time = flip UnixDateTimeNanos nsec $ base + getMinute * 60
+           time = UnixDateTimeNanos (base + over) nsec
+           over = getMinute * 60
 
 instance Math (UnixDateTimeNanos Gregorian) Second where
 
@@ -390,7 +393,8 @@ instance Math (UnixDateTimeNanos Gregorian) Second where
     plus (UnixDateTimeNanos base nsec) Second{..} =
       if minBound <= time && time <= maxBound
       then time else error "plus{UnixDateTimeNanos Gregorian, Second}: out of range" where
-           time = flip UnixDateTimeNanos nsec $ base + getSecond
+           time = UnixDateTimeNanos (base + over) nsec
+           over = getSecond
 
 instance Math (UnixDateTimeNanos Gregorian) Millis where
 
