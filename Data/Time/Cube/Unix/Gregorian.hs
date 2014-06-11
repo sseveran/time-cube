@@ -348,15 +348,19 @@ instance Show (UnixDate Gregorian) where
 
 instance Show (UnixDateTime Gregorian) where
     show time = printf "%02d:%02d:%02d %s %s %02d %s %4d" hour _dt_min sec ampm wday _dt_mday mon _dt_year where
-         sec  = round _dt_sec :: Second
          mon  = show  _dt_mon
          wday = show  _dt_wday
-         ampm | _dt_hour <= 11 = "AM"
-              | otherwise      = "PM"
-         hour | _dt_hour == 00 = 12
-              | _dt_hour <= 12 = _dt_hour
-              | otherwise      = _dt_hour - 12
-         DateTimeStruct{..}    = unpack time
+         sec  = round _dt_sec :: Second
+         (,) ampm hour = unsafePeriod _dt_hour
+         DateTimeStruct{..} = unpack time
+
+instance Show (UnixDateTimeNanos Gregorian) where
+    show time = printf "%02d:%02d:%02d.%09d %s %s %02d %s %4d" hour _dt_min sec nsec ampm wday _dt_mday mon _dt_year where
+         mon  = show _dt_mon
+         wday = show _dt_wday
+         (,) sec  nsec = properFracNanos _dt_sec
+         (,) ampm hour = unsafePeriod _dt_hour
+         DateTimeStruct{..} = unpack time
 
 -- |
 -- Create a Unix datestamp.
@@ -451,3 +455,13 @@ yearToMonth mon leap =
        January   -> 000; February -> 031; March    -> 059; April    -> 090
        May       -> 120; June     -> 151; July     -> 181; August   -> 212
        September -> 243; October  -> 273; November -> 304; December -> 334
+
+-- |
+-- Show the 12-hour pariod (ante or post meridiem) of the
+-- given 24-hour hour without performing any bounds check.
+unsafePeriod :: Hour -> (String, Hour)
+unsafePeriod hour
+  | hour == 00 = ("AM", 12)
+  | hour <= 11 = ("AM", hour)
+  | hour == 12 = ("PM", hour)
+  | otherwise  = ("PM", hour - 12)
