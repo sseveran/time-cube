@@ -38,6 +38,7 @@ module Data.Time.Cube.Unix.Gregorian (
      ) where
 
 import Control.Arrow ((***), second)
+import Data.Int (Int64)
 import Data.Time.Cube.Base
 import Data.Time.Cube.Unix
 import Foreign.C.Types (CLong(..))
@@ -411,6 +412,33 @@ instance Math (UnixDateTimeNanos Gregorian) Millis where
       then time else error "plus{UnixDateTimeNanos Gregorian, Millis}: out of range" where
            time = UnixDateTimeNanos (base + over) (fromIntegral nanos)
            (,) over nanos = (fromIntegral nsec + getMillis * 1000000) `divMod` 1000000000
+
+instance Math (UnixDateTimeNanos Gregorian) Micros where
+
+    -- |
+    -- Compute the microsecond duration between two Unix timestamps with nanosecond granularity.
+    duration old new = toMicros new - toMicros old
+      where toMicros (UnixDateTimeNanos base nsec) =
+              Micros $ base * 1000000 + fromIntegral nsec `div` 1000
+
+    -- |
+    -- Add microseconds to a Unix timestamp with nanosecond granularity.
+    plus (UnixDateTimeNanos base nsec) Micros{..} =
+      if minBound <= time && time <= maxBound
+      then time else error "plus{UnixDateTimeNanos Gregorian, Micros}: out of range" where
+           time = UnixDateTimeNanos (base + over) (fromIntegral nanos)
+           (,) over nanos = (fromIntegral nsec + getMicros * 1000) `divMod` 1000000000
+
+instance Math (UnixDateTimeNanos Gregorian) Nanos where
+
+    -- |
+    -- Compute the nanosecond duration between two Unix timestamps with nanosecond granularity.
+    duration old new =
+      if result < toInteger (maxBound :: Int64) then fromInteger result
+      else error "duration{UnixDateTimeNanos Gregorian, Nanos}: integer overflow" where
+           result = convert new - convert old
+           convert (UnixDateTimeNanos base nsec) =
+             toInteger base * 1000000000 + toInteger nsec
 
 instance Show (UnixDate Gregorian) where
     show date = printf "%s %02d %s %4d" wday _d_mday mon _d_year where
