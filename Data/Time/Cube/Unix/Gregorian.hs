@@ -353,6 +353,61 @@ instance Math (UnixDateTimeNanos Gregorian) Day where
       then time else error "plus{UnixDateTimeNanos Gregorian, Day}: out of range" where
            time = flip UnixDateTimeNanos nsec $ base + fromIntegral day * 86400
 
+instance Math (UnixDateTimeNanos Gregorian) Hour where
+
+    -- |
+    -- Compute the hour duration between two Unix timestamps with nanosecond granularity.
+    duration (UnixDateTimeNanos old _) (UnixDateTimeNanos new _) = Hour (new - old) `div` 3600
+
+    -- |
+    -- Add hours to a Unix timestamp with nanosecond granularity.
+    plus (UnixDateTimeNanos base nsec) Hour{..} =
+      if minBound <= time && time <= maxBound
+      then time else error "plus{UnixDateTimeNanos Gregorian, Hour}: out of range" where
+           time = flip UnixDateTimeNanos nsec $ base + getHour * 3600
+
+instance Math (UnixDateTimeNanos Gregorian) Minute where
+
+    -- |
+    -- Compute the minute duration between two Unix timestamps with nanosecond granularity.
+    duration (UnixDateTimeNanos old _) (UnixDateTimeNanos new _) = Minute (new - old) `div` 60
+
+    -- |
+    -- Add minutes to a Unix timestamp with nanosecond granularity.
+    plus (UnixDateTimeNanos base nsec) Minute{..} =
+      if minBound <= time && time <= maxBound
+      then time else error "plus{UnixDateTimeNanos Gregorian, Minute}: out of range" where
+           time = flip UnixDateTimeNanos nsec $ base + getMinute * 60
+
+instance Math (UnixDateTimeNanos Gregorian) Second where
+
+    -- |
+    -- Compute the second duration between two Unix timestamps with nanosecond granularity.
+    duration (UnixDateTimeNanos old _) (UnixDateTimeNanos new _) = Second (new - old)
+
+    -- |
+    -- Add seconds to a Unix timestamp with nanosecond granularity.
+    plus (UnixDateTimeNanos base nsec) Second{..} =
+      if minBound <= time && time <= maxBound
+      then time else error "plus{UnixDateTimeNanos Gregorian, Second}: out of range" where
+           time = flip UnixDateTimeNanos nsec $ base + getSecond
+
+instance Math (UnixDateTimeNanos Gregorian) Millis where
+
+    -- |
+    -- Compute the millisecond duration between two Unix timestamps with nanosecond granularity.
+    duration old new = toMillis new - toMillis old
+      where toMillis (UnixDateTimeNanos base nsec) =
+              Millis $ base * 1000 + fromIntegral nsec `div` 1000000
+
+    -- |
+    -- Add milliseconds to a Unix timestamp with nanosecond granularity.
+    plus (UnixDateTimeNanos base nsec) Millis{..} =
+      if minBound <= time && time <= maxBound
+      then time else error "plus{UnixDateTimeNanos Gregorian, Millis}: out of range" where
+           time = UnixDateTimeNanos (base + over) (fromIntegral nanos)
+           (,) over nanos = (fromIntegral nsec + getMillis * 1000000) `divMod` 1000000000
+
 instance Show (UnixDate Gregorian) where
     show date = printf "%s %02d %s %4d" wday _d_mday mon _d_year where
          mon  = show _d_mon
