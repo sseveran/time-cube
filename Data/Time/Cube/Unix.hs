@@ -17,21 +17,44 @@ module Data.Time.Cube.Unix (
  -- ** Types
        UnixDate(..)
      , UnixDateTime(..)
+     , UnixDateTimeNanos(..)
 
      ) where
 
 import Control.DeepSeq (NFData)
 import Data.Int (Int32, Int64)
 import Data.Time.Cube.Base (Calendar)
-import Foreign.Storable (Storable)
+import Foreign.Ptr (plusPtr)
+import Foreign.Storable (Storable(..))
 import GHC.Generics (Generic)
 
 -- |
 -- Days since Unix epoch.
-newtype UnixDate (cal :: Calendar) = UnixDate {getUnixDate :: Int32}
+newtype UnixDate (cal :: Calendar) = UnixDate Int32
    deriving (Eq, Generic, NFData, Ord, Storable)
 
 -- |
 -- Seconds since Unix epoch.
-newtype UnixDateTime (cal :: Calendar) = UnixDateTime {getUnixDateTime :: Int64}
+newtype UnixDateTime (cal :: Calendar) = UnixDateTime Int64
    deriving (Eq, Generic, NFData, Ord, Storable)
+
+-- |
+-- Nanoseconds since Unix epoch.
+data UnixDateTimeNanos (cal :: Calendar) =
+     UnixDateTimeNanos {-# UNPACK #-} !Int64 {-# UNPACK #-} !Int32
+     deriving (Eq, Generic, Ord)
+
+instance NFData (UnixDateTimeNanos cal)
+
+instance Storable (UnixDateTimeNanos cal) where
+   sizeOf  _ = 12
+   alignment = sizeOf
+   peekElemOff ptr n = do
+       let off = 12 * n
+       base <- peek . plusPtr ptr $ off
+       nano <- peek . plusPtr ptr $ off + 8
+       return $! UnixDateTimeNanos base nano
+   pokeElemOff ptr n (UnixDateTimeNanos base nano) = do
+       let off = 12 * n
+       flip poke base . plusPtr ptr $ off
+       flip poke nano . plusPtr ptr $ off + 8

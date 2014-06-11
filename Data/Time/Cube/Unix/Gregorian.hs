@@ -122,14 +122,14 @@ instance Enum (UnixDate Gregorian) where
 
     -- |
     -- Unenumerate a Unix datestamp.
-    fromEnum = fromIntegral . getUnixDate
+    fromEnum (UnixDate base) = fromIntegral base
 
     -- |
     -- Enumerate a Unix datestamp.
-    toEnum x = 
+    toEnum base = 
       if minBound <= date && date <= maxBound
       then date else error "toEnum{UnixDate Gregorian}: out of range" where
-           date = UnixDate $ fromIntegral x
+           date = UnixDate $ fromIntegral base
 
 instance Enum (UnixDateTime Gregorian) where
 
@@ -143,14 +143,14 @@ instance Enum (UnixDateTime Gregorian) where
 
     -- |
     -- Unenumerate a Unix timestamp.
-    fromEnum = fromIntegral . getUnixDateTime
+    fromEnum (UnixDateTime base) = fromIntegral base
 
     -- |
     -- Enumerate a Unix timestamp.
-    toEnum x = 
+    toEnum base = 
       if minBound <= time && time <= maxBound
       then time else error "toEnum{UnixDateTime Gregorian}: out of range" where
-           time = UnixDateTime $ fromIntegral x
+           time = UnixDateTime $ fromIntegral base
 
 instance Human (UnixDate Gregorian) where
 
@@ -164,13 +164,13 @@ instance Human (UnixDate Gregorian) where
 
     -- |
     -- Decompose a Unix datestamp into Gregorian components.
-    unpack UnixDate{..} =
-       rec 1970 $ Day getUnixDate where
+    unpack (UnixDate base) =
+       rec 1970 $ Day base where
        rec !year !days =
            if days >= size
            then rec (year + 1) (days - size)
            else DateStruct year month mday wday
-           where wday = toEnum $ (fromIntegral getUnixDate + 4) `mod` 7
+           where wday = toEnum $ (fromIntegral base + 4) `mod` 7
                  leap = isLeapYear year
                  size = if leap then 366 else 365
                  (,) month mday =
@@ -230,16 +230,18 @@ instance Human (UnixDateTime Gregorian) where
 
     -- |
     -- Compose a Unix timestamp from Gregorian components.
-    pack DateTimeStruct{..} = createUnixDateTime _dt_year _dt_mon _dt_mday _dt_hour _dt_min sec
-       where sec = round _dt_sec :: Second
+    pack DateTimeStruct{..} =
+      createUnixDateTime _dt_year _dt_mon _dt_mday _dt_hour _dt_min sec
+      where sec = round _dt_sec :: Second
 
     -- |
     -- Decompose a Unix timestamp into Gregorian components.
-    unpack UnixDateTime{..} = DateTimeStruct _d_year _d_mon _d_mday _d_wday hour min sec
-       where DateStruct{..} = unpack (UnixDate date :: UnixDate Gregorian)
-             (date, mod1)   = fromIntegral *** Hour $ divMod getUnixDateTime 86400
-             (hour, mod2)   = second fromIntegral   $ divMod mod1 3600
-             (min , sec )   = second realToFrac     $ divMod mod2 60
+    unpack (UnixDateTime base) = 
+      DateTimeStruct _d_year _d_mon _d_mday _d_wday hour min sec
+      where DateStruct{..} = unpack (UnixDate date :: UnixDate Gregorian)
+            (,) date mod1  = fromIntegral *** Hour $ divMod base 86400
+            (,) hour mod2  = second fromIntegral   $ divMod mod1 03600
+            (,) min  sec   = second realToFrac     $ divMod mod2 00060
 
 instance Math (UnixDate Gregorian) Day where
 
@@ -249,10 +251,10 @@ instance Math (UnixDate Gregorian) Day where
 
     -- |
     -- Add days to a Unix datestamp.
-    plus UnixDate{..} Day{..} =
+    plus (UnixDate base) Day{..} =
       if minBound <= date && date <= maxBound
       then date else error "plus{UnixDate Gregorian, Day}: out of range" where
-           date = UnixDate $ getUnixDate + getDay
+           date = UnixDate $ base + getDay
 
 instance Math (UnixDateTime Gregorian) Day where
 
@@ -262,10 +264,10 @@ instance Math (UnixDateTime Gregorian) Day where
 
     -- |
     -- Add days to a Unix timestamp.
-    plus UnixDateTime{..} day =
+    plus (UnixDateTime base) day =
       if minBound <= time && time <= maxBound
       then time else error "plus{UnixDateTime Gregorian, Day}: out of range" where
-           time = UnixDateTime $ getUnixDateTime + fromIntegral day * 86400
+           time = UnixDateTime $ base + fromIntegral day * 86400
 
 instance Math (UnixDateTime Gregorian) Hour where
 
@@ -275,10 +277,10 @@ instance Math (UnixDateTime Gregorian) Hour where
 
     -- |
     -- Add hours to a Unix timestamp.
-    plus UnixDateTime{..} Hour{..} =
+    plus (UnixDateTime base) Hour{..} =
       if minBound <= time && time <= maxBound
       then time else error "plus{UnixDateTime Gregorian, Hour}: out of range" where
-           time = UnixDateTime $ getUnixDateTime + getHour * 3600
+           time = UnixDateTime $ base + getHour * 3600
 
 instance Math (UnixDateTime Gregorian) Minute where
 
@@ -288,10 +290,10 @@ instance Math (UnixDateTime Gregorian) Minute where
 
     -- |
     -- Add minutes to a Unix timestamp.
-    plus UnixDateTime{..} Minute{..} =
+    plus (UnixDateTime base) Minute{..} =
       if minBound <= time && time <= maxBound
       then time else error "plus{UnixDateTime Gregorian, Minute}: out of range" where
-           time = UnixDateTime $ getUnixDateTime + getMinute * 60
+           time = UnixDateTime $ base + getMinute * 60
 
 instance Math (UnixDateTime Gregorian) Second where
 
@@ -301,10 +303,10 @@ instance Math (UnixDateTime Gregorian) Second where
 
     -- |
     -- Add seconds to a Unix timestamp.
-    plus UnixDateTime{..} Second{..} =
+    plus (UnixDateTime base) Second{..} =
       if minBound <= time && time <= maxBound
       then time else error "plus{UnixDateTime Gregorian, Second}: out of range" where
-           time = UnixDateTime $ getUnixDateTime + getSecond
+           time = UnixDateTime $ base + getSecond
 
 instance Show (UnixDate Gregorian) where
     show date = printf "%s %02d %s %4d" wday _d_mday mon _d_year where
