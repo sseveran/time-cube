@@ -52,9 +52,9 @@ instance Storable (UnixDateTimeNanos cal) where
    peekElemOff ptr n = do
        let off = 12 * n
        base <- peek . plusPtr ptr $ off
-       nano <- peek . plusPtr ptr $ off + 8
-       return $! UnixDateTimeNanos base nano
-   pokeElemOff ptr n (UnixDateTimeNanos base nano) = do
+       nsec <- peek . plusPtr ptr $ off + 8
+       return $! UnixDateTimeNanos base nsec
+   pokeElemOff ptr n (UnixDateTimeNanos base nsec) = do
        let off = 12 * n
        flip poke base . plusPtr ptr $ off
-       flip poke nano . plusPtr ptr $ off + 8
+       flip poke nsec . plusPtr ptr $ off + 8
