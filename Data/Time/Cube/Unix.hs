@@ -11,12 +11,12 @@
 -- Stability   : Stable
 -- Portability : Portable
 --
--- Unix timestamps.
+-- Unix date and timestamps.
 module Data.Time.Cube.Unix (
 
  -- ** Types
        UnixDate(..)
-     , UnixTime(..)
+     , UnixDateTime(..)
 
      ) where
 
@@ -28,10 +28,10 @@ import GHC.Generics (Generic)
 
 -- |
 -- Days since Unix epoch.
-newtype UnixDate (cal :: Calendar) = UnixDate {getDate :: Int32}
+newtype UnixDate (cal :: Calendar) = UnixDate {getUnixDate :: Int32}
    deriving (Eq, Generic, NFData, Ord, Storable)
 
 -- |
 -- Seconds since Unix epoch.
-newtype UnixTime (cal :: Calendar) = UnixTime {getTime :: Int64}
+newtype UnixDateTime (cal :: Calendar) = UnixDateTime {getUnixDateTime :: Int64}
    deriving (Eq, Generic, NFData, Ord, Storable)
