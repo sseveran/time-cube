@@ -436,9 +436,17 @@ instance Math (UnixDateTimeNanos Gregorian) Nanos where
     duration old new =
       if result < toInteger (maxBound :: Int64) then fromInteger result
       else error "duration{UnixDateTimeNanos Gregorian, Nanos}: integer overflow" where
-           result = convert new - convert old
-           convert (UnixDateTimeNanos base nsec) =
+           result = toNanos new - toNanos old
+           toNanos (UnixDateTimeNanos base nsec) =
              toInteger base * 1000000000 + toInteger nsec
+
+    -- |
+    -- Add nanoseconds to a Unix timestamp with nanosecond granularity.
+    plus (UnixDateTimeNanos base nsec) Nanos{..} =
+      if minBound <= time && time <= maxBound
+      then time else error "plus{UnixDateTimeNanos Gregorian, Nanos}: out of range" where
+           time = UnixDateTimeNanos (base + over) (fromIntegral nanos)
+           (,) over nanos = (fromIntegral nsec + getNanos) `divMod` 1000000000
 
 instance Show (UnixDate Gregorian) where
     show date = printf "%s %02d %s %4d" wday _d_mday mon _d_year where
