@@ -93,21 +93,21 @@ deriving instance Show (DayOfWeek Gregorian)
 instance Bounded (UnixDate Gregorian) where
 
     -- |
-    -- 1970-01-01.
+    -- Thursday 01 January 1970.
     minBound = UnixDate 0
 
     -- |
-    -- 9999-12-31.
+    -- Friday 31 December 9999.
     maxBound = UnixDate 2932896
 
 instance Bounded (UnixDateTime Gregorian) where
 
     -- |
-    -- 1970-01-01 00:00:00.
+    -- 12:00:00 AM Thursday 01 January 1970.
     minBound = UnixDateTime 0
 
     -- |
-    -- 9999-12-31 23:59:59.
+    -- 11:59:59 PM Friday 31 December 9999.
     maxBound = UnixDateTime 253402300799
 
 instance Enum (UnixDate Gregorian) where
