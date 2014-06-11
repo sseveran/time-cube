@@ -11,7 +11,7 @@ Homepage:           https://github.com/time-cube/time-cube
 Bug-Reports:        https://github.com/time-cube/time-cube/issues
 Build-Type:         Simple
 Cabal-Version:      >= 1.16.0
-Description:        Haskell timestamps in various bit length and granularity.
+Description:        Type safe timestamps.
 
 Library
   Default-Language: Haskell2010
