@@ -17,6 +17,7 @@ Library
   Default-Language: Haskell2010
   Exposed-Modules:  Data.Time.Cube
                     Data.Time.Cube.Base
+                    Data.Time.Cube.City
                     Data.Time.Cube.Parser
                     Data.Time.Cube.Unix
                     Data.Time.Cube.Unix.Gregorian
