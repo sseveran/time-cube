@@ -8,7 +8,7 @@
 -- Stability   : Stable
 -- Portability : Portable
 --
--- Time zone data types.
+-- Time zone data.
 module Data.Time.Cube.Zone (
 
  -- ** Time Zones
