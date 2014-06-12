@@ -135,11 +135,11 @@ instance Enum (UnixDate Gregorian) where
     pred = flip plus . Day $ - 1
 
     -- |
-    -- Unenumerate a Gregorian datestamp.
+    -- Unenumerate a Unix date.
     fromEnum (UnixDate base) = fromIntegral base
 
     -- |
-    -- Enumerate a Gregorian datestamp.
+    -- Enumerate a Unix date.
     toEnum base = 
       if minBound <= date && date <= maxBound
       then date else error "toEnum{UnixDate Gregorian}: out of range" where
@@ -156,11 +156,11 @@ instance Enum (UnixDateTime Gregorian) where
     pred = flip plus . Second $ - 1
 
     -- |
-    -- Unenumerate a Gregorian timestamp.
+    -- Unenumerate a Unix date and time.
     fromEnum (UnixDateTime base) = fromIntegral base
 
     -- |
-    -- Enumerate a Gregorian timestamp.
+    -- Enumerate a Unix date and time.
     toEnum base = 
       if minBound <= time && time <= maxBound
       then time else error "toEnum{UnixDateTime Gregorian}: out of range" where
@@ -169,15 +169,15 @@ instance Enum (UnixDateTime Gregorian) where
 instance Human (UnixDate Gregorian) where
 
     -- |
-    -- Define the components of a Gregorian datestamp.
+    -- Define the Gregorian components of a Unix date.
     type Components (UnixDate Gregorian) = DateStruct Gregorian
 
     -- |
-    -- Pack a Gregorian datestamp from components.
+    -- Pack a Unix date from Gregorian components.
     pack DateStruct{..} = createUnixDate _d_year _d_mon _d_mday
 
     -- |
-    -- Unpack a Gregorian datestamp into components.
+    -- Unpack a Unix date into Gregorian components.
     unpack (UnixDate base) =
        rec 1970 $ Day base where
        rec !year !days =
@@ -239,17 +239,17 @@ instance Human (UnixDate Gregorian) where
 instance Human (UnixDateTime Gregorian) where
 
     -- |
-    -- Define the components of a Gregorian timestamp.
+    -- Define the Gregorian components of a Unix date and time.
     type Components (UnixDateTime Gregorian) = DateTimeStruct Gregorian
 
     -- |
-    -- Pack a Gregorian timestamp from components.
+    -- Pack a Unix date and time from Gregorian components.
     pack DateTimeStruct{..} =
       createUnixDateTime _dt_year _dt_mon _dt_mday _dt_hour _dt_min sec
       where sec = round _dt_sec :: Second
 
     -- |
-    -- Unpack a Gregorian timestamp into components.
+    -- Unpack a Unix date and time into Gregorian components.
     unpack (UnixDateTime base) = 
       DateTimeStruct _d_year _d_mon _d_mday _d_wday hour min sec
       where DateStruct{..} = unpack (UnixDate date :: UnixDate Gregorian)
@@ -260,17 +260,17 @@ instance Human (UnixDateTime Gregorian) where
 instance Human (UnixDateTimeNanos Gregorian) where
 
     -- |
-    -- Define the components of a Gregorian timestamp with nanosecond granularity.
+    -- Define the Gregorian components of a Unix date and time with nanosecond granularity.
     type Components (UnixDateTimeNanos Gregorian) = DateTimeStruct Gregorian
 
     -- |
-    -- Pack a Gregorian timestamp with nanosecond granularity from components.
+    -- Pack a Unix date and time with nanosecond granularity from Gregorian components.
     pack DateTimeStruct{..} =
       createUnixDateTimeNanos _dt_year _dt_mon _dt_mday _dt_hour _dt_min sec nsec
       where (,) sec nsec = properFracNanos _dt_sec
 
     -- |
-    -- Unpack a Gregorian timestamp with nanosecond granularity into components.
+    -- Unpack a Unix date and time with nanosecond granularity into Gregorian components.
     unpack (UnixDateTimeNanos base nsec) =
       struct{_dt_sec = sec + realToFrac nsec / 1000000000}
       where time = UnixDateTime base :: UnixDateTime Gregorian
@@ -279,11 +279,11 @@ instance Human (UnixDateTimeNanos Gregorian) where
 instance Math (UnixDate Gregorian) Day where
 
     -- |
-    -- Compute the day duration between two Gregorian datestamps.
+    -- Compute the day duration between two Unix datestamps.
     duration (UnixDate old) (UnixDate new) = Day (new - old)
 
     -- |
-    -- Add days to a Gregorian datestamp.
+    -- Add days to a Unix datestamp.
     plus (UnixDate base) Day{..} =
       if minBound <= date && date <= maxBound
       then date else error "plus{UnixDate Gregorian, Day}: out of range" where
@@ -292,11 +292,11 @@ instance Math (UnixDate Gregorian) Day where
 instance Math (UnixDateTime Gregorian) Day where
 
     -- |
-    -- Compute the day duration between two Gregorian timestamps.
+    -- Compute the day duration between two Unix timestamps.
     duration (UnixDateTime old) (UnixDateTime new) = fromIntegral $ (new - old) `div` 86400
 
     -- |
-    -- Add days to a Gregorian timestamp.
+    -- Add days to a Unix timestamp.
     plus (UnixDateTime base) day =
       if minBound <= time && time <= maxBound
       then time else error "plus{UnixDateTime Gregorian, Day}: out of range" where
@@ -305,11 +305,11 @@ instance Math (UnixDateTime Gregorian) Day where
 instance Math (UnixDateTime Gregorian) Hour where
 
     -- |
-    -- Compute the hour duration between two Gregorian timestamps.
+    -- Compute the hour duration between two Unix timestamps.
     duration (UnixDateTime old) (UnixDateTime new) = Hour (new - old) `div` 3600
 
     -- |
-    -- Add hours to a Gregorian timestamp.
+    -- Add hours to a Unix timestamp.
     plus (UnixDateTime base) Hour{..} =
       if minBound <= time && time <= maxBound
       then time else error "plus{UnixDateTime Gregorian, Hour}: out of range" where
@@ -318,11 +318,11 @@ instance Math (UnixDateTime Gregorian) Hour where
 instance Math (UnixDateTime Gregorian) Minute where
 
     -- |
-    -- Compute the minute duration between two Gregorian timestamps.
+    -- Compute the minute duration between two Unix timestamps.
     duration (UnixDateTime old) (UnixDateTime new) = Minute (new - old) `div` 60
 
     -- |
-    -- Add minutes to a Gregorian timestamp.
+    -- Add minutes to a Unix timestamp.
     plus (UnixDateTime base) Minute{..} =
       if minBound <= time && time <= maxBound
       then time else error "plus{UnixDateTime Gregorian, Minute}: out of range" where
@@ -331,11 +331,11 @@ instance Math (UnixDateTime Gregorian) Minute where
 instance Math (UnixDateTime Gregorian) Second where
 
     -- |
-    -- Compute the second duration between two Gregorian timestamps.
+    -- Compute the second duration between two Unix timestamps.
     duration (UnixDateTime old) (UnixDateTime new) = Second (new - old)
 
     -- |
-    -- Add seconds to a Gregorian timestamp.
+    -- Add seconds to a Unix timestamp.
     plus (UnixDateTime base) Second{..} =
       if minBound <= time && time <= maxBound
       then time else error "plus{UnixDateTime Gregorian, Second}: out of range" where
@@ -344,11 +344,11 @@ instance Math (UnixDateTime Gregorian) Second where
 instance Math (UnixDateTimeNanos Gregorian) Day where
 
     -- |
-    -- Compute the day duration between two Gregorian timestamps with nanosecond granularity.
+    -- Compute the day duration between two Unix timestamps with nanosecond granularity.
     duration (UnixDateTimeNanos old _) (UnixDateTimeNanos new _) = fromIntegral $ (new - old) `div` 86400
 
     -- |
-    -- Add days to a Gregorian timestamp with nanosecond granularity.
+    -- Add days to a Unix timestamp with nanosecond granularity.
     plus (UnixDateTimeNanos base nsec) day =
       if minBound <= time && time <= maxBound
       then time else error "plus{UnixDateTimeNanos Gregorian, Day}: out of range" where
@@ -358,11 +358,11 @@ instance Math (UnixDateTimeNanos Gregorian) Day where
 instance Math (UnixDateTimeNanos Gregorian) Hour where
 
     -- |
-    -- Compute the hour duration between two Gregorian timestamps with nanosecond granularity.
+    -- Compute the hour duration between two Unix timestamps with nanosecond granularity.
     duration (UnixDateTimeNanos old _) (UnixDateTimeNanos new _) = Hour (new - old) `div` 3600
 
     -- |
-    -- Add hours to a Gregorian timestamp with nanosecond granularity.
+    -- Add hours to a Unix timestamp with nanosecond granularity.
     plus (UnixDateTimeNanos base nsec) Hour{..} =
       if minBound <= time && time <= maxBound
       then time else error "plus{UnixDateTimeNanos Gregorian, Hour}: out of range" where
@@ -372,11 +372,11 @@ instance Math (UnixDateTimeNanos Gregorian) Hour where
 instance Math (UnixDateTimeNanos Gregorian) Minute where
 
     -- |
-    -- Compute the minute duration between two Gregorian timestamps with nanosecond granularity.
+    -- Compute the minute duration between two Unix timestamps with nanosecond granularity.
     duration (UnixDateTimeNanos old _) (UnixDateTimeNanos new _) = Minute (new - old) `div` 60
 
     -- |
-    -- Add minutes to a Gregorian timestamp with nanosecond granularity.
+    -- Add minutes to a Unix timestamp with nanosecond granularity.
     plus (UnixDateTimeNanos base nsec) Minute{..} =
       if minBound <= time && time <= maxBound
       then time else error "plus{UnixDateTimeNanos Gregorian, Minute}: out of range" where
@@ -386,11 +386,11 @@ instance Math (UnixDateTimeNanos Gregorian) Minute where
 instance Math (UnixDateTimeNanos Gregorian) Second where
 
     -- |
-    -- Compute the second duration between two Gregorian timestamps with nanosecond granularity.
+    -- Compute the second duration between two Unix timestamps with nanosecond granularity.
     duration (UnixDateTimeNanos old _) (UnixDateTimeNanos new _) = Second (new - old)
 
     -- |
-    -- Add seconds to a Gregorian timestamp with nanosecond granularity.
+    -- Add seconds to a Unix timestamp with nanosecond granularity.
     plus (UnixDateTimeNanos base nsec) Second{..} =
       if minBound <= time && time <= maxBound
       then time else error "plus{UnixDateTimeNanos Gregorian, Second}: out of range" where
@@ -400,13 +400,13 @@ instance Math (UnixDateTimeNanos Gregorian) Second where
 instance Math (UnixDateTimeNanos Gregorian) Millis where
 
     -- |
-    -- Compute the millisecond duration between two Gregorian timestamps with nanosecond granularity.
+    -- Compute the millisecond duration between two Unix timestamps with nanosecond granularity.
     duration old new = toMillis new - toMillis old
       where toMillis (UnixDateTimeNanos base nsec) =
               Millis $ base * 1000 + fromIntegral nsec `div` 1000000
 
     -- |
-    -- Add milliseconds to a Gregorian timestamp with nanosecond granularity.
+    -- Add milliseconds to a Unix timestamp with nanosecond granularity.
     plus (UnixDateTimeNanos base nsec) Millis{..} =
       if minBound <= time && time <= maxBound
       then time else error "plus{UnixDateTimeNanos Gregorian, Millis}: out of range" where
@@ -416,13 +416,13 @@ instance Math (UnixDateTimeNanos Gregorian) Millis where
 instance Math (UnixDateTimeNanos Gregorian) Micros where
 
     -- |
-    -- Compute the microsecond duration between two Gregorian timestamps with nanosecond granularity.
+    -- Compute the microsecond duration between two Unix timestamps with nanosecond granularity.
     duration old new = toMicros new - toMicros old
       where toMicros (UnixDateTimeNanos base nsec) =
               Micros $ base * 1000000 + fromIntegral nsec `div` 1000
 
     -- |
-    -- Add microseconds to a Gregorian timestamp with nanosecond granularity.
+    -- Add microseconds to a Unix timestamp with nanosecond granularity.
     plus (UnixDateTimeNanos base nsec) Micros{..} =
       if minBound <= time && time <= maxBound
       then time else error "plus{UnixDateTimeNanos Gregorian, Micros}: out of range" where
@@ -432,7 +432,7 @@ instance Math (UnixDateTimeNanos Gregorian) Micros where
 instance Math (UnixDateTimeNanos Gregorian) Nanos where
 
     -- |
-    -- Compute the nanosecond duration between two Gregorian timestamps with nanosecond granularity.
+    -- Compute the nanosecond duration between two Unix timestamps with nanosecond granularity.
     duration old new =
       if result < toInteger (maxBound :: Int64) then fromInteger result
       else error "duration{UnixDateTimeNanos Gregorian, Nanos}: integer overflow" where
@@ -441,7 +441,7 @@ instance Math (UnixDateTimeNanos Gregorian) Nanos where
              toInteger base * 1000000000 + toInteger nsec
 
     -- |
-    -- Add nanoseconds to a Gregorian timestamp with nanosecond granularity.
+    -- Add nanoseconds to a Unix timestamp with nanosecond granularity.
     plus (UnixDateTimeNanos base nsec) Nanos{..} =
       if minBound <= time && time <= maxBound
       then time else error "plus{UnixDateTimeNanos Gregorian, Nanos}: out of range" where
@@ -471,7 +471,7 @@ instance Show (UnixDateTimeNanos Gregorian) where
          DateTimeStruct{..} = unpack time
 
 -- |
--- Create a Gregorian datestamp.
+-- Create a Unix date.
 createUnixDate :: Year -> Month Gregorian -> Day -> UnixDate Gregorian
 createUnixDate year mon day =
   if minBound <= date && date <= maxBound
@@ -479,7 +479,7 @@ createUnixDate year mon day =
        date = UnixDate . getDay $ unsafeEpochToDate year mon day
 
 -- |
--- Create a Gregorian timestamp.
+-- Create a Unix date and time.
 createUnixDateTime :: Year -> Month Gregorian -> Day -> Hour -> Minute -> Second -> UnixDateTime Gregorian
 createUnixDateTime year mon day hour min sec =
   if minBound <= time && time <= maxBound
@@ -487,7 +487,7 @@ createUnixDateTime year mon day hour min sec =
        time = UnixDateTime . getSecond $ unsafeEpochToTime year mon day hour min sec
 
 -- |
--- Create a Gregorian timestamp with nanosecond granularity.
+-- Create a Unix date and time with nanosecond granularity.
 createUnixDateTimeNanos :: Year -> Month Gregorian -> Day -> Hour -> Minute -> Second -> Nanos -> UnixDateTimeNanos Gregorian
 createUnixDateTimeNanos year mon day hour min sec Nanos{..} =
   if minBound <= time && time <= maxBound
@@ -497,21 +497,21 @@ createUnixDateTimeNanos year mon day hour min sec Nanos{..} =
        (,) over nsec = fmap fromIntegral $ divMod getNanos 1000000000
 
 -- |
--- Get the current Gregorian datestamp from the system clock.
+-- Get the current Unix date from the system clock.
 getCurrentUnixDate :: IO (UnixDate Gregorian)
 getCurrentUnixDate =
    getTimeOfDay >>= \ (C'timeval (CLong base) _) ->
    return $! UnixDate . fromIntegral $ base `div` 86400
 
 -- |
--- Get the current Gregorian timestamp from the system clock.
+-- Get the current Unix date and time from the system clock.
 getCurrentUnixDateTime :: IO (UnixDateTime Gregorian)
 getCurrentUnixDateTime =
    getTimeOfDay >>= \ (C'timeval (CLong base) _) ->
    return $! UnixDateTime base
 
 -- |
--- Get the current Gregorian timestamp with nanosecond granularity from the system clock.
+-- Get the current Unix date and time with nanosecond granularity from the system clock.
 getCurrentUnixDateTimeNanos :: IO (UnixDateTimeNanos Gregorian)
 getCurrentUnixDateTimeNanos =
    getTimeOfDay >>= \ (C'timeval (CLong base) (CLong usec)) ->
