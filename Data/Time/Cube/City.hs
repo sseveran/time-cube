@@ -36,28 +36,28 @@ data City =
    | Denver       -- ^ United States of America
    | Doha         -- ^ State of Qatar
    | Gaborone     -- ^ Republic of Botswana
-   | Hong_Kong    -- ^ People's Republic of China
+   | HongKong     -- ^ People's Republic of China
    | Honolulu     -- ^ United States of America
    | Johannesburg -- ^ Republic of South Africa
    | Kabul        -- ^ Islamic Republic of Afghanistan
    | Karachi      -- ^ Islamic Republic of Pakistan
    | Kinshasa     -- ^ Democratic Republic of the Congo
    | Kolkata      -- ^ Republic of India
-   | Kuwait_City  -- ^ State of Kuwait
+   | KuwaitCity   -- ^ State of Kuwait
    | London       -- ^ United Kingdom of Great Britain and Northern Ireland
-   | Los_Angeles  -- ^ United States of America
+   | LosAngeles   -- ^ United States of America
    | Luanda       -- ^ Republic of Angola
    | Manama       -- ^ Kingdom of Bahrain
    | Minsk        -- ^ Republic of Belarus
    | Mogadishu    -- ^ Federal Republic of Somalia
    | Moscow       -- ^ Russian Federation
-   | New_York     -- ^ United States of America
+   | NewYork      -- ^ United States of America
    | Oslo         -- ^ Kingdom of Norway
    | Ouagadougou  -- ^ Burkina Faso
    | Paris        -- ^ French Republic
    | Pyongyang    -- ^ Democratic People's Republic of Korea
    | Riyadh       -- ^ Kingdom of Saudi Arabia
-   | Sao_Paulo    -- ^ Federative Republic of Brazil
+   | SaoPaulo     -- ^ Federative Republic of Brazil
    | Sarajevo     -- ^ Bosnia and Herzegovina
    | Seoul        -- ^ Republic of Korea
    | Shanghai     -- ^ People's Republic of China
@@ -65,7 +65,7 @@ data City =
    | Sofia        -- ^ Republic of Bulgaria
    | Stockholm    -- ^ Kingdom of Sweden
    | Tehran       -- ^ Islamic Republic of Iran
-   | Tel_Aviv     -- ^ State of Israel
+   | TelAviv      -- ^ State of Israel
    | Tirana       -- ^ Republic of Albania
    | Tokyo        -- ^ Japan
    | Toronto      -- ^ Canada
@@ -96,28 +96,28 @@ cities =
    , Denver
    , Doha
    , Gaborone
-   , Hong_Kong
+   , HongKong
    , Honolulu
    , Johannesburg
    , Kabul
    , Karachi
    , Kinshasa
    , Kolkata
-   , Kuwait_City
+   , KuwaitCity
    , London
-   , Los_Angeles
+   , LosAngeles
    , Luanda
    , Manama
    , Minsk
    , Mogadishu
    , Moscow
-   , New_York
+   , NewYork
    , Oslo
    , Ouagadougou
    , Paris
    , Pyongyang
    , Riyadh
-   , Sao_Paulo
+   , SaoPaulo
    , Sarajevo
    , Seoul
    , Shanghai
@@ -125,7 +125,7 @@ cities =
    , Sofia
    , Stockholm
    , Tehran
-   , Tel_Aviv
+   , TelAviv
    , Tirana
    , Tokyo
    , Toronto
