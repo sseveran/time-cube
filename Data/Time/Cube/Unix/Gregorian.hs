@@ -40,7 +40,9 @@ module Data.Time.Cube.Unix.Gregorian (
 import Control.Arrow ((***))
 import Data.Int (Int64)
 import Data.Time.Cube.Base
+import Data.Time.Cube.Parser (ParserState(..))
 import Data.Time.Cube.Unix
+import Data.Time.Cube.Zone (utc)
 import Foreign.C.Types (CLong(..))
 import Foreign.C.Time (C'timeval(..), getTimeOfDay)
 import GHC.Generics (Generic)
@@ -516,6 +518,11 @@ getCurrentUnixDateTimeNanos :: IO (UnixDateTimeNanos Gregorian)
 getCurrentUnixDateTimeNanos =
    getTimeOfDay >>= \ (C'timeval (CLong base) (CLong usec)) ->
    return $! UnixDateTimeNanos base $ fromIntegral usec * 1000
+
+-- |
+-- Initialize the parser state.
+newState :: ParserState Gregorian
+newState =  ParserState 1970 January 1 Thursday 0 0 0.0 id id utc
 
 -- |
 -- Check if the given year is a leap year.
