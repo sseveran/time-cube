@@ -13,6 +13,7 @@ module Data.Time.Cube.Zone (
 
  -- ** Time Zones
        TimeZone(..)
+     , utc
 
      ) where
 
@@ -75,3 +76,8 @@ data TimeZone =
    | WestAfricaTime
    | YukonStandardTime
    deriving (Eq, Enum, Generic, Ord, Read, Show)
+
+-- |
+-- The UTC time zone.
+utc :: TimeZone
+utc = CoordinatedUniversalTime
