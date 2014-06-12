@@ -163,8 +163,8 @@ unabbreviate (TimeZoneAbbr city abbr) =
         "UTC"  -> Right CoordinatedUniversalTime
         "WAT"  -> Right WestAfricaTime
         "YST"  -> Right YukonStandardTime
-        _      -> Left $ "unabbreviate: unknown time zone abbreviation string"
-        where f = Left $ "unabbreviate: bad reference location"
+        _      -> Left "unabbreviate: unknown time zone abbreviation string"
+        where f = Left "unabbreviate: bad reference location"
 
 -- |
 -- Abbreviate a time zone.
