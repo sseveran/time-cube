@@ -1,4 +1,9 @@
-{-# OPTIONS -Wall #-}
+{-# LANGUAGE DataKinds         #-}
+{-# LANGUAGE FlexibleContexts  #-}
+{-# LANGUAGE KindSignatures    #-}
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TemplateHaskell   #-}
+{-# OPTIONS -Wall              #-}
 
 -- |
 -- Module      : Data.Time.Cube.Parser
@@ -7,10 +12,22 @@
 -- Stability   : Stable
 -- Portability : Portable
 --
--- A generic timestamp parser.
+-- Generic timestamp parsing.
 module Data.Time.Cube.Parser where
 
-import Data.Text (Text)
+import Control.Applicative ((<|>), (<$>), (*>))
+import Control.Arrow ((***))
+import Control.Lens.Setter (ASetter, assign)
+import Control.Lens.TH (makeLenses)
+import Control.Monad ((<=<))
+import Control.Monad.State.Strict (execState, State)
+import Data.Attoparsec.Text as P
+import Data.Char (isAlpha)
+import Data.Text as T (Text, length, pack, unpack)
+import Data.Time.Cube.Base
+import Data.Time.Cube.City
+import Data.Time.Cube.Zone
+import System.Locale (TimeLocale(..))
 
 -- |
 -- The format string is composed of various %-codes, each
@@ -43,3 +60,134 @@ import Data.Text (Text)
 -- [@%Z@] Timezone abbreviation.
 -- [@%z@] Numeric timezone.
 type FormatText = Text
+
+-- |
+-- Generic timestamp parser state.
+data ParserState (cal :: Calendar) = ParserState {
+    _set_year :: Year
+  , _set_mon  :: Month cal
+  , _set_mday :: Day
+  , _set_wday :: DayOfWeek cal
+  , _set_hour :: Hour
+  , _set_min  :: Minute
+  , _set_sec  :: Double
+  , _set_frac :: Double -> Double
+  , _set_ampm :: Hour   -> Hour
+  , _set_zone :: TimeZone
+  }
+
+makeLenses ''ParserState
+
+-- |
+-- and return the raw state 
+
+parse
+  :: Read (DayOfWeek cal)
+  => Read (Month cal)
+  => TimeLocale
+  -> ParserState cal
+  -> City
+  -> FormatText
+  -> Text
+  -> Either String (ParserState cal)
+parse locale state city format text = do
+  flip parseOnly text <=< fmap execute $ parseOnly parser format
+  where parser = many' $ createFormatParser locale city
+        execute setters = flip execState state <$> sequence <$> sequence setters
+
+-- | Create a format text parser.
+createFormatParser
+  :: Read (DayOfWeek cal)
+  => Read (Month cal)
+  => TimeLocale
+  -> City
+  -> Parser (Parser (State (ParserState cal) ()))
+createFormatParser locale city =
+      matchLit "%%"
+  <|> matchSet "%A" set_wday (weekFull locale)
+  <|> matchSet "%a" set_wday (weekAbbr locale)
+  <|> matchSet "%B" set_mon  (monthFull locale)
+  <|> matchSet "%b" set_mon  (monthAbbr locale)
+
+  <|> matchSet "%Z" set_zone (timezone city)
+  <|> matchTxt
+
+
+
+
+
+
+
+-- |
+-- Match a percent literal.
+matchLit
+  :: Text
+  -> Parser (Parser (State (ParserState cal) ()))
+matchLit code =
+  string code *> return (char '%' *> return (return ()))
+
+-- |
+-- Match a percent code and assign the value returned by the parser.
+matchSet
+  :: Read (DayOfWeek cal)
+  => Read (Month cal)
+  => Text
+  -> ASetter (ParserState cal) (ParserState cal) a a
+  -> Parser a
+  -> Parser (Parser (State (ParserState cal) ()))
+matchSet code field parser = 
+  string code *> return (assign field <$> parser)
+
+-- | Match any other character sequence.
+matchTxt
+  :: Parser (Parser (State (ParserState cal) ()))
+matchTxt = takeWhile1 (/='%') >>= return . \ source -> do
+  target <- P.take $ T.length source
+  if source == target then return (return ())
+  else fail "matchTxt: mismatch"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- |
+-- Parse a time zone.
+timezone :: City -> Parser TimeZone
+timezone city =
+  takeWhile1 isAlpha >>=
+  either fail return . unabbreviate . TimeZoneAbbr city . T.unpack
+
+-- |
+-- Parse a month in short text format.
+monthAbbr :: Read (Month cal) => TimeLocale -> Parser (Month cal)
+monthAbbr = fromList . map (\(full, abbr) -> (T.pack abbr, read full)) . months
+
+-- |
+-- Parse a month in long text format.
+monthFull :: Read (Month cal) => TimeLocale -> Parser (Month cal)
+monthFull = fromList . map (\(full, _) -> (T.pack full, read full)) . months
+
+-- |
+-- Parse a day of week in short text format.
+weekAbbr :: Read (DayOfWeek cal) => TimeLocale -> Parser (DayOfWeek cal)
+weekAbbr = fromList . map (\(full, abbr) -> (T.pack abbr, read full)) . wDays
+
+-- |
+-- Parse a day of week in long text format. 
+weekFull :: Read (DayOfWeek cal) => TimeLocale -> Parser (DayOfWeek cal)
+weekFull = fromList . map (\(full, _) -> (T.pack full, read full)) . wDays
+
+-- |
+-- Create a parser from a list of key-value pairs.
+fromList :: [(Text, a)] -> Parser a
+fromList = foldl1 (<|>) . map (uncurry (*>) . (string *** return))
