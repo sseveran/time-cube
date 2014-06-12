@@ -11,7 +11,7 @@
 -- Stability   : Stable
 -- Portability : Portable
 --
--- Unix date and timestamps.
+-- Unix-based date and timestamps.
 module Data.Time.Cube.Unix (
 
  -- ** Types
