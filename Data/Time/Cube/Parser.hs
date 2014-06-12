@@ -23,12 +23,12 @@ import Data.Text (Text)
 -- [@%b@] Abbreviated month name according to the current locale.
 -- [@%D@] Equivalent to %m\/%d\/%y.
 -- [@%d@] Day of the month (01..31).
--- [@%e@] Like %d, the day of the month, but a leading zero is replaced by a space.
+-- [@%e@] Like %d, the day of the month, but a leading zero is replaced with a space.
 -- [@%F@] Equivalent to %Y-%m-%d.
 -- [@%H@] Hour of the day using the 24-hour clock (00..23).
 -- [@%h@] Equivalent to %b.
 -- [@%I@] Hour of the day using the 12-hour clock (01..12).
--- [@%l@] Like %I, the hour of the day using the 12-hour clock, but a leading zero is replaced by a space.
+-- [@%l@] Like %I, the hour of the day using the 12-hour clock, but a leading zero is replaced with a space.
 -- [@%M@] Minute of the hour (00..59).
 -- [@%m@] Month of the year (01..12).
 -- [@%P@] Like %p, the period of the day according to the current locale, but lowercase.
