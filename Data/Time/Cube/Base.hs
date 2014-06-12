@@ -3,6 +3,7 @@
 {-# LANGUAGE FlexibleContexts           #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE MultiParamTypeClasses      #-}
+{-# LANGUAGE RecordWildCards            #-}
 {-# LANGUAGE StandaloneDeriving         #-}
 {-# LANGUAGE TypeFamilies               #-}
 {-# LANGUAGE UndecidableInstances       #-}
@@ -56,7 +57,7 @@ module Data.Time.Cube.Base (
 
      ) where
 
-import Control.DeepSeq (NFData)
+import Control.DeepSeq (NFData(..))
 import Data.Int (Int32, Int64)
 import Data.Time.Cube.Zone (TimeZone)
 import GHC.Generics (Generic)
@@ -241,6 +242,52 @@ deriving instance (Show (Month cal), Show (DayOfWeek cal)) => Show (DateStruct c
 deriving instance (Show (Month cal), Show (DayOfWeek cal)) => Show (DateTimeStruct cal)
 deriving instance (Show (Month cal), Show (DayOfWeek cal)) => Show (LocalDateStruct cal)
 deriving instance (Show (Month cal), Show (DayOfWeek cal)) => Show (LocalDateTimeStruct cal)
+
+instance (NFData (Month cal), NFData (DayOfWeek cal)) => NFData (DateStruct cal) where
+   rnf DateStruct{..} =
+       rnf _d_year `seq`
+       rnf _d_mon  `seq`
+       rnf _d_mday `seq`
+       rnf _d_wday `seq` ()
+
+instance NFData TimeStruct where
+   rnf TimeStruct{..} =
+       rnf _t_hour `seq`
+       rnf _t_min  `seq`
+       rnf _t_sec  `seq` ()
+
+instance (NFData (Month cal), NFData (DayOfWeek cal)) => NFData (DateTimeStruct cal) where
+   rnf DateTimeStruct{..} =
+       rnf _dt_year `seq`
+       rnf _dt_mon  `seq`
+       rnf _dt_mday `seq`
+       rnf _dt_wday `seq`
+       rnf _dt_hour `seq`
+       rnf _dt_min  `seq`
+       rnf _dt_sec  `seq` ()
+
+instance (NFData (Month cal), NFData (DayOfWeek cal)) => NFData (LocalDateStruct cal) where
+   rnf LocalDateStruct{..} =
+       rnf _ld_year `seq`
+       rnf _ld_mon  `seq`
+       rnf _ld_mday `seq`
+       rnf _ld_wday `seq` ()
+
+instance NFData LocalTimeStruct where
+   rnf LocalTimeStruct{..} =
+       rnf _lt_hour `seq`
+       rnf _lt_min  `seq`
+       rnf _lt_sec  `seq` ()
+
+instance (NFData (Month cal), NFData (DayOfWeek cal)) => NFData (LocalDateTimeStruct cal) where
+   rnf LocalDateTimeStruct{..} =
+       rnf _ldt_year `seq`
+       rnf _ldt_mon  `seq`
+       rnf _ldt_mday `seq`
+       rnf _ldt_wday `seq`
+       rnf _ldt_hour `seq`
+       rnf _ldt_min  `seq`
+       rnf _ldt_sec  `seq` ()
 
 -- |
 -- Decompose a floating point number into second and millisecond components.

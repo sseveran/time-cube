@@ -21,7 +21,7 @@ module Data.Time.Cube.Unix (
 
      ) where
 
-import Control.DeepSeq (NFData)
+import Control.DeepSeq (NFData(..))
 import Data.Int (Int32, Int64)
 import Data.Time.Cube.Base (Calendar)
 import Foreign.Ptr (plusPtr)
@@ -44,7 +44,8 @@ data UnixDateTimeNanos (cal :: Calendar) =
      UnixDateTimeNanos {-# UNPACK #-} !Int64 {-# UNPACK #-} !Int32
    deriving (Eq, Generic, Ord)
 
-instance NFData (UnixDateTimeNanos cal)
+instance NFData (UnixDateTimeNanos cal) where
+   rnf (UnixDateTimeNanos base nsec) = rnf base `seq` rnf nsec `seq` ()
 
 instance Storable (UnixDateTimeNanos cal) where
    sizeOf  _ = 12
