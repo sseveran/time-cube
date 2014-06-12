@@ -101,7 +101,7 @@ instance Show TimeZoneAbbr where
    show TimeZoneAbbr{tzAbbr} = tzAbbr
 
 -- |
--- Unabbreviate a time zone.
+-- Unabbreviate a time zone. An error string is returned for unmatched abbreviations.
 unabbreviate :: TimeZoneAbbr -> Either String TimeZone
 unabbreviate (TimeZoneAbbr city abbr) = 
    case abbr of
