@@ -37,7 +37,7 @@ module Data.Time.Cube.Unix.Gregorian (
 
      ) where
 
-import Control.Arrow ((***), second)
+import Control.Arrow ((***))
 import Data.Int (Int64)
 import Data.Time.Cube.Base
 import Data.Time.Cube.Unix
@@ -254,8 +254,8 @@ instance Human (UnixDateTime Gregorian) where
       DateTimeStruct _d_year _d_mon _d_mday _d_wday hour min sec
       where DateStruct{..} = unpack (UnixDate date :: UnixDate Gregorian)
             (,) date mod1  = fromIntegral *** Hour $ divMod base 86400
-            (,) hour mod2  = second fromIntegral   $ divMod mod1 03600
-            (,) min  sec   = second realToFrac     $ divMod mod2 00060
+            (,) hour mod2  = fmap fromIntegral     $ divMod mod1 03600
+            (,) min  sec   = fmap realToFrac       $ divMod mod2 00060
 
 instance Human (UnixDateTimeNanos Gregorian) where
 
