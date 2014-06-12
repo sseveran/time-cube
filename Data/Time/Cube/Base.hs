@@ -93,7 +93,6 @@ data Calendar =
    | Gregorian
    | Hebrew
    | Islamic
-   | ISO8601
    | Japanese
    | Julian
    deriving (Eq, Enum, Generic, Ord, Read, Show)
