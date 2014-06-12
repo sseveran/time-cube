@@ -34,15 +34,15 @@ newtype UnixDate (cal :: Calendar) = UnixDate Int32
    deriving (Eq, Generic, NFData, Ord, Storable)
 
 -- |
--- Seconds since Unix epoch.
+-- Seconds since Unix epoch (excluding leap seconds).
 newtype UnixDateTime (cal :: Calendar) = UnixDateTime Int64
    deriving (Eq, Generic, NFData, Ord, Storable)
 
 -- |
--- Nanoseconds since Unix epoch.
+-- Nanoseconds since Unix epoch (excluding leap seconds).
 data UnixDateTimeNanos (cal :: Calendar) =
      UnixDateTimeNanos {-# UNPACK #-} !Int64 {-# UNPACK #-} !Int32
-     deriving (Eq, Generic, Ord)
+   deriving (Eq, Generic, Ord)
 
 instance NFData (UnixDateTimeNanos cal)
 
