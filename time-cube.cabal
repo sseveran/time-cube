@@ -18,14 +18,19 @@ Library
   Exposed-Modules:  Data.Time.Cube
                     Data.Time.Cube.Base
                     Data.Time.Cube.City
+                    Data.Time.Cube.Lens
                     Data.Time.Cube.Parser
                     Data.Time.Cube.Unix
                     Data.Time.Cube.Unix.Gregorian
                     Data.Time.Cube.Zone
                     Foreign.C.Time
-  Build-Depends:    base >= 4 && < 5,
+  Build-Depends:    attoparsec,
+                    base >= 4 && < 5,
                     bindings-DSL >= 1.0.11 && < 1.1,
+                    containers,
                     deepseq == 1.3.*,
                     lens == 4.*,
+                    mtl,
+                    old-locale,
                     text >= 1.0 && < 1.2
   Build-tools:      hsc2hs
