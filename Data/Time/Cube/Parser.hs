@@ -165,7 +165,7 @@ matchTxt = takeWhile1 (/='%') >>= return . \ source -> do
 timezone :: City -> Parser TimeZone
 timezone city =
   takeWhile1 isAlpha >>=
-  either fail return . unabbreviate . TimeZoneAbbr city . T.unpack
+  either fail return . unabbreviate . TimeZoneAbbr city
 
 -- |
 -- Parse a month in short text format.
