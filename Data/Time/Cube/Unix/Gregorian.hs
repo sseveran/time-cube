@@ -52,6 +52,7 @@ data instance Era Gregorian =
      BeforeChrist
    | AnnoDomini
 
+deriving instance Bounded (Era Gregorian)
 deriving instance Eq (Era Gregorian)
 deriving instance Enum (Era Gregorian)
 deriving instance Generic (Era Gregorian)
@@ -73,12 +74,39 @@ data instance Month Gregorian =
    | November
    | December
 
+deriving instance Bounded (Month Gregorian)
 deriving instance Eq (Month Gregorian)
-deriving instance Enum (Month Gregorian)
 deriving instance Generic (Month Gregorian)
 deriving instance Ord (Month Gregorian)
 deriving instance Read (Month Gregorian)
 deriving instance Show (Month Gregorian)
+
+instance Enum (Month Gregorian) where
+   fromEnum January   = 01
+   fromEnum February  = 02
+   fromEnum March     = 03
+   fromEnum April     = 04
+   fromEnum May       = 05
+   fromEnum June      = 06
+   fromEnum July      = 07
+   fromEnum August    = 08
+   fromEnum September = 09
+   fromEnum October   = 10
+   fromEnum November  = 11
+   fromEnum December  = 12
+   toEnum 01 = January
+   toEnum 02 = February
+   toEnum 03 = March
+   toEnum 04 = April
+   toEnum 05 = May
+   toEnum 06 = June
+   toEnum 07 = July
+   toEnum 08 = August
+   toEnum 09 = September
+   toEnum 10 = October
+   toEnum 11 = November
+   toEnum 12 = December
+   toEnum __ = error "toEnum{Month Gregorian}: out of range"
 
 data instance DayOfWeek Gregorian =
      Sunday
@@ -89,6 +117,7 @@ data instance DayOfWeek Gregorian =
    | Friday
    | Saturday
 
+deriving instance Bounded (DayOfWeek Gregorian)
 deriving instance Eq (DayOfWeek Gregorian)
 deriving instance Enum (DayOfWeek Gregorian)
 deriving instance Generic (DayOfWeek Gregorian)
