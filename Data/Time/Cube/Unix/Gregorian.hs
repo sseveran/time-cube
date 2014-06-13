@@ -35,17 +35,25 @@ module Data.Time.Cube.Unix.Gregorian (
      , getCurrentUnixDateTime
      , getCurrentUnixDateTimeNanos
 
+ -- ** Parse
+     , parseUnixDate
+     , parseUnixDateTime
+     , parseUnixDateTimeNanos
+
      ) where
 
 import Control.Arrow ((***))
 import Data.Int (Int64)
+import Data.Text (Text)
 import Data.Time.Cube.Base
-import Data.Time.Cube.Parser (ParserState(..))
+import Data.Time.Cube.City
+import Data.Time.Cube.Parser
 import Data.Time.Cube.Unix
-import Data.Time.Cube.Zone (utc)
+import Data.Time.Cube.Zone (TimeZone(OffsetTime))
 import Foreign.C.Types (CLong(..))
 import Foreign.C.Time (C'timeval(..), getTimeOfDay)
 import GHC.Generics (Generic)
+import System.Locale (defaultTimeLocale)
 import Text.Printf (printf)
 
 data instance Era Gregorian =
@@ -550,8 +558,30 @@ getCurrentUnixDateTimeNanos =
 
 -- |
 -- Initialize the parser state.
-newState :: ParserState Gregorian
-newState =  ParserState 1970 January 1 Thursday 0 0 0.0 id id utc
+state :: ParserState Gregorian
+state =  ParserState 1970 January 1 Thursday 0 0 0.0 id id $ OffsetTime 0
+
+-- |
+-- Parse a Unix date.
+parseUnixDate :: FormatText -> Text -> Either String (UnixDate Gregorian)
+parseUnixDate format = fmap from . parse defaultTimeLocale state Universal format
+   where from ParserState{..} = createUnixDate _set_year _set_mon _set_mday
+
+-- |
+-- Parse a Unix date and time.
+parseUnixDateTime :: FormatText -> Text -> Either String (UnixDateTime Gregorian)
+parseUnixDateTime format = fmap from . parse defaultTimeLocale state Universal format
+   where from ParserState{..} = createUnixDateTime _set_year _set_mon _set_mday hour _set_min sec
+              where hour = _set_ampm _set_hour
+                    sec  = truncate _set_sec
+
+-- |
+-- Parse a Unix date and time with nanosecond granularity.
+parseUnixDateTimeNanos :: FormatText -> Text -> Either String (UnixDateTimeNanos Gregorian)
+parseUnixDateTimeNanos format = fmap from . parse defaultTimeLocale state Universal format
+   where from ParserState{..} = createUnixDateTimeNanos _set_year _set_mon _set_mday hour _set_min sec nsec
+              where hour = _set_ampm _set_hour
+                    (,) sec nsec = properFracNanos $ _set_frac _set_sec
 
 -- |
 -- Check if the given year is a leap year.
