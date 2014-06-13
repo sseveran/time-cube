@@ -29,7 +29,7 @@ module Data.Time.Cube.Zone (
 import Control.Applicative ((<|>), (*>))
 import Control.Arrow ((***))
 import Control.Monad (replicateM)
-import Data.Attoparsec.Text
+import Data.Attoparsec.Text (Parser, char, digit, parseOnly)
 import Data.Int (Int64)
 import Data.Text (Text, pack, unpack)
 import Data.Time.Cube.City (City(..))
