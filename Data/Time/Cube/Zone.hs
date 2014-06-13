@@ -24,6 +24,9 @@ module Data.Time.Cube.Zone (
      , abbreviate
      , unabbreviate
 
+ -- ** Utilities
+     , parseOffset
+
      ) where
 
 import Control.Applicative ((<|>), (*>))
