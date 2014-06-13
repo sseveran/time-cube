@@ -1,12 +1,13 @@
-{-# LANGUAGE DataKinds           #-}
-{-# LANGUAGE FlexibleContexts    #-}
-{-# LANGUAGE KindSignatures      #-}
-{-# LANGUAGE LambdaCase          #-}
-{-# LANGUAGE OverloadedStrings   #-}
-{-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE Rank2Types          #-}
-{-# LANGUAGE TemplateHaskell     #-}
-{-# OPTIONS -Wall                #-}
+{-# LANGUAGE DataKinds               #-}
+{-# LANGUAGE FlexibleContexts        #-}
+{-# LANGUAGE KindSignatures          #-}
+{-# LANGUAGE LambdaCase              #-}
+{-# LANGUAGE OverloadedStrings       #-}
+{-# LANGUAGE ScopedTypeVariables     #-}
+{-# LANGUAGE Rank2Types              #-}
+{-# LANGUAGE TemplateHaskell         #-}
+{-# OPTIONS -Wall                    #-}
+{-# OPTIONS -fno-warn-name-shadowing #-}
 
 -- |
 -- Module      : Data.Time.Cube.Parser
