@@ -8,7 +8,7 @@
 -- Stability   : Stable
 -- Portability : Portable
 --
--- Lens-based interface to date and time data structures.
+-- A lens-based interface to date and time data structures.
 module Data.Time.Cube.Lens (
 
  -- ** Lenses
