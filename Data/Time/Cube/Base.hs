@@ -111,7 +111,7 @@ data Epoch =
 -- |
 -- Year.
 newtype Year = Year {getYear :: Int32}
-   deriving (Bounded, Enum, Eq, Generic, Integral, NFData, Num, Ord, PrintfArg, Real, Show)
+   deriving (Bounded, Enum, Eq, Generic, Integral, NFData, Num, Ord, PrintfArg, Read, Real, Show)
 
 -- |
 -- Month.
@@ -120,7 +120,7 @@ data family Month (cal :: Calendar) :: *
 -- |
 -- Day.
 newtype Day = Day {getDay :: Int32}
-   deriving (Bounded, Enum, Eq, Generic, Integral, NFData, Num, Ord, PrintfArg, Real, Show)
+   deriving (Bounded, Enum, Eq, Generic, Integral, NFData, Num, Ord, PrintfArg, Read, Real, Show)
 
 -- |
 -- Day of week.
@@ -129,37 +129,37 @@ data family DayOfWeek (cal :: Calendar) :: *
 -- |
 -- Hour.
 newtype Hour = Hour {getHour :: Int64}
-   deriving (Bounded, Enum, Eq, Generic, Integral, NFData, Num, Ord, PrintfArg, Real, Show)
+   deriving (Bounded, Enum, Eq, Generic, Integral, NFData, Num, Ord, PrintfArg, Read, Real, Show)
 
 -- |
 -- Minute.
 newtype Minute = Minute {getMinute :: Int64}
-   deriving (Bounded, Enum, Eq, Generic, Integral, NFData, Num, Ord, PrintfArg, Real, Show)
+   deriving (Bounded, Enum, Eq, Generic, Integral, NFData, Num, Ord, PrintfArg, Read, Real, Show)
 
 -- |
 -- Second.
 newtype Second = Second {getSecond :: Int64}
-   deriving (Bounded, Enum, Eq, Generic, Integral, NFData, Num, Ord, PrintfArg, Real, Show)
+   deriving (Bounded, Enum, Eq, Generic, Integral, NFData, Num, Ord, PrintfArg, Read, Real, Show)
 
 -- |
 -- Millisecond.
 newtype Millis = Millis {getMillis :: Int64}
-   deriving (Bounded, Enum, Eq, Generic, Integral, NFData, Num, Ord, PrintfArg, Real, Show)
+   deriving (Bounded, Enum, Eq, Generic, Integral, NFData, Num, Ord, PrintfArg, Read, Real, Show)
 
 -- |
 -- Microsecond.
 newtype Micros = Micros {getMicros :: Int64}
-   deriving (Bounded, Enum, Eq, Generic, Integral, NFData, Num, Ord, PrintfArg, Real, Show)
+   deriving (Bounded, Enum, Eq, Generic, Integral, NFData, Num, Ord, PrintfArg, Read, Real, Show)
 
 -- |
 -- Nanosecond.
 newtype Nanos = Nanos {getNanos :: Int64}
-   deriving (Bounded, Enum, Eq, Generic, Integral, NFData, Num, Ord, PrintfArg, Real, Show)
+   deriving (Bounded, Enum, Eq, Generic, Integral, NFData, Num, Ord, PrintfArg, Read, Real, Show)
 
 -- |
 -- Picosecond.
 newtype Picos = Picos {getPicos :: Int64}
-   deriving (Bounded, Enum, Eq, Generic, Integral, NFData, Num, Ord, PrintfArg, Real, Show)
+   deriving (Bounded, Enum, Eq, Generic, Integral, NFData, Num, Ord, PrintfArg, Read, Real, Show)
 
 -- |
 -- A struct with date components.
