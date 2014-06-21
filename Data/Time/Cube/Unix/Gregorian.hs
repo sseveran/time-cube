@@ -17,10 +17,10 @@
 -- Stability   : Stable
 -- Portability : Portable
 --
--- Unix-based Gregorian date and timestamps.
+-- Gregorian instances for Unix timestamps.
 module Data.Time.Cube.Unix.Gregorian (
 
- -- ** Types
+ -- ** Timestamps
        UnixDate(..)
      , UnixDateTime(..)
      , UnixDateTimeNanos(..)
@@ -35,21 +35,29 @@ module Data.Time.Cube.Unix.Gregorian (
      , getCurrentUnixDateTime
      , getCurrentUnixDateTimeNanos
 
- -- ** Parse
+ -- ** Parsing
      , parseUnixDate
      , parseUnixDateTime
      , parseUnixDateTimeNanos
 
+ -- ** Calendar
+     , Era(..)
+     , Month(..)
+     , DayOfWeek(..)
+
      ) where
 
 import Control.Arrow ((***))
+import Control.Lens.Setter (over)
 import Data.Int (Int64)
 import Data.Text (Text)
 import Data.Time.Cube.Base
 import Data.Time.Cube.City
+import Data.Time.Cube.Format
+import Data.Time.Cube.Lens
 import Data.Time.Cube.Parser
 import Data.Time.Cube.Unix
-import Data.Time.Cube.Zone (TimeZone(OffsetTime))
+import Data.Time.Cube.Zone
 import Foreign.C.Types (CLong(..))
 import Foreign.C.Time (C'timeval(..), getTimeOfDay)
 import GHC.Generics (Generic)
@@ -61,12 +69,12 @@ data instance Era Gregorian =
    | AnnoDomini
 
 deriving instance Bounded (Era Gregorian)
-deriving instance Eq (Era Gregorian)
-deriving instance Enum (Era Gregorian)
+deriving instance Eq      (Era Gregorian)
+deriving instance Enum    (Era Gregorian)
 deriving instance Generic (Era Gregorian)
-deriving instance Ord (Era Gregorian)
-deriving instance Read (Era Gregorian)
-deriving instance Show (Era Gregorian)
+deriving instance Ord     (Era Gregorian)
+deriving instance Read    (Era Gregorian)
+deriving instance Show    (Era Gregorian)
 
 data instance Month Gregorian =
      January
@@ -83,11 +91,11 @@ data instance Month Gregorian =
    | December
 
 deriving instance Bounded (Month Gregorian)
-deriving instance Eq (Month Gregorian)
+deriving instance Eq      (Month Gregorian)
 deriving instance Generic (Month Gregorian)
-deriving instance Ord (Month Gregorian)
-deriving instance Read (Month Gregorian)
-deriving instance Show (Month Gregorian)
+deriving instance Ord     (Month Gregorian)
+deriving instance Read    (Month Gregorian)
+deriving instance Show    (Month Gregorian)
 
 instance Enum (Month Gregorian) where
    fromEnum January   = 01
@@ -126,12 +134,12 @@ data instance DayOfWeek Gregorian =
    | Saturday
 
 deriving instance Bounded (DayOfWeek Gregorian)
-deriving instance Eq (DayOfWeek Gregorian)
-deriving instance Enum (DayOfWeek Gregorian)
+deriving instance Eq      (DayOfWeek Gregorian)
+deriving instance Enum    (DayOfWeek Gregorian)
 deriving instance Generic (DayOfWeek Gregorian)
-deriving instance Ord (DayOfWeek Gregorian)
-deriving instance Read (DayOfWeek Gregorian)
-deriving instance Show (DayOfWeek Gregorian)
+deriving instance Ord     (DayOfWeek Gregorian)
+deriving instance Read    (DayOfWeek Gregorian)
+deriving instance Show    (DayOfWeek Gregorian)
 
 instance Bounded (UnixDate Gregorian) where
 
@@ -174,11 +182,11 @@ instance Enum (UnixDate Gregorian) where
     pred = flip plus . Day $ - 1
 
     -- |
-    -- Unenumerate a Unix date.
+    -- Unenumerate a Unix datestamp.
     fromEnum (UnixDate base) = fromIntegral base
 
     -- |
-    -- Enumerate a Unix date.
+    -- Enumerate a Unix datestamp.
     toEnum base = 
       if minBound <= date && date <= maxBound
       then date else error "toEnum{UnixDate Gregorian}: out of range" where
@@ -195,11 +203,11 @@ instance Enum (UnixDateTime Gregorian) where
     pred = flip plus . Second $ - 1
 
     -- |
-    -- Unenumerate a Unix date and time.
+    -- Unenumerate a Unix timestamp.
     fromEnum (UnixDateTime base) = fromIntegral base
 
     -- |
-    -- Enumerate a Unix date and time.
+    -- Enumerate a Unix timestamp.
     toEnum base = 
       if minBound <= time && time <= maxBound
       then time else error "toEnum{UnixDateTime Gregorian}: out of range" where
@@ -208,15 +216,15 @@ instance Enum (UnixDateTime Gregorian) where
 instance Human (UnixDate Gregorian) where
 
     -- |
-    -- Define the Gregorian components of a Unix date.
+    -- Define the Gregorian components of a Unix datestamp.
     type Components (UnixDate Gregorian) = DateStruct Gregorian
 
     -- |
-    -- Pack a Unix date from Gregorian components.
+    -- Pack a Unix datestamp from Gregorian components.
     pack DateStruct{..} = createUnixDate _d_year _d_mon _d_mday
 
     -- |
-    -- Unpack a Unix date into Gregorian components.
+    -- Unpack a Unix datestamp into Gregorian components.
     unpack (UnixDate base) =
        rec 1970 $ Day base where
        rec !year !days =
@@ -278,17 +286,17 @@ instance Human (UnixDate Gregorian) where
 instance Human (UnixDateTime Gregorian) where
 
     -- |
-    -- Define the Gregorian components of a Unix date and time.
+    -- Define the Gregorian components of a Unix timestamp.
     type Components (UnixDateTime Gregorian) = DateTimeStruct Gregorian
 
     -- |
-    -- Pack a Unix date and time from Gregorian components.
+    -- Pack a Unix timestamp from Gregorian components.
     pack DateTimeStruct{..} =
       createUnixDateTime _dt_year _dt_mon _dt_mday _dt_hour _dt_min sec
       where sec = round _dt_sec :: Second
 
     -- |
-    -- Unpack a Unix date and time into Gregorian components.
+    -- Unpack a Unix timestamp into Gregorian components.
     unpack (UnixDateTime base) = 
       DateTimeStruct _d_year _d_mon _d_mday _d_wday hour min sec
       where DateStruct{..} = unpack (UnixDate date :: UnixDate Gregorian)
@@ -299,21 +307,21 @@ instance Human (UnixDateTime Gregorian) where
 instance Human (UnixDateTimeNanos Gregorian) where
 
     -- |
-    -- Define the Gregorian components of a Unix date and time with nanosecond granularity.
+    -- Define the Gregorian components of a Unix timestamp with nanosecond granularity.
     type Components (UnixDateTimeNanos Gregorian) = DateTimeStruct Gregorian
 
     -- |
-    -- Pack a Unix date and time with nanosecond granularity from Gregorian components.
+    -- Pack a Unix timestamp with nanosecond granularity from Gregorian components.
     pack DateTimeStruct{..} =
       createUnixDateTimeNanos _dt_year _dt_mon _dt_mday _dt_hour _dt_min sec nsec
       where (,) sec nsec = properFracNanos _dt_sec
 
     -- |
-    -- Unpack a Unix date and time with nanosecond granularity into Gregorian components.
+    -- Unpack a Unix timestamp with nanosecond granularity into Gregorian components.
     unpack (UnixDateTimeNanos base nsec) =
-      struct{_dt_sec = sec + realToFrac nsec / 1000000000}
+      over dt_sec (+ frac) $ unpack time
       where time = UnixDateTime base :: UnixDateTime Gregorian
-            struct@DateTimeStruct{_dt_sec = sec} = unpack time
+            frac = realToFrac nsec / 1000000000
 
 instance Math (UnixDate Gregorian) Day where
 
@@ -391,8 +399,7 @@ instance Math (UnixDateTimeNanos Gregorian) Day where
     plus (UnixDateTimeNanos base nsec) day =
       if minBound <= time && time <= maxBound
       then time else error "plus{UnixDateTimeNanos Gregorian, Day}: out of range" where
-           time = UnixDateTimeNanos (base + over) nsec
-           over = fromIntegral day * 86400
+           time = UnixDateTimeNanos (base + fromIntegral day * 86400) nsec
 
 instance Math (UnixDateTimeNanos Gregorian) Hour where
 
@@ -405,8 +412,7 @@ instance Math (UnixDateTimeNanos Gregorian) Hour where
     plus (UnixDateTimeNanos base nsec) Hour{..} =
       if minBound <= time && time <= maxBound
       then time else error "plus{UnixDateTimeNanos Gregorian, Hour}: out of range" where
-           time = UnixDateTimeNanos (base + over) nsec
-           over = getHour * 3600
+           time = UnixDateTimeNanos (base + getHour * 3600) nsec
 
 instance Math (UnixDateTimeNanos Gregorian) Minute where
 
@@ -419,8 +425,7 @@ instance Math (UnixDateTimeNanos Gregorian) Minute where
     plus (UnixDateTimeNanos base nsec) Minute{..} =
       if minBound <= time && time <= maxBound
       then time else error "plus{UnixDateTimeNanos Gregorian, Minute}: out of range" where
-           time = UnixDateTimeNanos (base + over) nsec
-           over = getMinute * 60
+           time = UnixDateTimeNanos (base + getMinute * 60) nsec
 
 instance Math (UnixDateTimeNanos Gregorian) Second where
 
@@ -433,8 +438,7 @@ instance Math (UnixDateTimeNanos Gregorian) Second where
     plus (UnixDateTimeNanos base nsec) Second{..} =
       if minBound <= time && time <= maxBound
       then time else error "plus{UnixDateTimeNanos Gregorian, Second}: out of range" where
-           time = UnixDateTimeNanos (base + over) nsec
-           over = getSecond
+           time = UnixDateTimeNanos (base + getSecond) nsec
 
 instance Math (UnixDateTimeNanos Gregorian) Millis where
 
@@ -449,8 +453,8 @@ instance Math (UnixDateTimeNanos Gregorian) Millis where
     plus (UnixDateTimeNanos base nsec) Millis{..} =
       if minBound <= time && time <= maxBound
       then time else error "plus{UnixDateTimeNanos Gregorian, Millis}: out of range" where
-           time = UnixDateTimeNanos (base + over) (fromIntegral nanos)
-           (,) over nanos = (fromIntegral nsec + getMillis * 1000000) `divMod` 1000000000
+           time = UnixDateTimeNanos (base + extra) (fromIntegral nanos)
+           (,) extra nanos = (fromIntegral nsec + getMillis * 1000000) `divMod` 1000000000
 
 instance Math (UnixDateTimeNanos Gregorian) Micros where
 
@@ -465,8 +469,8 @@ instance Math (UnixDateTimeNanos Gregorian) Micros where
     plus (UnixDateTimeNanos base nsec) Micros{..} =
       if minBound <= time && time <= maxBound
       then time else error "plus{UnixDateTimeNanos Gregorian, Micros}: out of range" where
-           time = UnixDateTimeNanos (base + over) (fromIntegral nanos)
-           (,) over nanos = (fromIntegral nsec + getMicros * 1000) `divMod` 1000000000
+           time = UnixDateTimeNanos (base + extra) (fromIntegral nanos)
+           (,) extra nanos = (fromIntegral nsec + getMicros * 1000) `divMod` 1000000000
 
 instance Math (UnixDateTimeNanos Gregorian) Nanos where
 
@@ -484,8 +488,8 @@ instance Math (UnixDateTimeNanos Gregorian) Nanos where
     plus (UnixDateTimeNanos base nsec) Nanos{..} =
       if minBound <= time && time <= maxBound
       then time else error "plus{UnixDateTimeNanos Gregorian, Nanos}: out of range" where
-           time = UnixDateTimeNanos (base + over) (fromIntegral nanos)
-           (,) over nanos = (fromIntegral nsec + getNanos) `divMod` 1000000000
+           time = UnixDateTimeNanos (base + extra) (fromIntegral nanos)
+           (,) extra nanos = (fromIntegral nsec + getNanos) `divMod` 1000000000
 
 instance Show (UnixDate Gregorian) where
     show date = printf "%s %02d %s %4d" wday _d_mday mon _d_year where
@@ -531,9 +535,9 @@ createUnixDateTimeNanos :: Year -> Month Gregorian -> Day -> Hour -> Minute -> S
 createUnixDateTimeNanos year mon day hour min sec Nanos{..} =
   if minBound <= time && time <= maxBound
   then time else error "createUnixDateTimeNanos: out of range" where
-       time = UnixDateTimeNanos (base + over) nsec
+       time = UnixDateTimeNanos (base + extra) nsec
        Second base = unsafeEpochToTime year mon day hour min sec
-       (,) over nsec = fmap fromIntegral $ divMod getNanos 1000000000
+       (,) extra nsec = fmap fromIntegral $ divMod getNanos 1000000000
 
 -- |
 -- Get the current Unix date from the system clock.
@@ -570,16 +574,20 @@ parseUnixDate format = fmap from . parse defaultTimeLocale state Universal forma
 -- |
 -- Parse a Unix date and time.
 parseUnixDateTime :: FormatText -> Text -> Either String (UnixDateTime Gregorian)
-parseUnixDateTime format = fmap from . parse defaultTimeLocale state Universal format
-   where from ParserState{..} = createUnixDateTime _set_year _set_mon _set_mday hour _set_min sec
+parseUnixDateTime format =
+   fmap  from . parse defaultTimeLocale state Universal format
+   where from ParserState{..} =
+              createUnixDateTime _set_year _set_mon _set_mday hour _set_min sec
               where hour = _set_ampm _set_hour
                     sec  = truncate _set_sec
 
 -- |
 -- Parse a Unix date and time with nanosecond granularity.
 parseUnixDateTimeNanos :: FormatText -> Text -> Either String (UnixDateTimeNanos Gregorian)
-parseUnixDateTimeNanos format = fmap from . parse defaultTimeLocale state Universal format
-   where from ParserState{..} = createUnixDateTimeNanos _set_year _set_mon _set_mday hour _set_min sec nsec
+parseUnixDateTimeNanos format =
+   fmap  from . parse defaultTimeLocale state Universal format
+   where from ParserState{..} =
+              createUnixDateTimeNanos _set_year _set_mon _set_mday hour _set_min sec nsec
               where hour = _set_ampm _set_hour
                     (,) sec nsec = properFracNanos $ _set_frac _set_sec
 

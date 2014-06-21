@@ -5,57 +5,58 @@
 {-# OPTIONS -Wall                       #-}
 
 -- |
--- Module      : Data.Time.Cube.Unix
+-- Module      : Data.Time.Cube.UTC
 -- License     : BSD3
 -- Maintainer  : Enzo Haussecker
 -- Stability   : Stable
 -- Portability : Portable
 --
--- Unix timestamps.
-module Data.Time.Cube.Unix (
+-- UTC timestamps.
+module Data.Time.Cube.UTC (
 
  -- ** Timestamps
-       UnixDate(..)
-     , UnixDateTime(..)
-     , UnixDateTimeNanos(..)
+       UTCDate(..)
+     , UTCDateTime(..)
+     , UTCDateTimeNanos(..)
 
      ) where
 
 import Control.DeepSeq (NFData(..))
 import Data.Int (Int32, Int64)
 import Data.Time.Cube.Base (Calendar)
+import Data.Time.Cube.Unix (UnixDate)
 import Foreign.Ptr (plusPtr)
 import Foreign.Storable (Storable(..))
 import GHC.Generics (Generic)
 
 -- |
 -- Days since Unix epoch.
-newtype UnixDate (cal :: Calendar) = UnixDate Int32
+newtype UTCDate (cal :: Calendar) = UTCDate (UnixDate cal)
    deriving (Eq, Generic, NFData, Ord, Storable)
 
 -- |
--- Seconds since Unix epoch (excluding leap seconds).
-newtype UnixDateTime (cal :: Calendar) = UnixDateTime Int64
+-- Seconds since Unix epoch (including leap seconds).
+newtype UTCDateTime (cal :: Calendar) = UTCDateTime Int64
    deriving (Eq, Generic, NFData, Ord, Storable)
 
 -- |
--- Nanoseconds since Unix epoch (excluding leap seconds).
-data UnixDateTimeNanos (cal :: Calendar) =
-     UnixDateTimeNanos {-# UNPACK #-} !Int64 {-# UNPACK #-} !Int32
+-- Nanoseconds since Unix epoch (including leap seconds).
+data UTCDateTimeNanos (cal :: Calendar) =
+     UTCDateTimeNanos {-# UNPACK #-} !Int64 {-# UNPACK #-} !Int32
    deriving (Eq, Generic, Ord)
 
-instance NFData (UnixDateTimeNanos cal) where
-   rnf (UnixDateTimeNanos base nsec) = rnf base `seq` rnf nsec `seq` ()
+instance NFData (UTCDateTimeNanos cal) where
+   rnf (UTCDateTimeNanos base nsec) = rnf base `seq` rnf nsec `seq` ()
 
-instance Storable (UnixDateTimeNanos cal) where
+instance Storable (UTCDateTimeNanos cal) where
    sizeOf  _ = 12
    alignment = sizeOf
    peekElemOff ptr n = do
        let off = 12 * n
        base <- peek . plusPtr ptr $ off
        nsec <- peek . plusPtr ptr $ off + 8
-       return $! UnixDateTimeNanos base nsec
-   pokeElemOff ptr n (UnixDateTimeNanos base nsec) = do
+       return $! UTCDateTimeNanos base nsec
+   pokeElemOff ptr n (UTCDateTimeNanos base nsec) = do
        let off = 12 * n
        flip poke base . plusPtr ptr $ off
        flip poke nsec . plusPtr ptr $ off + 8

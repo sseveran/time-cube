@@ -25,12 +25,13 @@ module Data.Time.Cube.Zone (
      , unabbreviate
 
  -- ** Utilities
-     , parseOffset
+     , parseUTCOffset
 
      ) where
 
 import Control.Applicative ((<|>), (*>))
 import Control.Arrow ((***))
+import Control.DeepSeq (NFData(..))
 import Control.Monad (replicateM)
 import Data.Attoparsec.Text (Parser, char, digit, parseOnly)
 import Data.Int (Int64)
@@ -97,6 +98,10 @@ data TimeZone =
    | YukonStandardTime
    deriving (Eq, Generic, Ord, Read, Show)
 
+instance NFData TimeZone where
+     rnf OffsetTime{..} = rnf getOffset `seq` ()
+     rnf _              = ()
+
 -- |
 -- The UTC time zone.
 utc :: TimeZone
@@ -160,7 +165,7 @@ abbreviate = \ case
    MountainStandardTime       -> TimeZoneAbbr Denver       "MST"
    NewZealandDaylightTime     -> TimeZoneAbbr Auckland     "NZDT"
    NewZealandStandardTime     -> TimeZoneAbbr Auckland     "NZST"
-   OffsetTime offset          -> TimeZoneAbbr Universal $ showOffset offset
+   OffsetTime offset          -> TimeZoneAbbr Universal $ showUTCOffset offset
    PacificDaylightTime        -> TimeZoneAbbr LosAngeles   "PDT"
    PacificStandardTime        -> TimeZoneAbbr LosAngeles   "PST"
    PakistanStandardTime       -> TimeZoneAbbr Karachi      "PKT"
@@ -171,7 +176,8 @@ abbreviate = \ case
    YukonStandardTime          -> TimeZoneAbbr Anchorage    "YST"
 
 -- |
--- Unabbreviate a time zone. An error string is returned for unmatched abbreviations.
+-- Unabbreviate a time zone abbreviation. An error
+-- string is returned for unmatched abbreviations.
 unabbreviate :: TimeZoneAbbr -> Either String TimeZone
 unabbreviate TimeZoneAbbr{..} = 
    case tzAbbr of
@@ -233,16 +239,17 @@ unabbreviate TimeZoneAbbr{..} =
         "UTC"  -> Right CoordinatedUniversalTime
         "WAT"  -> Right WestAfricaTime
         "YST"  -> Right YukonStandardTime
-        _      -> flip parseOnly tzAbbr $ parseOffset <|>
+        _      -> flip parseOnly tzAbbr $ parseUTCOffset <|>
                   fail "unabbreviate: unknown time zone abbreviation string"
         where e = Left "unabbreviate: bad reference location"
 
 -- |
 -- Parse a UTC offset string.
-parseOffset :: Parser TimeZone
-parseOffset = do
+parseUTCOffset :: Parser TimeZone
+parseUTCOffset = do
    sign    <- plus <|> minus
    hours   <- replicateM 2 digit
+   _       <- char ':'
    minutes <- replicateM 2 digit
    return $! OffsetTime . sign $ read hours * 60 + read minutes
    where plus  = char '+' *> return id
@@ -250,8 +257,8 @@ parseOffset = do
 
 -- |
 -- Show a UTC offset.
-showOffset :: Int64 -> Text
-showOffset offset =
-    pack . (:) sign . uncurry (++) . strs $ divMod offset 60
-    where sign = if offset < 0 then '-' else '+'
-          strs = printf "%02d" . abs *** printf "%02d"
+showUTCOffset :: Int64 -> Text
+showUTCOffset offset =
+    pack . (:) sign . pretty . flip divMod 60 $ abs offset
+    where sign   = if offset < 0 then '-' else '+'
+          pretty = uncurry (++) . (printf "%02d" *** (:) ':' . printf "%02d")

@@ -1,5 +1,5 @@
 children :: [String]
-children = []
+children =  []
 
 sources :: [String]
-sources = ["time-cube.cabal"] 
+sources =  ["time-cube.cabal"] 

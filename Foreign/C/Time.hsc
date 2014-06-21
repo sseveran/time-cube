@@ -10,7 +10,7 @@
 -- Stability   : Stable
 -- Portability : Portable
 --
--- Interface to the C time library.
+-- Haskell bindings to the C time library.
 module Foreign.C.Time where
 
 import Data.Time.Cube.Base (Human(..))

@@ -194,7 +194,7 @@ data DateTimeStruct (cal :: Calendar) =
        } deriving Generic
 
 -- |
--- A struct with date and location components.
+-- A struct with date and time zone components.
 data LocalDateStruct (cal :: Calendar) =
      LocalDateStruct
        { _ld_year :: {-# UNPACK #-} !Year
@@ -205,7 +205,7 @@ data LocalDateStruct (cal :: Calendar) =
        } deriving Generic
 
 -- |
--- A struct with time and location components.
+-- A struct with time and time zone components.
 data LocalTimeStruct =
      LocalTimeStruct
        { _lt_hour :: {-# UNPACK #-} !Hour
@@ -215,7 +215,7 @@ data LocalTimeStruct =
        } deriving (Eq, Generic, Ord, Show)
 
 -- |
--- A struct with date, time and location components.
+-- A struct with date, time and, time zone components.
 data LocalDateTimeStruct (cal :: Calendar) =
      LocalDateTimeStruct
        { _ldt_year :: {-# UNPACK #-} !Year
