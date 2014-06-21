@@ -23,6 +23,10 @@ out/
 *.hp
 *.prof
 
+# Cabal sandbox
+.cabal-sandbox/
+cabal.sandbox.config
+
 # GHC stub files
 *_stub.c
 *_stub.h
