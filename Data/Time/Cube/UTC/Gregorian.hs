@@ -59,7 +59,7 @@ import Data.Time.Cube.Parser
 import Data.Time.Cube.Unix.Gregorian
 import Data.Time.Cube.UTC
 import Data.Time.Cube.Zone
-import System.Locale (defaultTimeLocale)
+import System.Locale (TimeLocale)
 import Text.Printf (printf)
 
 deriving instance Bounded (UTCDate Gregorian)
@@ -320,14 +320,14 @@ state =  ParserState 1970 January 1 Thursday 0 0 0.0 id id utc
 
 -- |
 -- Parse a UTC date.
-parseUTCDate :: FormatText -> Text -> Either String (UTCDate Gregorian)
-parseUTCDate format = fmap UTCDate . parseUnixDate format
+parseUTCDate :: TimeLocale -> FormatText -> Text -> Either String (UTCDate Gregorian)
+parseUTCDate locale format = fmap UTCDate . parseUnixDate locale format
 
 -- |
 -- Parse a UTC date and time.
-parseUTCDateTime :: FormatText -> Text -> Either String (UTCDateTime Gregorian)
-parseUTCDateTime format =
-    fmap  from . parse defaultTimeLocale state Universal format
+parseUTCDateTime :: TimeLocale -> FormatText -> Text -> Either String (UTCDateTime Gregorian)
+parseUTCDateTime locale format =
+    fmap from . parse locale state Universal format
     where from ParserState{..} =
                createUTCDateTime _set_year _set_mon _set_mday hour _set_min sec
                where hour = _set_ampm _set_hour
@@ -335,13 +335,13 @@ parseUTCDateTime format =
 
 -- |
 -- Parse a UTC date and time with nanosecond granularity.
-parseUTCDateTimeNanos :: FormatText -> Text -> Either String (UTCDateTimeNanos Gregorian)
-parseUTCDateTimeNanos format =
-    fmap  from . parse defaultTimeLocale state Universal format
+parseUTCDateTimeNanos :: TimeLocale -> FormatText -> Text -> Either String (UTCDateTimeNanos Gregorian)
+parseUTCDateTimeNanos locale format =
+    fmap from . parse locale state Universal format
     where from ParserState{..} =
                createUTCDateTimeNanos _set_year _set_mon _set_mday hour _set_min sec nsec
-              where hour = _set_ampm _set_hour
-                    (,) sec nsec = properFracNanos $ _set_frac _set_sec
+               where hour = _set_ampm _set_hour
+                     (,) sec nsec = properFracNanos $ _set_frac _set_sec
 
 -- |
 -- Next leap second insertion date.

@@ -61,7 +61,7 @@ import Data.Time.Cube.Zone
 import Foreign.C.Types (CLong(..))
 import Foreign.C.Time (C'timeval(..), getTimeOfDay)
 import GHC.Generics (Generic)
-import System.Locale (defaultTimeLocale)
+import System.Locale (TimeLocale)
 import Text.Printf (printf)
 
 data instance Era Gregorian =
@@ -567,15 +567,15 @@ state =  ParserState 1970 January 1 Thursday 0 0 0.0 id id $ OffsetTime 0
 
 -- |
 -- Parse a Unix date.
-parseUnixDate :: FormatText -> Text -> Either String (UnixDate Gregorian)
-parseUnixDate format = fmap from . parse defaultTimeLocale state Universal format
+parseUnixDate :: TimeLocale -> FormatText -> Text -> Either String (UnixDate Gregorian)
+parseUnixDate locale format = fmap from . parse locale state Universal format
    where from ParserState{..} = createUnixDate _set_year _set_mon _set_mday
 
 -- |
 -- Parse a Unix date and time.
-parseUnixDateTime :: FormatText -> Text -> Either String (UnixDateTime Gregorian)
-parseUnixDateTime format =
-   fmap  from . parse defaultTimeLocale state Universal format
+parseUnixDateTime :: TimeLocale -> FormatText -> Text -> Either String (UnixDateTime Gregorian)
+parseUnixDateTime locale format =
+   fmap from . parse locale state Universal format
    where from ParserState{..} =
               createUnixDateTime _set_year _set_mon _set_mday hour _set_min sec
               where hour = _set_ampm _set_hour
@@ -583,9 +583,9 @@ parseUnixDateTime format =
 
 -- |
 -- Parse a Unix date and time with nanosecond granularity.
-parseUnixDateTimeNanos :: FormatText -> Text -> Either String (UnixDateTimeNanos Gregorian)
-parseUnixDateTimeNanos format =
-   fmap  from . parse defaultTimeLocale state Universal format
+parseUnixDateTimeNanos :: TimeLocale -> FormatText -> Text -> Either String (UnixDateTimeNanos Gregorian)
+parseUnixDateTimeNanos locale format =
+   fmap from . parse locale state Universal format
    where from ParserState{..} =
               createUnixDateTimeNanos _set_year _set_mon _set_mday hour _set_min sec nsec
               where hour = _set_ampm _set_hour
