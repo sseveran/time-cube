@@ -33,7 +33,7 @@ import Control.Lens.Setter (Setter, (%=), assign)
 import Control.Lens.TH (makeLenses)
 import Control.Monad ((<=<), foldM, replicateM)
 import Control.Monad.State.Strict (execState, State)
-import Data.Attoparsec.Text as P hiding (parse)
+import Data.Attoparsec.Text as P hiding (match, parse)
 import Data.Char (isAlpha)
 import Data.Text as T (Text, length, pack, toLower)
 import Data.Time.Cube.Base
