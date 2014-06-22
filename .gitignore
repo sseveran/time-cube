@@ -31,8 +31,11 @@ cabal.sandbox.config
 *_stub.c
 *_stub.h
 
-# OSX symbol packages
+# OS X symbol packages
 *.dSYM/
 
-#OS X
+# OS X
 .DS_STORE
+
+# KDE properties
+.directory
