@@ -135,11 +135,27 @@ data instance DayOfWeek Gregorian =
 
 deriving instance Bounded (DayOfWeek Gregorian)
 deriving instance Eq      (DayOfWeek Gregorian)
-deriving instance Enum    (DayOfWeek Gregorian)
 deriving instance Generic (DayOfWeek Gregorian)
 deriving instance Ord     (DayOfWeek Gregorian)
 deriving instance Read    (DayOfWeek Gregorian)
 deriving instance Show    (DayOfWeek Gregorian)
+
+instance Enum (DayOfWeek Gregorian) where
+   fromEnum Sunday    = 1
+   fromEnum Monday    = 2
+   fromEnum Tuesday   = 3
+   fromEnum Wednesday = 4
+   fromEnum Thursday  = 5
+   fromEnum Friday    = 6
+   fromEnum Saturday  = 7
+   toEnum 1 = Sunday
+   toEnum 2 = Monday
+   toEnum 3 = Tuesday
+   toEnum 4 = Wednesday
+   toEnum 5 = Thursday
+   toEnum 6 = Friday
+   toEnum 7 = Saturday
+   toEnum _ = error "toEnum{DayOfWeek Gregorian}: out of range"
 
 instance Bounded (UnixDate Gregorian) where
 
