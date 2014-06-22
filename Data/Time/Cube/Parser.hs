@@ -65,8 +65,7 @@ makeLenses ''ParserState
 parse
   :: Bounded (Month cal)
   => Enum (Month cal)
-  => Read (DayOfWeek cal)
-  => Read (Month cal)
+  => Enum (DayOfWeek cal)
   => TimeLocale      -- ^ Local conventions
   -> ParserState cal -- ^ Initialized State
   -> City            -- ^ Reference location
@@ -82,8 +81,7 @@ parse locale state city format input =
 create
   :: Bounded (Month cal)
   => Enum (Month cal)
-  => Read (DayOfWeek cal)
-  => Read (Month cal)
+  => Enum (DayOfWeek cal)
   => TimeLocale
   -> City
   -> Parser (Parser (State (ParserState cal) ()))
@@ -133,8 +131,8 @@ percent = string "%%" *> return (char '%' *> return (return ()))
 -- Match a percent code and assign
 -- the value returned by the parser.
 match
-  :: Read (DayOfWeek cal)
-  => Read (Month cal)
+  :: Enum (DayOfWeek cal)
+  => Enum (Month cal)
   => Text
   -> Setter (ParserState cal) (ParserState cal) a a
   -> Parser a
@@ -312,23 +310,23 @@ offset = parseUTCOffset
 
 -- |
 -- Parse a month in short text format.
-monthAbbr :: Read (Month cal) => TimeLocale -> Parser (Month cal)
-monthAbbr = fromList . map (\(full, abbr) -> (T.pack abbr, read full)) . months
+monthAbbr :: Enum (Month cal) => TimeLocale -> Parser (Month cal)
+monthAbbr = fromList . zipWith (\n (_, abbr) -> (T.pack abbr, toEnum n)) [1..] . months
 
 -- |
 -- Parse a month in long text format.
-monthFull :: Read (Month cal) => TimeLocale -> Parser (Month cal)
-monthFull = fromList . map (\(full, _) -> (T.pack full, read full)) . months
+monthFull :: Enum (Month cal) => TimeLocale -> Parser (Month cal)
+monthFull = fromList . zipWith (\n (full, _) -> (T.pack full, toEnum n)) [1..] . months
 
 -- |
 -- Parse a day of week in short text format.
-weekAbbr :: Read (DayOfWeek cal) => TimeLocale -> Parser (DayOfWeek cal)
-weekAbbr = fromList . map (\(full, abbr) -> (T.pack abbr, read full)) . wDays
+weekAbbr :: Enum (DayOfWeek cal) => TimeLocale -> Parser (DayOfWeek cal)
+weekAbbr = fromList . zipWith (\n (_, abbr) -> (T.pack abbr, toEnum n)) [1..] . wDays
 
 -- |
 -- Parse a day of week in long text format. 
-weekFull :: Read (DayOfWeek cal) => TimeLocale -> Parser (DayOfWeek cal)
-weekFull = fromList . map (\(full, _) -> (T.pack full, read full)) . wDays
+weekFull :: Enum (DayOfWeek cal) => TimeLocale -> Parser (DayOfWeek cal)
+weekFull = fromList . zipWith (\n (full, _) -> (T.pack full, toEnum n)) [1..] . wDays
 
 -- |
 -- Create a parser from a list of key-value pairs.
