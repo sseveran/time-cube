@@ -247,7 +247,7 @@ instance Human (UnixDate Gregorian) where
            if days >= size
            then rec (year + 1) (days - size)
            else DateStruct year month mday wday
-           where wday = toEnum $ (fromIntegral base + 4) `mod` 7
+           where wday = toEnum $ 1 + (fromIntegral base + 4) `mod` 7
                  leap = isLeapYear year
                  size = if leap then 366 else 365
                  (,) month mday =
