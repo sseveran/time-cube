@@ -65,7 +65,7 @@ import Text.Printf (printf)
 deriving instance Bounded (UTCDate Gregorian)
 deriving instance Enum    (UTCDate Gregorian)
 
-instance Bounded (UTCDateTime cal) where
+instance Bounded (UTCDateTime Gregorian) where
 
     -- |
     -- 12:00:00 AM Thursday 01 January 1970.
@@ -75,7 +75,7 @@ instance Bounded (UTCDateTime cal) where
     -- 11:59:59 PM Friday 31 December 9999.
     maxBound = UTCDateTime 253402257624
 
-instance Bounded (UTCDateTimeNanos cal) where
+instance Bounded (UTCDateTimeNanos Gregorian) where
 
     -- |
     -- 12:00:00.000000000 AM Thursday 01 January 1970.
