@@ -33,7 +33,7 @@ import Control.Applicative ((<|>), (*>))
 import Control.Arrow ((***))
 import Control.DeepSeq (NFData(..))
 import Control.Monad (replicateM)
-import Data.Attoparsec.Text (Parser, char, digit, parseOnly)
+import Data.Attoparsec.Text (Parser, char, digit, option, parseOnly, try)
 import Data.Int (Int64)
 import Data.Text (Text, pack, unpack)
 import Data.Time.Cube.City (City(..))
@@ -249,7 +249,7 @@ parseUTCOffset :: Parser TimeZone
 parseUTCOffset = do
    sign    <- plus <|> minus
    hours   <- replicateM 2 digit
-   _       <- char ':'
+   _       <- try . option ':' $ char ':'
    minutes <- replicateM 2 digit
    return $! OffsetTime . sign $ read hours * 60 + read minutes
    where plus  = char '+' *> return id
