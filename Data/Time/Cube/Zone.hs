@@ -25,18 +25,21 @@ module Data.Time.Cube.Zone (
      , unabbreviate
 
  -- ** Utilities
+     , getUTCOffset
      , parseUTCOffset
 
      ) where
 
-import Control.Applicative ((<|>), (*>))
+import Control.Applicative ((<|>), (<$>), (*>))
 import Control.Arrow ((***))
 import Control.DeepSeq (NFData(..))
 import Control.Monad (replicateM)
 import Data.Attoparsec.Text (Parser, char, digit, option, parseOnly, try)
-import Data.Int (Int64)
+import Data.Int (Int16)
 import Data.Text (Text, pack, unpack)
 import Data.Time.Cube.City (City(..))
+import Foreign.Ptr (castPtr)
+import Foreign.Storable (Storable(..))
 import GHC.Generics (Generic)
 import Text.Printf (printf)
 
@@ -87,7 +90,7 @@ data TimeZone =
    | MountainStandardTime
    | NewZealandDaylightTime
    | NewZealandStandardTime
-   | OffsetTime {getOffset :: {-# UNPACK #-} !Int64}
+   | OffsetTime {-# UNPACK #-} !Int16
    | PacificDaylightTime
    | PacificStandardTime
    | PakistanStandardTime
@@ -99,8 +102,14 @@ data TimeZone =
    deriving (Eq, Generic, Ord, Read, Show)
 
 instance NFData TimeZone where
-     rnf OffsetTime{..} = rnf getOffset `seq` ()
-     rnf _              = ()
+   rnf (OffsetTime offset) = rnf offset `seq` ()
+   rnf _                   = ()
+
+instance Storable TimeZone where
+   sizeOf  _ = 2
+   alignment = sizeOf
+   peekElemOff ptr n = OffsetTime <$> peekElemOff (castPtr ptr) n
+   pokeElemOff ptr n = pokeElemOff (castPtr ptr) n . getUTCOffset
 
 -- |
 -- The UTC time zone.
@@ -244,6 +253,64 @@ unabbreviate TimeZoneAbbr{..} =
         where e = Left "unabbreviate: bad reference location"
 
 -- |
+-- Get the UTC offset (in minutes) for the given time zone.
+getUTCOffset :: TimeZone -> Int16
+getUTCOffset = \ case
+   AfghanistanTime            ->  270
+   AlaskaDaylightTime         -> -480
+   AlaskaHawaiiDaylightTime   -> -540
+   AlaskaHawaiiStandardTime   -> -600
+   AlaskaStandardTime         -> -540
+   ArabiaDaylightTime         ->  240
+   ArabiaStandardTime         ->  180
+   BrasiliaSummerTime         -> -120
+   BrasiliaTime               -> -180
+   BritishSummerTime          ->  060
+   CentralAfricaTime          ->  120
+   CentralDaylightTime        -> -300
+   CentralEuropeanSummerTime  ->  120
+   CentralEuropeanTime        ->  060
+   CentralStandardTime        -> -360
+   ChinaDaylightTime          ->  540
+   ChinaStandardTime          ->  480
+   CoordinatedUniversalTime   ->  000
+   EastAfricaTime             ->  180
+   EasternDaylightTime        -> -240
+   EasternEuropeanSummerTime  ->  180
+   EasternEuropeanTime        ->  120
+   EasternStandardTime        -> -300
+   FurtherEasternEuropeanTime ->  180
+   GreenwichMeanTime          ->  000
+   GulfStandardTime           ->  240
+   HawaiiAleutianStandardTime -> -600
+   HongKongSummerTime         ->  540
+   HongKongTime               ->  480
+   IndiaStandardTime          ->  330
+   IranDaylightTime           ->  270
+   IranStandardTime           ->  210
+   IsraelDaylightTime         ->  180
+   IsraelStandardTime         ->  120
+   JapanStandardTime          ->  540
+   KarachiTime                ->  300
+   KoreaDaylightTime          ->  600
+   KoreaStandardTime          ->  540
+   MoscowDaylightTime         ->  240
+   MoscowStandardTime         ->  240
+   MountainDaylightTime       -> -360
+   MountainStandardTime       -> -420
+   NewZealandDaylightTime     ->  780
+   NewZealandStandardTime     ->  720
+   OffsetTime offset          -> offset
+   PacificDaylightTime        -> -420
+   PacificStandardTime        -> -480
+   PakistanStandardTime       ->  300
+   PakistanSummerTime         ->  360
+   SingaporeTime              ->  480
+   SouthAfricaStandardTime    ->  120
+   WestAfricaTime             ->  060
+   YukonStandardTime          -> -540
+
+-- |
 -- Parse a UTC offset string.
 parseUTCOffset :: Parser TimeZone
 parseUTCOffset = do
@@ -257,7 +324,7 @@ parseUTCOffset = do
 
 -- |
 -- Show a UTC offset.
-showUTCOffset :: Int64 -> Text
+showUTCOffset :: Int16 -> Text
 showUTCOffset offset =
     pack . (:) sign . pretty . flip divMod 60 $ abs offset
     where sign   = if offset < 0 then '-' else '+'
