@@ -3,14 +3,14 @@ Version:            0.1.0
 License:            BSD3
 License-File:       LICENSE
 Copyright:          Copyright (c) 2014, Alpha Heavy Industries, Inc. All rights reserved.
-Author:             Nathan Howell, et. al.
+Author:             Nathan Howell, Enzo Haussecker, Steve Severance
 Maintainer:         enzo@alphaheavy.com
 Stability:          Experimental
 Category:           Time
 Synopsis:           Yet Another Haskell Time Library
 Build-Type:         Simple
 Cabal-Version:      >= 1.16.0
-Description:        Type safe timestamps.
+Description:        Type safe timestamps for real-time applications.
 
 Library
   Default-Language: Haskell2010
@@ -19,6 +19,8 @@ Library
                     Data.Time.Cube.City
                     Data.Time.Cube.Format
                     Data.Time.Cube.Lens
+                    Data.Time.Cube.Local
+                    Data.Time.Cube.Local.Gregorian
                     Data.Time.Cube.Unix
                     Data.Time.Cube.Unix.Gregorian
                     Data.Time.Cube.UTC
@@ -37,5 +39,5 @@ Library
   Build-tools:      hsc2hs
 
 Source-Repository head
-  type:     git
-  location: https://github.com/time-cube/time-cube.git
+  Type:             git
+  Location:         https://github.com/time-cube/time-cube.git
