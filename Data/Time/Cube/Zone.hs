@@ -188,69 +188,68 @@ abbreviate = \ case
 -- Unabbreviate a time zone abbreviation. An error
 -- string is returned for unmatched abbreviations.
 unabbreviate :: TimeZoneAbbr -> Either String TimeZone
-unabbreviate TimeZoneAbbr{..} = 
-   case tzAbbr of
-        "AFT"  -> Right AfghanistanTime
-        "AHDT" -> Right AlaskaHawaiiDaylightTime
-        "AHST" -> Right AlaskaHawaiiStandardTime
-        "AKDT" -> Right AlaskaDaylightTime
-        "AKST" -> Right AlaskaStandardTime
-        "ADT"  -> Right ArabiaDaylightTime
-        "AST"  -> Right ArabiaStandardTime
-        "BRST" -> Right BrasiliaSummerTime
-        "BRT"  -> Right BrasiliaTime
-        "BST"  -> Right BritishSummerTime
-        "CAT"  -> Right CentralAfricaTime
-        "CDT"  -> case tzCity of
-                       Chicago  -> Right CentralDaylightTime
-                       Shanghai -> Right ChinaDaylightTime
-                       _        -> e
-        "CEST" -> Right CentralEuropeanSummerTime
-        "CET"  -> Right CentralEuropeanTime
-        "CST"  -> case tzCity of
-                       Chicago  -> Right CentralStandardTime
-                       Shanghai -> Right ChinaStandardTime
-                       _        -> e
-        "EAT"  -> Right EastAfricaTime
-        "EDT"  -> Right EasternDaylightTime
-        "EEST" -> Right EasternEuropeanSummerTime
-        "EET"  -> Right EasternEuropeanTime
-        "EST"  -> Right EasternStandardTime
-        "FET"  -> Right FurtherEasternEuropeanTime
-        "GMT"  -> Right GreenwichMeanTime
-        "GST"  -> Right GulfStandardTime
-        "HST"  -> Right HawaiiAleutianStandardTime
-        "HKST" -> Right HongKongSummerTime
-        "HKT"  -> Right HongKongTime
-        "IDT"  -> Right IsraelDaylightTime
-        "IRDT" -> Right IranDaylightTime
-        "IRST" -> Right IranStandardTime
-        "IST"  -> case tzCity of
-                       Kolkata -> Right IndiaStandardTime
-                       TelAviv -> Right IsraelStandardTime
-                       _       -> e
-        "JST"  -> Right JapanStandardTime
-        "KART" -> Right KarachiTime
-        "KDT"  -> Right KoreaDaylightTime
-        "KST"  -> Right KoreaStandardTime
-        "MDT"  -> Right MountainDaylightTime
-        "MSD"  -> Right MoscowDaylightTime
-        "MSK"  -> Right MoscowStandardTime
-        "MST"  -> Right MountainStandardTime
-        "NZDT" -> Right NewZealandDaylightTime
-        "NZST" -> Right NewZealandStandardTime
-        "PDT"  -> Right PacificDaylightTime
-        "PKST" -> Right PakistanSummerTime
-        "PKT"  -> Right PakistanStandardTime
-        "PST"  -> Right PacificStandardTime
-        "SAST" -> Right SouthAfricaStandardTime
-        "SGT"  -> Right SingaporeTime
-        "UTC"  -> Right CoordinatedUniversalTime
-        "WAT"  -> Right WestAfricaTime
-        "YST"  -> Right YukonStandardTime
-        _      -> flip parseOnly tzAbbr $ parseUTCOffset <|>
-                  fail "unabbreviate: unknown time zone abbreviation string"
-        where e = Left "unabbreviate: bad reference location"
+unabbreviate TimeZoneAbbr{..} = case tzAbbr
+   of "AFT"  -> Right AfghanistanTime
+      "AHDT" -> Right AlaskaHawaiiDaylightTime
+      "AHST" -> Right AlaskaHawaiiStandardTime
+      "AKDT" -> Right AlaskaDaylightTime
+      "AKST" -> Right AlaskaStandardTime
+      "ADT"  -> Right ArabiaDaylightTime
+      "AST"  -> Right ArabiaStandardTime
+      "BRST" -> Right BrasiliaSummerTime
+      "BRT"  -> Right BrasiliaTime
+      "BST"  -> Right BritishSummerTime
+      "CAT"  -> Right CentralAfricaTime
+      "CDT"  -> case tzCity of
+                     Chicago  -> Right CentralDaylightTime
+                     Shanghai -> Right ChinaDaylightTime
+                     _        -> e
+      "CEST" -> Right CentralEuropeanSummerTime
+      "CET"  -> Right CentralEuropeanTime
+      "CST"  -> case tzCity of
+                     Chicago  -> Right CentralStandardTime
+                     Shanghai -> Right ChinaStandardTime
+                     _        -> e
+      "EAT"  -> Right EastAfricaTime
+      "EDT"  -> Right EasternDaylightTime
+      "EEST" -> Right EasternEuropeanSummerTime
+      "EET"  -> Right EasternEuropeanTime
+      "EST"  -> Right EasternStandardTime
+      "FET"  -> Right FurtherEasternEuropeanTime
+      "GMT"  -> Right GreenwichMeanTime
+      "GST"  -> Right GulfStandardTime
+      "HST"  -> Right HawaiiAleutianStandardTime
+      "HKST" -> Right HongKongSummerTime
+      "HKT"  -> Right HongKongTime
+      "IDT"  -> Right IsraelDaylightTime
+      "IRDT" -> Right IranDaylightTime
+      "IRST" -> Right IranStandardTime
+      "IST"  -> case tzCity of
+                     Kolkata -> Right IndiaStandardTime
+                     TelAviv -> Right IsraelStandardTime
+                     _       -> e
+      "JST"  -> Right JapanStandardTime
+      "KART" -> Right KarachiTime
+      "KDT"  -> Right KoreaDaylightTime
+      "KST"  -> Right KoreaStandardTime
+      "MDT"  -> Right MountainDaylightTime
+      "MSD"  -> Right MoscowDaylightTime
+      "MSK"  -> Right MoscowStandardTime
+      "MST"  -> Right MountainStandardTime
+      "NZDT" -> Right NewZealandDaylightTime
+      "NZST" -> Right NewZealandStandardTime
+      "PDT"  -> Right PacificDaylightTime
+      "PKST" -> Right PakistanSummerTime
+      "PKT"  -> Right PakistanStandardTime
+      "PST"  -> Right PacificStandardTime
+      "SAST" -> Right SouthAfricaStandardTime
+      "SGT"  -> Right SingaporeTime
+      "UTC"  -> Right CoordinatedUniversalTime
+      "WAT"  -> Right WestAfricaTime
+      "YST"  -> Right YukonStandardTime
+      _      -> flip parseOnly tzAbbr $ parseUTCOffset <|>
+                fail "unabbreviate: unknown time zone abbreviation string"
+      where e = Left "unabbreviate: bad reference location"
 
 -- |
 -- Get the UTC offset (in minutes) for the given time zone.
