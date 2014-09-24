@@ -45,7 +45,7 @@ module Data.Time.Cube.UTC.Gregorian (
      , Month(..)
      , DayOfWeek(..)
 
-     )where
+     ) where
 
 import Control.Applicative ((<$>))
 import Control.Lens.Setter (over)
