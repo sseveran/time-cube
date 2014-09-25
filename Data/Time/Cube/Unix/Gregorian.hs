@@ -57,6 +57,7 @@ import Data.Time.Cube.Format
 import Data.Time.Cube.Lens
 import Data.Time.Cube.Parser
 import Data.Time.Cube.Unix
+import Data.Time.Cube.Utilities
 import Data.Time.Cube.Zone
 import Foreign.C.Types (CLong(..))
 import Foreign.C.Time (C'timeval(..), getTimeOfDay)
@@ -653,13 +654,3 @@ yearToMonth mon leap =
        January   -> 000; February -> 031; March    -> 059; April    -> 090
        May       -> 120; June     -> 151; July     -> 181; August   -> 212
        September -> 243; October  -> 273; November -> 304; December -> 334
-
--- |
--- Show the 12-hour pariod (ante or post meridiem) of the
--- given 24-hour hour without performing any bounds check.
-unsafePeriod :: Hour -> (String, Hour)
-unsafePeriod hour
-  | hour == 00 = ("AM", 12)
-  | hour <= 11 = ("AM", hour)
-  | hour == 12 = ("PM", hour)
-  | otherwise  = ("PM", hour - 12)

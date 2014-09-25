@@ -28,6 +28,7 @@ Library
                     Data.Time.Cube.Zone
                     Foreign.C.Time
   Other-Modules:    Data.Time.Cube.Parser
+                    Data.Time.Cube.Utilities
   Build-Depends:    attoparsec,
                     base >= 4 && < 5,
                     bindings-DSL >= 1.0.11 && < 1.1,
