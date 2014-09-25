@@ -74,7 +74,7 @@ instance Bounded (UTCDateTime Gregorian) where
 
     -- |
     -- 11:59:59 PM Friday 31 December 9999 UTC.
-    maxBound = UTCDateTime 253402257624
+    maxBound = UTCDateTime 253402300824
 
 instance Bounded (UTCDateTimeNanos Gregorian) where
 
@@ -84,7 +84,7 @@ instance Bounded (UTCDateTimeNanos Gregorian) where
 
     -- |
     -- 11:59:59.999999999 PM Friday 31 December 9999 UTC.
-    maxBound = UTCDateTimeNanos 253402257624 999999999
+    maxBound = UTCDateTimeNanos 253402300824 999999999
 
 instance Enum (UTCDateTime Gregorian) where
 
