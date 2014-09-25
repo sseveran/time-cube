@@ -519,7 +519,7 @@ instance Show (UnixDateTime Gregorian) where
          mon  = show  _dt_mon
          wday = show  _dt_wday
          sec  = round _dt_sec :: Second
-         (,) ampm hour = unsafePeriod _dt_hour
+         (,) ampm hour = getPeriod _dt_hour
          DateTimeStruct{..} = unpack time
 
 instance Show (UnixDateTimeNanos Gregorian) where
@@ -527,7 +527,7 @@ instance Show (UnixDateTimeNanos Gregorian) where
          mon  = show _dt_mon
          wday = show _dt_wday
          (,) sec  nsec = properFracNanos _dt_sec
-         (,) ampm hour = unsafePeriod _dt_hour
+         (,) ampm hour = getPeriod _dt_hour
          DateTimeStruct{..} = unpack time
 
 -- |

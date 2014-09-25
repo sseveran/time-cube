@@ -10,11 +10,12 @@
 -- Internal utilities.
 module Data.Time.Cube.Utilities (
 
- -- ** Convert
+ -- ** Conversions
        baseUnixToUTC
      , baseUTCToUnix
 
-     , unsafePeriod
+ -- ** Periods
+     , getPeriod
 
      ) where
 
@@ -111,8 +112,8 @@ baseUTCToUnix base
 -- |
 -- Show the 12-hour pariod (ante or post meridiem) of the
 -- given 24-hour hour without performing any bounds check.
-unsafePeriod :: Hour -> (String, Hour)
-unsafePeriod hour
+getPeriod :: Hour -> (String, Hour)
+getPeriod hour
    | hour == 00 = ("AM", 12)
    | hour <= 11 = ("AM", hour)
    | hour == 12 = ("PM", hour)
