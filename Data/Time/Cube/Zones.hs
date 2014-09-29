@@ -37,10 +37,6 @@ module Data.Time.Cube.Zones (
      , Convert(..)
      , ConvertError(..)
 
- -- ** Utilities
-     , parseOffset
-     , showOffset
-
  -- ** GHC Extensions
      , SigNat(..)
      , KnownSigNat(..)
