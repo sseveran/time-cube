@@ -14,7 +14,8 @@ Description:        Type safe timestamps for real-time applications.
 
 Library
   Default-Language: Haskell2010
-  Exposed-Modules:  Data.Time.Cube.Base
+  Exposed-Modules:  Data.Time.Cube
+                    Data.Time.Cube.Base
                     Data.Time.Cube.Format
                     Data.Time.Cube.Lens
                     Data.Time.Cube.UTC
