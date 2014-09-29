@@ -46,7 +46,7 @@ module Data.Time.Cube.Zones (
 import Control.Applicative ((<|>), (<$>), (*>))
 import Control.DeepSeq (NFData(..))
 import Control.Monad (replicateM)
-import Data.Attoparsec.Text (Parser, char, digit, option, parseOnly, try)
+import Data.Attoparsec.Text (Parser, char, digit, parseOnly)
 import Data.Int (Int16)
 import Data.Proxy (Proxy(..))
 import Data.Text (Text, pack)
@@ -352,7 +352,6 @@ parseOffset :: forall int . KnownSigNat int => Parser (TimeZone (Offset int))
 parseOffset = do
    sign  <- plus <|> minus
    hours <- replicateM 2 digit
-   _     <- try . option ':' $ char ':'
    mins  <- replicateM 2 digit
    let value = sign $ read hours * 60 + read mins
        proxy = Proxy :: Proxy int
@@ -366,7 +365,7 @@ parseOffset = do
 -- Show a time zone offset string.
 showOffset :: TimeZone (Offset int) -> String
 showOffset Offset{..} =
-   sign : hours ++ ':' : mins
+   sign : hours ++ mins
    where sign  = if getOffset < 0 then '-' else '+'
          hours = printf "%02d" $ div value 60
          mins  = printf "%02d" $ mod value 60

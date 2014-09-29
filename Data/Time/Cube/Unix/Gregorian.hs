@@ -40,6 +40,15 @@ module Data.Time.Cube.Unix.Gregorian (
      , parseUnixDateTime
      , parseUnixDateTimeNanos
 
+ -- ** State
+     , ParserState
+     , defaultParserState
+
+ -- ** Internals
+     , parseUnixDate'
+     , parseUnixDateTime'
+     , parseUnixDateTimeNanos'
+
  -- ** Calendar
      , Era(..)
      , Month(..)
@@ -52,17 +61,16 @@ import Control.Lens.Setter (over)
 import Data.Int (Int64)
 import Data.Text (Text)
 import Data.Time.Cube.Base
-import Data.Time.Cube.City
 import Data.Time.Cube.Format
 import Data.Time.Cube.Lens
 import Data.Time.Cube.Parser
 import Data.Time.Cube.Unix
 import Data.Time.Cube.Utilities
-import Data.Time.Cube.Zone
+import Data.Time.Cube.Zones
 import Foreign.C.Types (CLong(..))
 import Foreign.C.Time (C'timeval(..), getTimeOfDay)
 import GHC.Generics (Generic)
-import System.Locale (TimeLocale)
+import System.Locale (TimeLocale, defaultTimeLocale)
 import Text.Printf (printf)
 
 data instance Era Gregorian =
@@ -532,7 +540,11 @@ instance Show (UnixDateTimeNanos Gregorian) where
 
 -- |
 -- Create a Unix date.
-createUnixDate :: Year -> Month Gregorian -> Day -> UnixDate Gregorian
+createUnixDate
+  :: Year            -- ^ Year
+  -> Month Gregorian -- ^ Month
+  -> Day             -- ^ Day
+  -> UnixDate Gregorian
 createUnixDate year mon day =
   if minBound <= date && date <= maxBound
   then date else error "createUnixDate: out of range" where
@@ -540,7 +552,14 @@ createUnixDate year mon day =
 
 -- |
 -- Create a Unix date and time.
-createUnixDateTime :: Year -> Month Gregorian -> Day -> Hour -> Minute -> Second -> UnixDateTime Gregorian
+createUnixDateTime
+  :: Year            -- ^ Year
+  -> Month Gregorian -- ^ Month
+  -> Day             -- ^ Day
+  -> Hour            -- ^ Hour
+  -> Minute          -- ^ Minute
+  -> Second          -- ^ Second
+  -> UnixDateTime Gregorian
 createUnixDateTime year mon day hour min sec =
   if minBound <= time && time <= maxBound
   then time else error "createUnixDateTime: out of range" where
@@ -548,7 +567,15 @@ createUnixDateTime year mon day hour min sec =
 
 -- |
 -- Create a Unix date and time with nanosecond granularity.
-createUnixDateTimeNanos :: Year -> Month Gregorian -> Day -> Hour -> Minute -> Second -> Nanos -> UnixDateTimeNanos Gregorian
+createUnixDateTimeNanos
+  :: Year            -- ^ Year
+  -> Month Gregorian -- ^ Month
+  -> Day             -- ^ Day
+  -> Hour            -- ^ Hour
+  -> Minute          -- ^ Minute
+  -> Second          -- ^ Second
+  -> Nanos           -- ^ Nanosecond
+  -> UnixDateTimeNanos Gregorian
 createUnixDateTimeNanos year mon day hour min sec Nanos{..} =
   if minBound <= time && time <= maxBound
   then time else error "createUnixDateTimeNanos: out of range" where
@@ -560,53 +587,100 @@ createUnixDateTimeNanos year mon day hour min sec Nanos{..} =
 -- Get the current Unix date from the system clock.
 getCurrentUnixDate :: IO (UnixDate Gregorian)
 getCurrentUnixDate =
-   getTimeOfDay >>= \ (C'timeval (CLong base) _) ->
-   return $! UnixDate . fromIntegral $ base `div` 86400
+  getTimeOfDay >>= \ (C'timeval (CLong base) _) ->
+  return $! UnixDate . fromIntegral $ base `div` 86400
 
 -- |
 -- Get the current Unix date and time from the system clock.
 getCurrentUnixDateTime :: IO (UnixDateTime Gregorian)
 getCurrentUnixDateTime =
-   getTimeOfDay >>= \ (C'timeval (CLong base) _) ->
-   return $! UnixDateTime base
+  getTimeOfDay >>= \ (C'timeval (CLong base) _) ->
+  return $! UnixDateTime base
 
 -- |
 -- Get the current Unix date and time with nanosecond granularity from the system clock.
 getCurrentUnixDateTimeNanos :: IO (UnixDateTimeNanos Gregorian)
 getCurrentUnixDateTimeNanos =
-   getTimeOfDay >>= \ (C'timeval (CLong base) (CLong usec)) ->
-   return $! UnixDateTimeNanos base $ fromIntegral usec * 1000
+  getTimeOfDay >>= \ (C'timeval (CLong base) (CLong usec)) ->
+  return $! UnixDateTimeNanos base $ fromIntegral usec * 1000
 
 -- |
--- Initialize the parser state.
-state :: ParserState Gregorian
-state =  ParserState 1970 January 1 Thursday 0 0 0.0 id id $ OffsetTime 0
+-- Default parser state.
+defaultParserState :: ParserState Gregorian (Offset (Plus 0))
+defaultParserState =  ParserState 1970 January 1 Thursday 0 0 0.0 id id $ Offset 0
 
 -- |
 -- Parse a Unix date.
-parseUnixDate :: TimeLocale -> FormatText -> Text -> Either String (UnixDate Gregorian)
-parseUnixDate locale format = fmap from . parse locale state Universal format
-   where from ParserState{..} = createUnixDate _set_year _set_mon _set_mday
+parseUnixDate
+  :: FormatText -- ^ Format string
+  -> Text       -- ^ Input string
+  -> Either String (UnixDate Gregorian)
+parseUnixDate = parseUnixDate' defaultTimeLocale defaultParserState
 
 -- |
 -- Parse a Unix date and time.
-parseUnixDateTime :: TimeLocale -> FormatText -> Text -> Either String (UnixDateTime Gregorian)
-parseUnixDateTime locale format =
-   fmap from . parse locale state Universal format
-   where from ParserState{..} =
-              createUnixDateTime _set_year _set_mon _set_mday hour _set_min sec
-              where hour = _set_ampm _set_hour
-                    sec  = truncate _set_sec
+parseUnixDateTime
+  :: FormatText -- ^ Format string
+  -> Text       -- ^ Input string
+  -> Either String (UnixDateTime Gregorian)
+parseUnixDateTime = parseUnixDateTime' defaultTimeLocale defaultParserState
 
 -- |
 -- Parse a Unix date and time with nanosecond granularity.
-parseUnixDateTimeNanos :: TimeLocale -> FormatText -> Text -> Either String (UnixDateTimeNanos Gregorian)
-parseUnixDateTimeNanos locale format =
-   fmap from . parse locale state Universal format
-   where from ParserState{..} =
-              createUnixDateTimeNanos _set_year _set_mon _set_mday hour _set_min sec nsec
-              where hour = _set_ampm _set_hour
-                    (,) sec nsec = properFracNanos $ _set_frac _set_sec
+parseUnixDateTimeNanos
+  :: FormatText -- ^ Format string
+  -> Text       -- ^ Input string
+  -> Either String (UnixDateTimeNanos Gregorian)
+parseUnixDateTimeNanos = parseUnixDateTimeNanos' defaultTimeLocale defaultParserState
+
+-- |
+-- Same as 'parseUnixDate', except takes the
+-- additional locale and parser state parameters. 
+parseUnixDate'
+  :: Abbreviate geo
+  => TimeLocale                -- ^ Local conventions
+  -> ParserState Gregorian geo -- ^ Initialized state
+  -> FormatText                -- ^ Format string
+  -> Text                      -- ^ Input string
+  -> Either String (UnixDate Gregorian)
+parseUnixDate' locale state format =
+  fmap from . parse locale state format
+  where from ParserState{..} =
+             createUnixDate _set_year _set_mon _set_mday
+
+-- |
+-- Same as 'parseUnixDateTime', except takes the
+-- additional locale and parser state parameters. 
+parseUnixDateTime'
+  :: Abbreviate geo
+  => TimeLocale                -- ^ Local conventions
+  -> ParserState Gregorian geo -- ^ Initialized state
+  -> FormatText                -- ^ Format string
+  -> Text                      -- ^ Input string
+  -> Either String (UnixDateTime Gregorian)
+parseUnixDateTime' locale state format =
+  fmap from . parse locale state format
+  where from ParserState{..} =
+             createUnixDateTime _set_year _set_mon _set_mday hour _set_min sec
+             where hour = _set_ampm _set_hour
+                   sec  = truncate _set_sec
+
+-- |
+-- Same as 'parseUnixDateTimeNanos', except takes
+-- the additional locale and parser state parameters.
+parseUnixDateTimeNanos'
+  :: Abbreviate geo
+  => TimeLocale                -- ^ Local conventions
+  -> ParserState Gregorian geo -- ^ Initialized state
+  -> FormatText                -- ^ Format string
+  -> Text                      -- ^ Input string
+  -> Either String (UnixDateTimeNanos Gregorian)
+parseUnixDateTimeNanos' locale state format =
+  fmap from . parse locale state format
+  where from ParserState{..} =
+             createUnixDateTimeNanos _set_year _set_mon _set_mday hour _set_min sec nsec
+             where hour = _set_ampm _set_hour
+                   (,) sec nsec = properFracNanos $ _set_frac _set_sec
 
 -- |
 -- Check if the given year is a leap year.

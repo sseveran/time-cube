@@ -9,23 +9,19 @@ Stability:          Experimental
 Category:           Time
 Synopsis:           Yet Another Haskell Time Library
 Build-Type:         Simple
-Cabal-Version:      >= 1.16.0
+Cabal-Version:      >= 1.18.0
 Description:        Type safe timestamps for real-time applications.
 
 Library
   Default-Language: Haskell2010
-  Exposed-Modules:  Data.Time.Cube
-                    Data.Time.Cube.Base
-                    Data.Time.Cube.City
+  Exposed-Modules:  Data.Time.Cube.Base
                     Data.Time.Cube.Format
                     Data.Time.Cube.Lens
-                    Data.Time.Cube.Local
-                    Data.Time.Cube.Local.Gregorian
-                    Data.Time.Cube.Unix
-                    Data.Time.Cube.Unix.Gregorian
                     Data.Time.Cube.UTC
                     Data.Time.Cube.UTC.Gregorian
-                    Data.Time.Cube.Zone
+                    Data.Time.Cube.Unix
+                    Data.Time.Cube.Unix.Gregorian
+                    Data.Time.Cube.Zones
                     Foreign.C.Time
   Other-Modules:    Data.Time.Cube.Parser
                     Data.Time.Cube.Utilities

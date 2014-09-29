@@ -40,6 +40,15 @@ module Data.Time.Cube.UTC.Gregorian (
      , parseUTCDateTime
      , parseUTCDateTimeNanos
 
+ -- ** State
+     , ParserState
+     , defaultParserState
+
+ -- ** Internals
+     , parseUTCDate'
+     , parseUTCDateTime'
+     , parseUTCDateTimeNanos'
+
  -- ** Calendar
      , Era(..)
      , Month(..)
@@ -52,15 +61,14 @@ import Control.Lens.Setter (over)
 import Data.Int (Int64)
 import Data.Text (Text)
 import Data.Time.Cube.Base
-import Data.Time.Cube.City
 import Data.Time.Cube.Format
 import Data.Time.Cube.Lens
 import Data.Time.Cube.Parser
-import Data.Time.Cube.Unix.Gregorian
+import Data.Time.Cube.Unix.Gregorian hiding (defaultParserState)
 import Data.Time.Cube.Utilities
 import Data.Time.Cube.UTC
-import Data.Time.Cube.Zone
-import System.Locale (TimeLocale)
+import Data.Time.Cube.Zones
+import System.Locale (TimeLocale, defaultTimeLocale)
 import Text.Printf (printf)
 
 deriving instance Bounded (UTCDate Gregorian)
@@ -268,29 +276,48 @@ instance Show (UTCDateTimeNanos Gregorian) where
 
 -- |
 -- Create a UTC date.
-createUTCDate :: Year -> Month Gregorian -> Day -> UTCDate Gregorian
+createUTCDate
+  :: Year            -- ^ Year
+  -> Month Gregorian -- ^ Month
+  -> Day             -- ^ Day
+  -> UTCDate Gregorian
 createUTCDate year mon day = UTCDate $ createUnixDate year mon day
 
 -- |
 -- Create a UTC date and time.
-createUTCDateTime :: Year -> Month Gregorian -> Day -> Hour -> Minute -> Second -> UTCDateTime Gregorian
+createUTCDateTime
+  :: Year            -- ^ Year
+  -> Month Gregorian -- ^ Month
+  -> Day             -- ^ Day
+  -> Hour            -- ^ Hour
+  -> Minute          -- ^ Minute
+  -> Second          -- ^ Second
+  -> UTCDateTime Gregorian
 createUTCDateTime year mon day hour min Second{..} =
-   if minBound <= time && time <= maxBound
-   then time else error "createUTCDateTime: out of range" where
-        time = UTCDateTime base
-        base = baseUnixToUTC unix + getSecond
-        UnixDateTime unix = createUnixDateTime year mon day hour min 0
+  if minBound <= time && time <= maxBound
+  then time else error "createUTCDateTime: out of range" where
+       time = UTCDateTime base
+       base = baseUnixToUTC unix + getSecond
+       UnixDateTime unix = createUnixDateTime year mon day hour min 0
 
 -- |
 -- Create a UTC date and time with nanosecond granularity.
-createUTCDateTimeNanos :: Year -> Month Gregorian -> Day -> Hour -> Minute -> Second -> Nanos -> UTCDateTimeNanos Gregorian
+createUTCDateTimeNanos
+  :: Year            -- ^ Year
+  -> Month Gregorian -- ^ Month
+  -> Day             -- ^ Day
+  -> Hour            -- ^ Hour
+  -> Minute          -- ^ Minute
+  -> Second          -- ^ Second
+  -> Nanos           -- ^ Nanosecond
+  -> UTCDateTimeNanos Gregorian
 createUTCDateTimeNanos year mon day hour min Second{..} Nanos{..} =
-   if minBound <= time && time <= maxBound
-   then time else error "createUTCDateTimeNanos: out of range" where
-        time = UTCDateTimeNanos base nsec
-        base = baseUnixToUTC unix + getSecond + extra
-        (,) extra nsec = fmap fromIntegral $ divMod getNanos 1000000000
-        UnixDateTime unix = createUnixDateTime year mon day hour min 0
+  if minBound <= time && time <= maxBound
+  then time else error "createUTCDateTimeNanos: out of range" where
+       time = UTCDateTimeNanos base nsec
+       base = baseUnixToUTC unix + getSecond + extra
+       (,) extra nsec = fmap fromIntegral $ divMod getNanos 1000000000
+       UnixDateTime unix = createUnixDateTime year mon day hour min 0
 
 -- |
 -- Get the current UTC date from the system clock.
@@ -318,34 +345,80 @@ getCurrentUTCDateTimeNanos = do
     else time `plus` leap
 
 -- |
--- Initialize the parser state.
-state :: ParserState Gregorian
-state =  ParserState 1970 January 1 Thursday 0 0 0.0 id id utc
+-- Default parser state.
+defaultParserState :: ParserState Gregorian Universal
+defaultParserState =  ParserState 1970 January 1 Thursday 0 0 0.0 id id utc
 
 -- |
 -- Parse a UTC date.
-parseUTCDate :: TimeLocale -> FormatText -> Text -> Either String (UTCDate Gregorian)
-parseUTCDate locale format = fmap UTCDate . parseUnixDate locale format
+parseUTCDate
+  :: FormatText -- ^ Format string
+  -> Text       -- ^ Input string
+  -> Either String (UTCDate Gregorian)
+parseUTCDate = parseUTCDate' defaultTimeLocale defaultParserState
 
 -- |
 -- Parse a UTC date and time.
-parseUTCDateTime :: TimeLocale -> FormatText -> Text -> Either String (UTCDateTime Gregorian)
-parseUTCDateTime locale format =
-    fmap from . parse locale state Universal format
-    where from ParserState{..} =
-               createUTCDateTime _set_year _set_mon _set_mday hour _set_min sec
-               where hour = _set_ampm _set_hour
-                     sec  = truncate _set_sec
+parseUTCDateTime
+  :: FormatText -- ^ Format string
+  -> Text       -- ^ Input string
+  -> Either String (UTCDateTime Gregorian)
+parseUTCDateTime = parseUTCDateTime' defaultTimeLocale defaultParserState
 
 -- |
 -- Parse a UTC date and time with nanosecond granularity.
-parseUTCDateTimeNanos :: TimeLocale -> FormatText -> Text -> Either String (UTCDateTimeNanos Gregorian)
-parseUTCDateTimeNanos locale format =
-    fmap from . parse locale state Universal format
-    where from ParserState{..} =
-               createUTCDateTimeNanos _set_year _set_mon _set_mday hour _set_min sec nsec
-               where hour = _set_ampm _set_hour
-                     (,) sec nsec = properFracNanos $ _set_frac _set_sec
+parseUTCDateTimeNanos
+  :: FormatText -- ^ Format string
+  -> Text       -- ^ Input string
+  -> Either String (UTCDateTimeNanos Gregorian)
+parseUTCDateTimeNanos = parseUTCDateTimeNanos' defaultTimeLocale defaultParserState
+
+-- |
+-- Same as 'parseUTCDate', except takes the
+-- additional locale and parser state parameters.
+parseUTCDate'
+  :: Abbreviate geo
+  => TimeLocale                -- ^ Local conventions
+  -> ParserState Gregorian geo -- ^ Initialized state
+  -> FormatText                -- ^ Format string
+  -> Text                      -- ^ Input string
+  -> Either String (UTCDate Gregorian)
+parseUTCDate' locale state format =
+  fmap UTCDate . parseUnixDate' locale state format
+
+-- |
+-- Same as 'parseUTCDateTime', except takes the
+-- additional locale and parser state parameters.
+parseUTCDateTime'
+  :: Abbreviate geo
+  => TimeLocale                -- ^ Local conventions
+  -> ParserState Gregorian geo -- ^ Initialized state
+  -> FormatText                -- ^ Format string
+  -> Text                      -- ^ Input string
+  -> Either String (UTCDateTime Gregorian)
+parseUTCDateTime' locale state format =
+  fmap from . parse locale state format
+  where from ParserState{..} =
+             createUTCDateTime _set_year _set_mon _set_mday hour _set_min sec
+             where hour = _set_ampm _set_hour
+                   sec  = truncate _set_sec
+
+-- |
+-- Same as 'parseUTCDateTimeNanos', except takes
+-- the additional locale and parser state parameters.
+parseUTCDateTimeNanos'
+  :: Abbreviate geo
+  => TimeLocale                -- ^ Local conventions
+  -> ParserState Gregorian geo -- ^ Initialized state
+  -> FormatText                -- ^ Format string
+  -> Text                      -- ^ Input string
+  -> Either String (UTCDateTimeNanos Gregorian)
+parseUTCDateTimeNanos' locale state format =
+  fmap from . parse locale state format
+  where from ParserState{..} =
+             createUTCDateTimeNanos _set_year _set_mon _set_mday hour _set_min sec nsec
+             where hour = _set_ampm _set_hour
+                   (,) sec nsec = properFracNanos $ _set_frac _set_sec
 
 -- |
 -- Next leap second insertion date.
