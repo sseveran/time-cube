@@ -35,7 +35,6 @@ import Control.Monad ((<=<), foldM, replicateM)
 import Control.Monad.State.Strict (execState, State)
 import Data.Attoparsec.Text as P hiding (match, parse)
 import Data.Char (isAlpha)
-import Data.Monoid ((<>))
 import Data.Text as T (Text, length, pack, toLower)
 import Data.Time.Cube.Base
 import Data.Time.Cube.Format
