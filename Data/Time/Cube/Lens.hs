@@ -49,10 +49,22 @@ module Data.Time.Cube.Lens (
      , ldt_sec
      , ldt_zone
 
+     , def_year
+     , def_mon
+     , def_mday
+     , def_wday
+     , def_hour
+     , def_min
+     , def_sec
+     , def_frac
+     , def_ampm
+     , def_zone
+
      ) where
 
 import Control.Lens.TH (makeLenses)
 import Data.Time.Cube.Base
+import Data.Time.Cube.Parser
 
 makeLenses ''DateStruct
 makeLenses ''TimeStruct
@@ -60,3 +72,4 @@ makeLenses ''DateTimeStruct
 makeLenses ''LocalDateStruct
 makeLenses ''LocalTimeStruct
 makeLenses ''LocalDateTimeStruct
+makeLenses ''ParserState
