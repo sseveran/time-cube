@@ -35,7 +35,6 @@ module Data.Time.Cube.Zones (
 
  -- ** Conversions
      , Convert(..)
-     , ConvertError(..)
 
  -- ** GHC Extensions
      , SigNat(..)
@@ -172,7 +171,7 @@ instance Abbreviate Universal where
 
    unabbreviate = \ case
      "UTC" -> Right CoordinatedUniversalTime
-     txt   -> unknown "Universal" txt
+     txt   -> Left $ "unabbreviate{TimeZone Universal}: " ++ show txt
 
 instance KnownSigNat int => Abbreviate (Offset int) where
 
@@ -189,7 +188,7 @@ instance Abbreviate (Olson "America/Anchorage") where
    unabbreviate = \ case
      "AKST" -> Right AlaskaStandardTime
      "AKDT" -> Right AlaskaDaylightTime
-     txt    -> unknown "(Olson \"America/Anchorage\")" txt
+     txt    -> Left $ "unabbreviate{TimeZone (Olson \"America/Anchorage\")}: " ++ show txt
 
 instance Abbreviate (Olson "America/Chicago") where
 
@@ -200,7 +199,7 @@ instance Abbreviate (Olson "America/Chicago") where
    unabbreviate = \ case
      "CST" -> Right CentralStandardTime
      "CDT" -> Right CentralDaylightTime
-     txt   -> unknown "(Olson \"America/Chicago\")" txt
+     txt   -> Left $ "unabbreviate{TimeZone (Olson \"America/Chicago\")}: " ++ show txt
 
 instance Abbreviate (Olson "America/Denver") where
 
@@ -211,7 +210,7 @@ instance Abbreviate (Olson "America/Denver") where
    unabbreviate = \ case
      "MST" -> Right MountainStandardTime
      "MDT" -> Right MountainDaylightTime
-     txt   -> unknown "(Olson \"America/Denver\")" txt
+     txt   -> Left $ "unabbreviate{TimeZone (Olson \"America/Denver\")}: " ++ show txt
 
 instance Abbreviate (Olson "America/Los_Angeles") where
 
@@ -222,7 +221,7 @@ instance Abbreviate (Olson "America/Los_Angeles") where
    unabbreviate = \ case
      "PST" -> Right PacificStandardTime
      "PDT" -> Right PacificDaylightTime
-     txt   -> unknown "(Olson \"America/Los_Angeles\")" txt
+     txt   -> Left $ "unabbreviate{TimeZone (Olson \"America/Los_Angeles\")}: " ++ show txt
 
 instance Abbreviate (Olson "America/New_York") where
 
@@ -233,7 +232,7 @@ instance Abbreviate (Olson "America/New_York") where
    unabbreviate = \ case
      "EST" -> Right EasternStandardTime
      "EDT" -> Right EasternDaylightTime
-     txt   -> unknown "(Olson \"America/New_York\")" txt
+     txt   -> Left $ "unabbreviate{TimeZone (Olson \"America/New_York\")}: " ++ show txt
 
 instance Abbreviate (Olson "Asia/Kabul") where
 
@@ -241,28 +240,13 @@ instance Abbreviate (Olson "Asia/Kabul") where
 
    unabbreviate = \ case
      "AFT" -> Right AfghanistanTime
-     txt   -> unknown "(Olson \"Asia/Kabul\")" txt
-
--- |
--- Fail for an unmatched time zone abbreviation string.
-unknown :: String -> Text -> Either String a
-unknown geo txt = Left $ "unabbreviate{TimeZone " ++ geo ++ "}: unmatched time zone abbreviation string " ++ show txt
+     txt   -> Left $ "unabbreviate{TimeZone (Olson \"Asia/Kabul\")}: " ++ show txt
 
 -- |
 -- Convert from one time zone to another.
 class Convert a b where
 
-   convert :: TimeZone a -> Either ConvertError (TimeZone b)
-
--- |
--- How we indicate that an error occurred.
-data ConvertError =
-     ConvertError
-     { srcVal  :: String
-     , srcType :: String
-     , trgType :: String
-     , errMsg  :: String
-     } deriving Show
+   convert :: TimeZone a -> Either String (TimeZone b)
 
 instance Convert Universal (Offset (Plus 0)) where
 
@@ -275,52 +259,52 @@ instance Convert Universal (Offset (Minus 0)) where
 instance Convert (Olson "America/Anchorage") (Offset (Minus 540)) where
 
    convert AlaskaStandardTime = Right $ Offset (-540)
-   convert tz                 = Left  $ ConvertError (show tz) "Olson \"America/Anchorage\"" "Offset (Minus 540)" "unmatched time zone"
+   convert tz                 = Left  $ "convert{Olson \"America/Anchorage\", Offset (Minus 540)}: " ++ show tz
 
 instance Convert (Olson "America/Anchorage") (Offset (Minus 480)) where
 
    convert AlaskaDaylightTime = Right $ Offset (-480)
-   convert tz                 = Left  $ ConvertError (show tz) "Olson \"America/Anchorage\"" "Offset (Minus 480)" "unmatched time zone"
+   convert tz                 = Left  $ "convert{Olson \"America/Anchorage\", Offset (Minus 480)}: " ++ show tz
 
 instance Convert (Olson "America/Chicago") (Offset (Minus 360)) where
 
    convert CentralStandardTime = Right $ Offset (-360)
-   convert tz                  = Left  $ ConvertError (show tz) "Olson \"America/Chicago\"" "Offset (Minus 360)" "unmatched time zone"
+   convert tz                  = Left  $ "convert{Olson \"America/Chicago\", Offset (Minus 360)}: " ++ show tz
 
 instance Convert (Olson "America/Chicago") (Offset (Minus 300)) where
 
    convert CentralDaylightTime = Right $ Offset (-300)
-   convert tz                  = Left  $ ConvertError (show tz) "Olson \"America/Chicago\"" "Offset (Minus 300)" "unmatched time zone"
+   convert tz                  = Left  $ "convert{Olson \"America/Chicago\", Offset (Minus 300)}: " ++ show tz
 
 instance Convert (Olson "America/Denver") (Offset (Minus 420)) where
 
    convert MountainStandardTime = Right $ Offset (-420)
-   convert tz                   = Left  $ ConvertError (show tz) "Olson \"America/Denver\"" "Offset (Minus 420)" "unmatched time zone"
+   convert tz                   = Left  $ "convert{Olson \"America/Denver\", Offset (Minus 420)}: " ++ show tz
 
 instance Convert (Olson "America/Denver") (Offset (Minus 360)) where
 
    convert MountainDaylightTime = Right $ Offset (-360)
-   convert tz                   = Left  $ ConvertError (show tz) "Olson \"America/Denver\"" "Offset (Minus 360)" "unmatched time zone"
+   convert tz                   = Left  $ "convert{Olson \"America/Denver\", Offset (Minus 360)}: " ++ show tz
 
 instance Convert (Olson "America/Los_Angeles") (Offset (Minus 480)) where
 
    convert PacificStandardTime = Right $ Offset (-480)
-   convert tz                  = Left  $ ConvertError (show tz) "Olson \"America/Los_Angeles\"" "Offset (Minus 480)" "unmatched time zone"
+   convert tz                  = Left  $ "convert{Olson \"America/Los_Angeles\", Offset (Minus 480)}: " ++ show tz
 
 instance Convert (Olson "America/Los_Angeles") (Offset (Minus 420)) where
 
    convert PacificDaylightTime = Right $ Offset (-420)
-   convert tz                  = Left  $ ConvertError (show tz) "Olson \"America/Los_Angeles\"" "Offset (Minus 420)" "unmatched time zone"
+   convert tz                  = Left  $ "convert{Olson \"America/Los_Angeles\", Offset (Minus 420)}: " ++ show tz
 
 instance Convert (Olson "America/New_York") (Offset (Minus 300)) where
 
    convert EasternStandardTime = Right $ Offset (-300)
-   convert tz                  = Left  $ ConvertError (show tz) "Olson \"America/New_York\"" "Offset (Minus 300)" "unmatched time zone"
+   convert tz                  = Left  $ "convert{Olson \"America/New_York\", Offset (Minus 300)}: " ++ show tz
 
 instance Convert (Olson "America/New_York") (Offset (Minus 240)) where
 
    convert EasternDaylightTime = Right $ Offset (-240)
-   convert tz                  = Left  $ ConvertError (show tz) "Olson \"America/New_York\"" "Offset (Minus 240)" "unmatched time zone"
+   convert tz                  = Left  $ "convert{Olson \"America/New_York\", Offset (Minus 240)}: " ++ show tz
 
 instance Convert (Olson "Asia/Kabul") (Offset (Plus 270)) where
 
