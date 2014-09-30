@@ -50,26 +50,40 @@ data LocalDateTimeNanos (cal :: Calendar) geo =
      LocalDateTimeNanos {-# UNPACK #-} !(UTCDateTimeNanos cal) {-# UNPACK #-} !(TimeZone geo)
      deriving Generic
 
-deriving instance (Eq geo, Eq (TimeZone geo)) => Eq (LocalDate cal geo)
-deriving instance (Eq geo, Eq (TimeZone geo)) => Eq (LocalDateTime cal geo)
-deriving instance (Eq geo, Eq (TimeZone geo)) => Eq (LocalDateTimeNanos cal geo)
+deriving instance (Eq geo,
+                   Eq (TimeZone geo)) =>
+                   Eq (LocalDate cal geo)
+
+deriving instance (Eq geo,
+                   Eq (TimeZone geo)) =>
+                   Eq (LocalDateTime cal geo)
+
+deriving instance (Eq geo,
+                   Eq (TimeZone geo)) =>
+                   Eq (LocalDateTimeNanos cal geo)
 
 instance (Eq geo, Eq (TimeZone geo)) => Ord (LocalDate cal geo) where
+
    compare = comparing $ \ (LocalDate date _) -> date
 
 instance (Eq geo, Eq (TimeZone geo)) => Ord (LocalDateTime cal geo) where
+
    compare = comparing $ \ (LocalDateTime time _) -> time
 
 instance (Eq geo, Eq (TimeZone geo)) => Ord (LocalDateTimeNanos cal geo) where
+
    compare = comparing $ \ (LocalDateTimeNanos time _) -> time
 
 instance NFData (TimeZone geo) => NFData (LocalDate cal geo) where
+
    rnf (LocalDate date zone) = rnf date `seq` rnf zone `seq` ()
 
 instance NFData (TimeZone geo) => NFData (LocalDateTime cal geo) where
+
    rnf (LocalDateTime time zone) = rnf time `seq` rnf zone `seq` ()
 
 instance NFData (TimeZone geo) => NFData (LocalDateTimeNanos cal geo) where
+
    rnf (LocalDateTimeNanos time zone) = rnf time `seq` rnf zone `seq` ()
 
 instance Storable (LocalDate cal (Offset int)) where
