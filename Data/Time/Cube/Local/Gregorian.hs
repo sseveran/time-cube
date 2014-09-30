@@ -27,6 +27,10 @@ module Data.Time.Cube.Local.Gregorian (
  --  , createLocalDateTime
  --  , createLocalDateTimeNanos
 
+ -- ** State
+     , ParserState
+     , defaultParserState
+
  -- ** Calendar
      , Era(..)
      , Month(..)
@@ -36,8 +40,9 @@ module Data.Time.Cube.Local.Gregorian (
 
 import Data.Time.Cube.Base
 import Data.Time.Cube.Local
-import Data.Time.Cube.Unix.Gregorian
-import Data.Time.Cube.UTC.Gregorian
+import Data.Time.Cube.Parser
+import Data.Time.Cube.Unix.Gregorian hiding (defaultParserState)
+import Data.Time.Cube.UTC.Gregorian  hiding (defaultParserState)
 import Data.Time.Cube.Zones
 
 import qualified Text.Printf as P (printf)
@@ -118,6 +123,10 @@ createLocalDate
 createLocalDate year mon day =
   LocalDate $ createUTCDate year mon day
 
+-- |
+-- Default parser state.
+defaultParserState :: ParserState Gregorian Universal
+defaultParserState =  ParserState 1970 January 1 Thursday 0 0 0.0 id id utc
 
 
 
@@ -131,7 +140,6 @@ createLocalDate year mon day =
 import Data.Time.Cube.City
 import Data.Time.Cube.Format
 import Data.Time.Cube.Lens
-import Data.Time.Cube.Parser
 import Data.Time.Cube.Utilities
 
 

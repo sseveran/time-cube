@@ -19,6 +19,7 @@ Library
                     Data.Time.Cube.Format
                     Data.Time.Cube.Lens
                     Data.Time.Cube.Local
+                    Data.Time.Cube.Local.Gregorian
                     Data.Time.Cube.UTC
                     Data.Time.Cube.UTC.Gregorian
                     Data.Time.Cube.Unix
