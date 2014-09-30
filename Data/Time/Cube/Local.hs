@@ -1,7 +1,10 @@
-{-# LANGUAGE DataKinds      #-}
-{-# LANGUAGE DeriveGeneric  #-}
-{-# LANGUAGE KindSignatures #-}
-{-# OPTIONS -Wall           #-}
+{-# LANGUAGE DataKinds          #-}
+{-# LANGUAGE DeriveGeneric      #-}
+{-# LANGUAGE FlexibleContexts   #-}
+{-# LANGUAGE FlexibleInstances  #-}
+{-# LANGUAGE KindSignatures     #-}
+{-# LANGUAGE StandaloneDeriving #-}
+{-# OPTIONS -Wall               #-}
 
 -- |
 -- Module      : Data.Time.Cube.Local
@@ -24,48 +27,52 @@ import Control.DeepSeq (NFData(..))
 import Data.Ord (comparing)
 import Data.Time.Cube.Base (Calendar(..))
 import Data.Time.Cube.UTC
-import Data.Time.Cube.Zone (TimeZone)
+import Data.Time.Cube.Zones (Offset, TimeZone)
 import Foreign.Ptr (plusPtr)
 import Foreign.Storable (Storable(..))
 import GHC.Generics (Generic)
 
 -- |
 -- Local days since Unix epoch.
-data LocalDate (cal :: Calendar) =
-     LocalDate {-# UNPACK #-} !(UTCDate cal) {-# UNPACK #-} !TimeZone
-   deriving (Eq, Generic)
+data LocalDate (cal :: Calendar) geo =
+     LocalDate {-# UNPACK #-} !(UTCDate cal) {-# UNPACK #-} !(TimeZone geo)
+     deriving Generic
 
 -- |
 -- Local seconds since Unix epoch (including leap seconds).
-data LocalDateTime (cal :: Calendar) =
-     LocalDateTime {-# UNPACK #-} !(UTCDateTime cal) {-# UNPACK #-} !TimeZone
-   deriving (Eq, Generic)
+data LocalDateTime (cal :: Calendar) geo =
+     LocalDateTime {-# UNPACK #-} !(UTCDateTime cal) {-# UNPACK #-} !(TimeZone geo)
+     deriving Generic
 
 -- |
 -- Local nanoseconds since Unix epoch (including leap seconds).
-data LocalDateTimeNanos (cal :: Calendar) =
-     LocalDateTimeNanos {-# UNPACK #-} !(UTCDateTimeNanos cal) {-# UNPACK #-} !TimeZone
-   deriving (Eq, Generic)
+data LocalDateTimeNanos (cal :: Calendar) geo =
+     LocalDateTimeNanos {-# UNPACK #-} !(UTCDateTimeNanos cal) {-# UNPACK #-} !(TimeZone geo)
+     deriving Generic
 
-instance Ord (LocalDate cal) where
+deriving instance (Eq geo, Eq (TimeZone geo)) => Eq (LocalDate cal geo)
+deriving instance (Eq geo, Eq (TimeZone geo)) => Eq (LocalDateTime cal geo)
+deriving instance (Eq geo, Eq (TimeZone geo)) => Eq (LocalDateTimeNanos cal geo)
+
+instance (Eq geo, Eq (TimeZone geo)) => Ord (LocalDate cal geo) where
    compare = comparing $ \ (LocalDate date _) -> date
 
-instance Ord (LocalDateTime cal) where
+instance (Eq geo, Eq (TimeZone geo)) => Ord (LocalDateTime cal geo) where
    compare = comparing $ \ (LocalDateTime time _) -> time
 
-instance Ord (LocalDateTimeNanos cal) where
+instance (Eq geo, Eq (TimeZone geo)) => Ord (LocalDateTimeNanos cal geo) where
    compare = comparing $ \ (LocalDateTimeNanos time _) -> time
 
-instance NFData (LocalDate cal) where
+instance NFData (TimeZone geo) => NFData (LocalDate cal geo) where
    rnf (LocalDate date zone) = rnf date `seq` rnf zone `seq` ()
 
-instance NFData (LocalDateTime cal) where
+instance NFData (TimeZone geo) => NFData (LocalDateTime cal geo) where
    rnf (LocalDateTime time zone) = rnf time `seq` rnf zone `seq` ()
 
-instance NFData (LocalDateTimeNanos cal) where
+instance NFData (TimeZone geo) => NFData (LocalDateTimeNanos cal geo) where
    rnf (LocalDateTimeNanos time zone) = rnf time `seq` rnf zone `seq` ()
 
-instance Storable (LocalDate cal) where
+instance Storable (LocalDate cal (Offset int)) where
    sizeOf  _ = 6
    alignment = sizeOf
    peekElemOff ptr n = do
@@ -78,7 +85,7 @@ instance Storable (LocalDate cal) where
        flip poke date . plusPtr ptr $ off
        flip poke zone . plusPtr ptr $ off + 4
 
-instance Storable (LocalDateTime cal) where
+instance Storable (LocalDateTime cal (Offset int)) where
    sizeOf  _ = 10
    alignment = sizeOf
    peekElemOff ptr n = do
@@ -91,7 +98,7 @@ instance Storable (LocalDateTime cal) where
        flip poke time . plusPtr ptr $ off
        flip poke zone . plusPtr ptr $ off + 8
 
-instance Storable (LocalDateTimeNanos cal) where
+instance Storable (LocalDateTimeNanos cal (Offset int)) where
    sizeOf  _ = 14
    alignment = sizeOf
    peekElemOff ptr n = do
