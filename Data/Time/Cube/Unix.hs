@@ -42,9 +42,10 @@ newtype UnixDateTime (cal :: Calendar) = UnixDateTime Int64
 -- Nanoseconds since Unix epoch (excluding leap seconds).
 data UnixDateTimeNanos (cal :: Calendar) =
      UnixDateTimeNanos {-# UNPACK #-} !Int64 {-# UNPACK #-} !Int32
-   deriving (Eq, Generic, Ord)
+     deriving (Eq, Generic, Ord)
 
 instance NFData (UnixDateTimeNanos cal) where
+
    rnf (UnixDateTimeNanos base nsec) = rnf base `seq` rnf nsec `seq` ()
 
 instance Storable (UnixDateTimeNanos cal) where

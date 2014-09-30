@@ -43,9 +43,10 @@ newtype UTCDateTime (cal :: Calendar) = UTCDateTime Int64
 -- Nanoseconds since Unix epoch (including leap seconds).
 data UTCDateTimeNanos (cal :: Calendar) =
      UTCDateTimeNanos {-# UNPACK #-} !Int64 {-# UNPACK #-} !Int32
-   deriving (Eq, Generic, Ord)
+     deriving (Eq, Generic, Ord)
 
 instance NFData (UTCDateTimeNanos cal) where
+
    rnf (UTCDateTimeNanos base nsec) = rnf base `seq` rnf nsec `seq` ()
 
 instance Storable (UTCDateTimeNanos cal) where
