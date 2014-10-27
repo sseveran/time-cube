@@ -1,15 +1,13 @@
-{-# LANGUAGE DataKinds             #-}
-{-# LANGUAGE DeriveGeneric         #-}
-{-# LANGUAGE FlexibleInstances     #-}
-{-# LANGUAGE GADTs                 #-}
-{-# LANGUAGE LambdaCase            #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE OverloadedStrings     #-}
-{-# LANGUAGE Rank2Types            #-}
-{-# LANGUAGE RecordWildCards       #-}
-{-# LANGUAGE ScopedTypeVariables   #-}
-{-# LANGUAGE TypeFamilies          #-}
-{-# OPTIONS -Wall                  #-}
+{-# LANGUAGE DataKinds                 #-}
+{-# LANGUAGE DeriveGeneric             #-}
+{-# LANGUAGE ExistentialQuantification #-}
+{-# LANGUAGE FlexibleInstances         #-}
+{-# LANGUAGE LambdaCase                #-}
+{-# LANGUAGE OverloadedStrings         #-}
+{-# LANGUAGE ScopedTypeVariables       #-}
+{-# LANGUAGE StandaloneDeriving        #-}
+{-# LANGUAGE TypeFamilies              #-}
+{-# OPTIONS -Wall                      #-}
 
 -- |
 -- Module      : Data.Time.Cube.Zones
@@ -23,81 +21,145 @@ module Data.Time.Cube.Zones (
 
  -- ** Time Zones
        TimeZone(..)
-     , utc
 
- -- ** Geography
+ -- ** Geographies
      , Universal
      , Offset
-     , Olson(..)
+     , SomeOffset(..)
+     , Olson
 
  -- ** Abbreviations
      , Abbreviate(..)
 
- -- ** Conversions
-     , Convert(..)
-
- -- ** GHC Extensions
-     , SigNat(..)
-     , KnownSigNat(..)
-
      ) where
 
-import Control.Applicative ((<|>), (<$>), (*>))
-import Control.DeepSeq (NFData(..))
-import Control.Monad (replicateM)
-import Data.Attoparsec.Text (Parser, char, digit, parseOnly)
-import Data.Int (Int16)
-import Data.Proxy (Proxy(..))
-import Data.Text (Text, pack)
-import Foreign.Ptr (castPtr)
-import Foreign.Storable (Storable(..))
-import GHC.Generics (Generic)
-import GHC.TypeLits (KnownNat, Nat, Symbol, natVal)
-import Text.Printf (printf)
+import Control.Applicative  ((<|>), (*>))
+import Control.DeepSeq      (NFData(..))
+import Control.Monad        (replicateM)
+import Data.Attoparsec.Text (char, digit, parseOnly)
+import Data.Int             (Int16)
+import Data.Proxy           (Proxy(..))
+import Data.Text            (Text, pack)
+import Foreign.Ptr          (castPtr)
+import Foreign.Storable     (Storable(..))
+import GHC.Generics         (Generic)
+import GHC.TypeLits
+import GHC.TypeLits.SigNat
+import Text.Printf          (printf)
 
 -- |
 -- A uniform standard for time with geographic parametrization.
 data family TimeZone :: * -> *
 
--- |
--- The coordinated universal time zone.
-utc :: TimeZone Universal
-utc = CoordinatedUniversalTime
+data Universal :: *
 
--- |
--- A geographic region that observes coordinated universal time.
-data Universal
-
--- |
--- A geographic region characterized by its offset in minutes from coordinated universal time.
 data Offset :: SigNat -> *
 
--- |
--- A geographic region defined in the Olson database.
+data SomeOffset = forall signat . KnownSigNat signat => SomeOffset (Proxy signat)
+
+instance Eq SomeOffset where
+
+   SomeOffset x == SomeOffset y = sigNatVal x == sigNatVal y
+
+deriving instance Show SomeOffset
+
 data family Olson :: Symbol -> *
 
 data instance TimeZone Universal =
      CoordinatedUniversalTime
      deriving (Eq, Generic, Show)
 
-data instance TimeZone (Offset int) =
-     Offset { getOffset :: {-# UNPACK #-} !Int16 }
+data instance TimeZone (Offset signat) =
+     TimeZoneOffset
      deriving (Eq, Generic, Show)
 
-data instance TimeZone (Olson "America/Anchorage") =
-     AlaskaStandardTime
-   | AlaskaDaylightTime
-     deriving (Eq, Generic, Show)
+data instance TimeZone SomeOffset =
+     forall signat . KnownSigNat signat =>
+     SomeTimeZoneOffset (Proxy signat)
 
-data instance TimeZone (Olson "America/Chicago") =
-     CentralStandardTime
-   | CentralDaylightTime
-     deriving (Eq, Generic, Show)
+instance Eq (TimeZone SomeOffset) where
 
-data instance TimeZone (Olson "America/Denver") =
-     MountainStandardTime
-   | MountainDaylightTime
-     deriving (Eq, Generic, Show)
+   SomeTimeZoneOffset x == SomeTimeZoneOffset y = sigNatVal x == sigNatVal y
+
+deriving instance Show (TimeZone SomeOffset)
+
+instance Storable (TimeZone SomeOffset) where
+
+   sizeOf  _ = 2
+   alignment = sizeOf
+   peekElemOff ptr n = do
+     val <- peekElemOff (castPtr ptr) n :: IO Int16
+     case someSigNatVal $ toInteger val
+       of SomeSigNat proxy -> return $! SomeTimeZoneOffset proxy
+   pokeElemOff ptr n (SomeTimeZoneOffset proxy) =
+     pokeElemOff (castPtr ptr) n val
+     where val = fromInteger $ sigNatVal proxy :: Int16
+
+data instance TimeZone (Olson olson) =
+    TimeZoneOlson
+    deriving (Eq, Generic, Show)
+
+class Abbreviate tz where
+
+   -- |
+   -- Get the abbreviation text for the given time zone.
+   abbreviate :: tz -> Text
+
+   -- |
+   -- Get the time zone for the given abbreviation text.
+   unabbreviate :: Text -> Either String tz
+
+instance Abbreviate (TimeZone Universal) where
+
+   abbreviate CoordinatedUniversalTime = "UTC"
+
+   unabbreviate = \ case
+     "UTC" -> Right CoordinatedUniversalTime
+     _     -> Left "unabbreviate{TimeZone Universal}: unknown"
+
+instance Abbreviate (TimeZone SomeOffset) where
+
+   abbreviate (SomeTimeZoneOffset proxy) =
+     pack $ sign : hours ++ minutes
+     where
+       sign    = if signat < 0 then '-' else '+'
+       hours   = printf "%02d" $ div nat 60
+       minutes = printf "%02d" $ mod nat 60
+       nat     = abs signat
+       signat  = sigNatVal proxy
+
+   unabbreviate = parseOnly $ do
+     sign    <- plus <|> minus
+     hours   <- replicateM 2 digit
+     minutes <- replicateM 2 digit
+     let signat = sign $ read hours * 60 + read minutes
+     case someSigNatVal signat
+       of SomeSigNat proxy -> return $! promoteSigNat proxy SomeTimeZoneOffset
+          where plus  = char '+' *> return id
+                minus = char '-' *> return negate
+
+instance NFData (TimeZone (Universal    )) where rnf _ = ()
+instance NFData (TimeZone (Offset signat)) where rnf _ = ()
+instance NFData (TimeZone (SomeOffset   )) where rnf _ = ()
+instance NFData (TimeZone (Olson olson  )) where rnf _ = ()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{-
 
 data instance TimeZone (Olson "America/Los_Angeles") =
      PacificStandardTime
@@ -108,10 +170,197 @@ data instance TimeZone (Olson "America/New_York") =
      EasternStandardTime
    | EasternDaylightTime
      deriving (Eq, Generic, Show)
+-}
+
+
+
+
+
+
+
+
+{-
+data instance TimeZone (Olson "America/Los_Angeles") =
+     PacificStandardTime
+   | PacificDaylightTime
+     deriving (Eq, Generic, Show)
+
+
+data instance TimeZone (Olson "America/Denver") =
+     MountainStandardTime
+   | MountainDaylightTime
+     deriving (Eq, Generic, Show)
+
+data instance TimeZone (Olson "America/New_York") =
+     EasternStandardTime
+   | EasternDaylightTime
+     deriving (Eq, Generic, Show)
 
 data instance TimeZone (Olson "Asia/Kabul") =
      AfghanistanTime
      deriving (Eq, Generic, Show)
+-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{-
+
+
+
+-}
+---------------------------------------------------------
+------------------------ SigNats ------------------------
+---------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--------------------------------------------------------
+---------------------------SigNat S-----------------------------
+--------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{-
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+data instance TimeZone (Olson "Asia/Kabul") =
+     AfghanistanTime
+     deriving (Eq, Generic, Show)
+
+
+
+
+
+
+
+class Unabbreviate tz where
+
+
+
+
+instance KnownSigNat int => Unabbreviate (TimeZone (Offset int)) where
+
+
+
+
+
+
+
+-- promoteOffset :: forall int a . KnownSigNat int => proxy int -> (Proxy int -> a) -> a
+f
+promoteOffset :: TimeZone (Offset int) -> SomeOffset -> TimeZone (Offset int)
+promoteOffset a _ = a
+
+
+
+
+
+
+ =
+     SomeOffset2
+     deriving (Eq, Generic, Show)
+
+
+
+data instance TimeZone KnownOffset =
+     KnownOffset
+     deriving (Eq, Generic, Show)
+
+
+
+
+-- |
+-- Any geographic region characterized by its offset in minutes from a prime meridian.
+data Offset :: SigNat -> *
+
+-- |
+-- Any geographic region where local clocks have stayed consistent since 1970.
+data family Olson :: Symbol -> *
+
+
+
+data instance TimeZone (Offset int) =
+     Offset
+     deriving (Eq, Generic, Show)
+
+
+
+
+instance KnownSigNat int => Abbreviate (Offset int) where
+
+
+
+
+
+
+
 
 data instance (Olson "America/Anchorage") = Anchorage
      deriving (Eq, Generic)
@@ -155,29 +404,11 @@ instance Show (Olson "Asia/Kabul") where
 
     show Kabul = "Asia/Kabul"
 
-class Abbreviate a where
 
-   -- |
-   -- Get the abbreviation text for the given time zone.
-   abbreviate :: TimeZone a -> Text
 
-   -- |
-   -- Get the time zone for the given abbreviation text.
-   unabbreviate :: Text -> Either String (TimeZone a)
 
-instance Abbreviate Universal where
 
-   abbreviate CoordinatedUniversalTime = "UTC"
 
-   unabbreviate = \ case
-     "UTC" -> Right CoordinatedUniversalTime
-     txt   -> Left $ "unabbreviate{TimeZone Universal}: " ++ show txt
-
-instance KnownSigNat int => Abbreviate (Offset int) where
-
-   abbreviate = pack . showOffset
-
-   unabbreviate = parseOnly parseOffset
 
 instance Abbreviate (Olson "America/Anchorage") where
 
@@ -250,129 +481,77 @@ class Convert a b where
 
 instance Convert Universal (Offset (Plus 0)) where
 
-   convert CoordinatedUniversalTime = Right $ Offset 0
+   convert CoordinatedUniversalTime = Right Offset
 
 instance Convert Universal (Offset (Minus 0)) where
 
-   convert CoordinatedUniversalTime = Right $ Offset 0
+   convert CoordinatedUniversalTime = Right Offset
 
 instance Convert (Olson "America/Anchorage") (Offset (Minus 540)) where
 
-   convert AlaskaStandardTime = Right $ Offset (-540)
-   convert tz                 = Left  $ "convert{Olson \"America/Anchorage\", Offset (Minus 540)}: " ++ show tz
+   convert AlaskaStandardTime = Right Offset
+   convert tz                 = Left $ "convert{Olson \"America/Anchorage\", Offset (Minus 540)}: " ++ show tz
 
 instance Convert (Olson "America/Anchorage") (Offset (Minus 480)) where
 
-   convert AlaskaDaylightTime = Right $ Offset (-480)
-   convert tz                 = Left  $ "convert{Olson \"America/Anchorage\", Offset (Minus 480)}: " ++ show tz
+   convert AlaskaDaylightTime = Right Offset
+   convert tz                 = Left $ "convert{Olson \"America/Anchorage\", Offset (Minus 480)}: " ++ show tz
 
 instance Convert (Olson "America/Chicago") (Offset (Minus 360)) where
 
-   convert CentralStandardTime = Right $ Offset (-360)
-   convert tz                  = Left  $ "convert{Olson \"America/Chicago\", Offset (Minus 360)}: " ++ show tz
+   convert CentralStandardTime = Right Offset
+   convert tz                  = Left $ "convert{Olson \"America/Chicago\", Offset (Minus 360)}: " ++ show tz
 
 instance Convert (Olson "America/Chicago") (Offset (Minus 300)) where
 
-   convert CentralDaylightTime = Right $ Offset (-300)
-   convert tz                  = Left  $ "convert{Olson \"America/Chicago\", Offset (Minus 300)}: " ++ show tz
+   convert CentralDaylightTime = Right Offset
+   convert tz                  = Left $ "convert{Olson \"America/Chicago\", Offset (Minus 300)}: " ++ show tz
 
 instance Convert (Olson "America/Denver") (Offset (Minus 420)) where
 
-   convert MountainStandardTime = Right $ Offset (-420)
-   convert tz                   = Left  $ "convert{Olson \"America/Denver\", Offset (Minus 420)}: " ++ show tz
+   convert MountainStandardTime = Right Offset
+   convert tz                   = Left $ "convert{Olson \"America/Denver\", Offset (Minus 420)}: " ++ show tz
 
 instance Convert (Olson "America/Denver") (Offset (Minus 360)) where
 
-   convert MountainDaylightTime = Right $ Offset (-360)
-   convert tz                   = Left  $ "convert{Olson \"America/Denver\", Offset (Minus 360)}: " ++ show tz
+   convert MountainDaylightTime = Right Offset
+   convert tz                   = Left $ "convert{Olson \"America/Denver\", Offset (Minus 360)}: " ++ show tz
 
 instance Convert (Olson "America/Los_Angeles") (Offset (Minus 480)) where
 
-   convert PacificStandardTime = Right $ Offset (-480)
-   convert tz                  = Left  $ "convert{Olson \"America/Los_Angeles\", Offset (Minus 480)}: " ++ show tz
+   convert PacificStandardTime = Right Offset
+   convert tz                  = Left $ "convert{Olson \"America/Los_Angeles\", Offset (Minus 480)}: " ++ show tz
 
 instance Convert (Olson "America/Los_Angeles") (Offset (Minus 420)) where
 
-   convert PacificDaylightTime = Right $ Offset (-420)
-   convert tz                  = Left  $ "convert{Olson \"America/Los_Angeles\", Offset (Minus 420)}: " ++ show tz
+   convert PacificDaylightTime = Right Offset
+   convert tz                  = Left $ "convert{Olson \"America/Los_Angeles\", Offset (Minus 420)}: " ++ show tz
 
 instance Convert (Olson "America/New_York") (Offset (Minus 300)) where
 
-   convert EasternStandardTime = Right $ Offset (-300)
-   convert tz                  = Left  $ "convert{Olson \"America/New_York\", Offset (Minus 300)}: " ++ show tz
+   convert EasternStandardTime = Right Offset
+   convert tz                  = Left $ "convert{Olson \"America/New_York\", Offset (Minus 300)}: " ++ show tz
 
 instance Convert (Olson "America/New_York") (Offset (Minus 240)) where
 
-   convert EasternDaylightTime = Right $ Offset (-240)
-   convert tz                  = Left  $ "convert{Olson \"America/New_York\", Offset (Minus 240)}: " ++ show tz
+   convert EasternDaylightTime = Right Offset
+   convert tz                  = Left $ "convert{Olson \"America/New_York\", Offset (Minus 240)}: " ++ show tz
 
 instance Convert (Olson "Asia/Kabul") (Offset (Plus 270)) where
 
-   convert AfghanistanTime = Right $ Offset 270
+   convert AfghanistanTime = Right Offset
 
-instance NFData (TimeZone Universal) where
 
-   rnf _ = ()
 
-instance NFData (TimeZone (Offset int)) where
 
-   rnf Offset{..} = rnf getOffset `seq` ()
 
-instance NFData (TimeZone (Olson file)) where
 
-   rnf _ = ()
 
-instance Storable (TimeZone (Offset int)) where
 
-   sizeOf  _ = 2
-   alignment = sizeOf
 
-   peekElemOff ptr n = Offset <$> peekElemOff (castPtr ptr) n
-   pokeElemOff ptr n = pokeElemOff (castPtr ptr) n . getOffset
 
--- |
--- Parse a time zone offset string.
-parseOffset :: forall int . KnownSigNat int => Parser (TimeZone (Offset int))
-parseOffset = do
-   sign  <- plus <|> minus
-   hours <- replicateM 2 digit
-   mins  <- replicateM 2 digit
-   let value = sign $ read hours * 60 + read mins
-       proxy = Proxy :: Proxy int
-   if value == sigNatVal proxy
-   then return $! Offset $ fromInteger value
-   else fail "parseOffset: type dependency not satisfied"
-   where plus  = char '+' *> return id
-         minus = char '-' *> return negate
 
--- |
--- Show a time zone offset string.
-showOffset :: TimeZone (Offset int) -> String
-showOffset Offset{..} =
-   sign : hours ++ mins
-   where sign  = if getOffset < 0 then '-' else '+'
-         hours = printf "%02d" $ div value 60
-         mins  = printf "%02d" $ mod value 60
-         value = abs getOffset
+-}
 
--- |
--- A generalized algebraic data type
--- representing signed type-level naturals.
-data SigNat where
-     Plus  :: Nat -> SigNat
-     Minus :: Nat -> SigNat
 
--- |
--- Get the integer associated with the
--- signed type-level natural via proxy.
-class KnownSigNat (int :: SigNat) where
 
-   sigNatVal :: Proxy int -> Integer
-
-instance KnownNat nat => KnownSigNat (Plus nat) where
-
-   sigNatVal _ = natVal (Proxy :: Proxy nat)
-
-instance KnownNat nat => KnownSigNat (Minus nat) where
-
-   sigNatVal _ = negate $ natVal (Proxy :: Proxy nat)
