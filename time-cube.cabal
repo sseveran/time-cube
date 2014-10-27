@@ -7,10 +7,10 @@ Author:             Nathan Howell, Enzo Haussecker, Steve Severance
 Maintainer:         enzo@alphaheavy.com
 Stability:          Experimental
 Category:           Time
-Synopsis:           Yet Another Haskell Time Library
+Synopsis:           Typesafe Timestamps
 Build-Type:         Simple
 Cabal-Version:      >= 1.18.0
-Description:        Type safe timestamps for real-time applications.
+Description:        Typesafe timestamps for real-time applications.
 
 Library
   Default-Language: Haskell2010
