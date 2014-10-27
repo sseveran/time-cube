@@ -26,6 +26,7 @@ Library
                     Data.Time.Cube.Unix.Gregorian
                     Data.Time.Cube.Zones
                     Foreign.C.Time
+                    GHC.TypeLits.SigNat
   Other-Modules:    Data.Time.Cube.Parser
                     Data.Time.Cube.Utilities
   Build-Depends:    attoparsec,
