@@ -9,10 +9,10 @@
 -- Module      : GHC.TypeLits.SigNat
 -- License     : BSD3
 -- Maintainer  : Enzo Haussecker
--- Stability   : Stable
--- Portability : Portable
+-- Stability   : Experimental
+-- Portability : GHC 7.8.*
 --
--- Extensions to GHC.TypeLits, supporting signed type-level naturals.
+-- This module provides support for signed type-level naturals.
 module GHC.TypeLits.SigNat (
 
  -- ** Signed Type-Level Naturals
