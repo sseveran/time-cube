@@ -3,9 +3,9 @@
 -- |
 -- Module      : Data.Time.Cube.Format
 -- License     : BSD3
--- Maintainer  : Enzo Haussecker
--- Stability   : Stable
--- Portability : Portable
+-- Maintainer  : ehaussecker@alphaheavy.com
+-- Stability   : Experimental
+-- Portability : GHC 7.8.* on Unix
 --
 -- Date and time format strings.
 module Data.Time.Cube.Format (
