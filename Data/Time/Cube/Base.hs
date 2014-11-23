@@ -12,9 +12,9 @@
 -- |
 -- Module      : Data.Time.Cube.Base
 -- License     : BSD3
--- Maintainer  : Enzo Haussecker
--- Stability   : Stable
--- Portability : Portable
+-- Maintainer  : ehaussecker@alphaheavy.com
+-- Stability   : Experimental
+-- Portability : GHC 7.8.* on Unix
 --
 -- Basic definitions, including data types, data families, and new types.
 module Data.Time.Cube.Base (
