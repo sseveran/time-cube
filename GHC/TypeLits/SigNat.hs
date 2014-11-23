@@ -8,7 +8,7 @@
 -- |
 -- Module      : GHC.TypeLits.SigNat
 -- License     : BSD3
--- Maintainer  : Enzo Haussecker
+-- Maintainer  : ehaussecker@alphaheavy.com
 -- Stability   : Experimental
 -- Portability : GHC 7.8.*
 --
