@@ -62,26 +62,26 @@ makeLenses ''ParserState
 -- Run the generic timestamp parser and return the raw
 -- parser state or an error string if the parser failed.
 parse
-  :: Abbreviate tz
-  => Bounded (Month cal)
-  => Enum (Month cal)
-  => Enum (DayOfWeek cal)
-  => TimeLocale         -- ^ Local conventions
+  :: Abbreviate (TimeZone   tz)
+  => Bounded    (Month     cal)
+  => Enum       (DayOfWeek cal)
+  => Enum       (Month     cal)
+  => TimeLocale         -- ^ Local Conventions
   -> ParserState cal tz -- ^ Initialized State
-  -> FormatText         -- ^ Format string
-  -> Text               -- ^ Input string
+  -> FormatText         -- ^ Format String
+  -> Text               -- ^ Input String
   -> Either String (ParserState cal tz)
 parse locale state format input =
   flip parseOnly input <=< fmap exe . flip parseOnly format . many' $ create locale
   where exe sets = flip execState state <$> sequence <$> sequence sets
 
 -- |
--- Create a timestamp parser.
+-- Create a timestamp parser from local conventions.
 create
-  :: Abbreviate tz
-  => Bounded (Month cal)
-  => Enum (Month cal)
-  => Enum (DayOfWeek cal)
+  :: Abbreviate (TimeZone   tz)
+  => Bounded    (Month     cal)
+  => Enum       (DayOfWeek cal)
+  => Enum       (Month     cal)
   => TimeLocale
   -> Parser (Parser (State (ParserState cal tz) ()))
 create locale =
@@ -131,7 +131,7 @@ percent = string "%%" *> return (char '%' *> return (return ()))
 -- the value returned by the parser.
 match
   :: Enum (DayOfWeek cal)
-  => Enum (Month cal)
+  => Enum (Month     cal)
   => Text
   -> Setter (ParserState cal tz) (ParserState cal tz) a a
   -> Parser a
@@ -144,7 +144,7 @@ match code field parser =
 -- assign the values returned by the parser.
 iso8601
   :: Bounded (Month cal)
-  => Enum (Month cal)
+  => Enum    (Month cal)
   => Text
   -> Setter (ParserState cal tz) (ParserState cal tz) Year Year
   -> Setter (ParserState cal tz) (ParserState cal tz) (Month cal) (Month cal)
@@ -165,7 +165,7 @@ iso8601 code yr mon mday =
 -- assign the values returned by the parser.
 date
   :: Bounded (Month cal)
-  => Enum (Month cal)
+  => Enum    (Month cal)
   => Text
   -> Setter (ParserState cal tz) (ParserState cal tz) Year Year
   -> Setter (ParserState cal tz) (ParserState cal tz) (Month cal) (Month cal)
@@ -297,12 +297,12 @@ period TimeLocale{amPm = (am, pm)} casify = fromList
 
 -- |
 -- Parse a time zone in short text format.
-zoneAbbr :: Abbreviate tz => Parser (TimeZone tz)
+zoneAbbr :: Abbreviate (TimeZone tz) => Parser (TimeZone tz)
 zoneAbbr = takeWhile1 isAlpha >>= either fail return . unabbreviate
 
 -- |
 -- Parse a time zone in offset text format.
-zoneOffset :: Abbreviate tz => Parser (TimeZone tz)
+zoneOffset :: Abbreviate (TimeZone tz) => Parser (TimeZone tz)
 zoneOffset = P.take 5 >>= either fail return . unabbreviate
 
 -- |
