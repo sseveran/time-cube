@@ -10,7 +10,7 @@
 -- License     : BSD3
 -- Maintainer  : ehaussecker@alphaheavy.com
 -- Stability   : Experimental
--- Portability : GHC 7.8.*
+-- Portability : GHC 7.8.* on Unix
 --
 -- This module provides support for signed type-level naturals.
 module GHC.TypeLits.SigNat (
