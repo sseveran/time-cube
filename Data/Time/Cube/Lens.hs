@@ -4,9 +4,9 @@
 -- |
 -- Module      : Data.Time.Cube.Lens
 -- License     : BSD3
--- Maintainer  : Enzo Haussecker
--- Stability   : Stable
--- Portability : Portable
+-- Maintainer  : ehaussecker@alphaheavy.com
+-- Stability   : Experimental
+-- Portability : GHC 7.8.* on Unix
 --
 -- A lens-based interface to date and time data structures.
 module Data.Time.Cube.Lens (
