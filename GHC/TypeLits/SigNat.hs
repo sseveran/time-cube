@@ -63,6 +63,6 @@ someSigNatVal x =
        else SomeSigNat (Proxy :: Proxy (Minus nat)) }
 
 -- |
--- Promote a signed type-level natural via proxy.
+-- Promote a signed type-level natural.
 promoteSigNat :: forall proxy signat a . KnownSigNat signat => proxy signat -> (Proxy signat -> a) -> a
 promoteSigNat _ f = f Proxy
