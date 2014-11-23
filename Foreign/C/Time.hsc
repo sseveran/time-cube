@@ -6,9 +6,9 @@
 -- |
 -- Module      : Foreign.C.Time
 -- License     : BSD3
--- Maintainer  : Enzo Haussecker
--- Stability   : Stable
--- Portability : Portable
+-- Maintainer  : ehaussecker@alphaheavy.com
+-- Stability   : Experimental
+-- Portability : GHC 7.8.* on Unix
 --
 -- Haskell bindings to the C time library.
 module Foreign.C.Time where
