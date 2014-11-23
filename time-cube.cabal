@@ -3,8 +3,8 @@ Version:            0.0.0.1
 License:            BSD3
 License-File:       LICENSE
 Copyright:          Copyright (c) 2014, Alpha Heavy Industries, Inc. All rights reserved.
-Author:             Nathan Howell, Enzo Haussecker, Steve Severance
-Maintainer:         enzo@alphaheavy.com
+Author:             Enzo Haussecker, Nathan Howell, Steve Severance, et. al.
+Maintainer:         ehaussecker@alphaheavy.com
 Stability:          Experimental
 Category:           Time
 Synopsis:           Typesafe Timestamps
