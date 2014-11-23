@@ -104,8 +104,7 @@ data family Era (cal :: Calendar) :: *
 
 -- |
 -- System origin.
-data Epoch =
-     UnixEpoch
+data Epoch = UnixEpoch
    deriving (Eq, Enum, Generic, Ord, Read, Show)
 
 -- |
@@ -178,7 +177,7 @@ data TimeStruct =
        { _t_hour :: {-# UNPACK #-} !Hour
        , _t_min  :: {-# UNPACK #-} !Minute
        , _t_sec  :: {-# UNPACK #-} !Double
-       } deriving (Eq, Generic, Ord, Show)
+       } deriving (Eq, Generic, Show)
 
 -- |
 -- A struct with date and time components.
