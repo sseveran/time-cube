@@ -49,16 +49,16 @@ module Data.Time.Cube.Lens (
      , ldt_sec
      , ldt_zone
 
-     , def_year
-     , def_mon
-     , def_mday
-     , def_wday
-     , def_hour
-     , def_min
-     , def_sec
-     , def_frac
-     , def_ampm
-     , def_zone
+     , ps_year
+     , ps_mon
+     , ps_mday
+     , ps_wday
+     , ps_hour
+     , ps_min
+     , ps_sec
+     , ps_frac
+     , ps_ampm
+     , ps_zone
 
      ) where
 

@@ -44,16 +44,16 @@ import System.Locale (TimeLocale(..))
 -- |
 -- Parser state.
 data ParserState (cal :: Calendar) tz = ParserState
-  { _def_year :: Year
-  , _def_mon  :: Month cal
-  , _def_mday :: Day
-  , _def_wday :: DayOfWeek cal
-  , _def_hour :: Hour
-  , _def_min  :: Minute
-  , _def_sec  :: Double
-  , _def_frac :: Double -> Double
-  , _def_ampm :: Hour   -> Hour
-  , _def_zone :: TimeZone tz
+  { _ps_year :: Year
+  , _ps_mon  :: Month cal
+  , _ps_mday :: Day
+  , _ps_wday :: DayOfWeek cal
+  , _ps_hour :: Hour
+  , _ps_min  :: Minute
+  , _ps_sec  :: Double
+  , _ps_frac :: Double -> Double
+  , _ps_ampm :: Hour   -> Hour
+  , _ps_zone :: TimeZone tz
   }
 
 makeLenses ''ParserState
@@ -90,33 +90,33 @@ create locale =
       percent
 
   --- Components
-  <|> match "%A" def_wday (weekFull locale)
-  <|> match "%B" def_mon (monthFull locale)
-  <|> match "%H" def_hour (fixed 2)
-  <|> match "%I" def_hour (fixed 2)
-  <|> match "%M" def_min (fixed 2)
-  <|> match "%P" def_ampm (period locale toLower)
-  <|> match "%Q" def_frac fraction
-  <|> match "%S" def_sec second
-  <|> match "%Y" def_year (fixed 4)
-  <|> match "%Z" def_zone zoneAbbr
-  <|> match "%a" def_wday (weekAbbr locale)
-  <|> match "%b" def_mon (monthAbbr locale)
-  <|> match "%d" def_mday (fixed 2)
-  <|> match "%e" def_mday padded
-  <|> match "%h" def_mon (monthAbbr locale)
-  <|> match "%l" def_hour padded
-  <|> match "%m" def_mon month
-  <|> match "%p" def_ampm (period locale id)
-  <|> match "%y" def_year year
-  <|> match "%z" def_zone zoneOffset
+  <|> match "%A" ps_wday (weekFull locale)
+  <|> match "%B" ps_mon (monthFull locale)
+  <|> match "%H" ps_hour (fixed 2)
+  <|> match "%I" ps_hour (fixed 2)
+  <|> match "%M" ps_min (fixed 2)
+  <|> match "%P" ps_ampm (period locale toLower)
+  <|> match "%Q" ps_frac fraction
+  <|> match "%S" ps_sec second
+  <|> match "%Y" ps_year (fixed 4)
+  <|> match "%Z" ps_zone zoneAbbr
+  <|> match "%a" ps_wday (weekAbbr locale)
+  <|> match "%b" ps_mon (monthAbbr locale)
+  <|> match "%d" ps_mday (fixed 2)
+  <|> match "%e" ps_mday padded
+  <|> match "%h" ps_mon (monthAbbr locale)
+  <|> match "%l" ps_hour padded
+  <|> match "%m" ps_mon month
+  <|> match "%p" ps_ampm (period locale id)
+  <|> match "%y" ps_year year
+  <|> match "%z" ps_zone zoneOffset
 
   --- Combinators
-  <|> date     "%D" def_year def_mon def_mday
-  <|> iso8601  "%F" def_year def_mon def_mday
-  <|> clock12  "%r" def_hour def_min def_sec locale
-  <|> clock24  "%T" def_hour def_min def_sec
-  <|> clock24' "%R" def_hour def_min
+  <|> date     "%D" ps_year ps_mon ps_mday
+  <|> iso8601  "%F" ps_year ps_mon ps_mday
+  <|> clock12  "%r" ps_hour ps_min ps_sec locale
+  <|> clock24  "%T" ps_hour ps_min ps_sec
+  <|> clock24' "%R" ps_hour ps_min
 
   --- Text
   <|> text
