@@ -12,9 +12,9 @@
 -- |
 -- Module      : Data.Time.Cube.Zones
 -- License     : BSD3
--- Maintainer  : Enzo Haussecker
--- Stability   : Stable
--- Portability : Portable
+-- Maintainer  : ehaussecker@alphaheavy.com
+-- Stability   : Experimental
+-- Portability : GHC 7.8.* on Unix
 --
 -- Dependently typed time zones and related utilities.
 module Data.Time.Cube.Zones (
@@ -22,8 +22,9 @@ module Data.Time.Cube.Zones (
  -- ** Time Zones
        TimeZone(..)
 
- -- ** Geographies
+ -- ** Parameterizations
      , Universal
+     , Unix
      , Offset
      , SomeOffset(..)
      , Olson
@@ -48,25 +49,25 @@ import GHC.TypeLits.SigNat
 import Text.Printf          (printf)
 
 -- |
--- A uniform standard for time with geographic parametrization.
+-- A uniform standard for time.
 data family TimeZone :: * -> *
 
 data Universal :: *
+
+data Unix :: *
 
 data Offset :: SigNat -> *
 
 data SomeOffset = forall signat . KnownSigNat signat => SomeOffset (Proxy signat)
 
-instance Eq SomeOffset where
-
-   SomeOffset x == SomeOffset y = sigNatVal x == sigNatVal y
-
-deriving instance Show SomeOffset
-
 data family Olson :: Symbol -> *
 
 data instance TimeZone Universal =
-     CoordinatedUniversalTime
+     UTC
+     deriving (Eq, Generic, Show)
+
+data instance TimeZone Unix =
+     UnixTime
      deriving (Eq, Generic, Show)
 
 data instance TimeZone (Offset signat) =
@@ -77,73 +78,135 @@ data instance TimeZone SomeOffset =
      forall signat . KnownSigNat signat =>
      SomeTimeZoneOffset (Proxy signat)
 
-instance Eq (TimeZone SomeOffset) where
+data instance TimeZone (Olson olson) =
+     TimeZoneOlson
+     deriving (Eq, Generic, Show)
 
-   SomeTimeZoneOffset x == SomeTimeZoneOffset y = sigNatVal x == sigNatVal y
+instance Eq (SomeOffset)
+   where SomeOffset x == SomeOffset y = sigNatVal x == sigNatVal y
 
+instance Eq (TimeZone SomeOffset)
+   where SomeTimeZoneOffset x == SomeTimeZoneOffset y = sigNatVal x == sigNatVal y
+
+deriving instance Show (SomeOffset)
 deriving instance Show (TimeZone SomeOffset)
 
-instance Storable (TimeZone SomeOffset) where
-
-   sizeOf  _ = 2
-   alignment = sizeOf
-   peekElemOff ptr n = do
-     val <- peekElemOff (castPtr ptr) n :: IO Int16
-     case someSigNatVal $ toInteger val
-       of SomeSigNat proxy -> return $! SomeTimeZoneOffset proxy
-   pokeElemOff ptr n (SomeTimeZoneOffset proxy) =
-     pokeElemOff (castPtr ptr) n val
-     where val = fromInteger $ sigNatVal proxy :: Int16
-
-data instance TimeZone (Olson olson) =
-    TimeZoneOlson
-    deriving (Eq, Generic, Show)
-
-
-
-
-
-
-
+instance Storable (TimeZone SomeOffset)
+   where sizeOf _  = 2
+         alignment = sizeOf
+         peekElemOff ptr n = do
+           val <- peekElemOff (castPtr ptr) n :: IO Int16
+           case someSigNatVal $ toInteger val
+             of SomeSigNat proxy -> return $! SomeTimeZoneOffset proxy
+         pokeElemOff ptr n (SomeTimeZoneOffset proxy) =
+           pokeElemOff (castPtr ptr) n val
+           where val = fromInteger $ sigNatVal proxy :: Int16
 
 class Abbreviate tz where
 
-   -- |
-   -- Get the abbreviation text for the given time zone.
-   abbreviate :: tz -> Text
+  -- |
+  -- Get the abbreviation text for the given time zone.
+  abbreviate :: tz -> Text
 
-   -- |
-   -- Get the time zone for the given abbreviation text.
-   unabbreviate :: Text -> Either String tz
+  -- |
+  -- Get the time zone for the given abbreviation text.
+  unabbreviate :: Text -> Either String tz
 
 instance Abbreviate (TimeZone Universal) where
 
-   abbreviate CoordinatedUniversalTime = "UTC"
+  abbreviate UTC = "UTC"
 
-   unabbreviate = \ case
-     "UTC" -> Right CoordinatedUniversalTime
-     _     -> Left "unabbreviate{TimeZone Universal}: unknown"
+  -- |
+  -- Unabbreviate a universal time zone.
+  unabbreviate = \ case
+    "UTC"  -> Right UTC
+    _      -> Left "unabbreviate{TimeZone Universal}: unknown"
+
+
+
+
+
+
+
+
+
+
+
+
+instance KnownSigNat signat => Abbreviate (TimeZone (Offset signat)) where
+
+  -- |
+  -- Abbreviate a time zone offset that is known at runtime.
+  abbreviate TimeZoneOffset =
+    pack $ sign : hours ++ minutes
+    where
+      sign    = if signat < 0 then '-' else '+'
+      hours   = printf "%02d" $ div nat 60
+      minutes = printf "%02d" $ mod nat 60
+      nat     = abs signat
+      signat  = sigNatVal (Proxy :: Proxy signat)
+
+  -- |
+  -- Unabbreviate a time zone offset that is known at runtime.
+  unabbreviate =
+    parseOnly $ do
+      sign    <- plus <|> minus
+      hours   <- replicateM 2 digit
+      minutes <- replicateM 2 digit
+      let proxy  = Proxy :: Proxy signat
+          signat = sign $ read hours * 60 + read minutes
+      if  sigNatVal proxy /= signat
+      then fail "unabbreviate"
+      else return TimeZoneOffset
+           where plus  = char '+' *> return id
+                 minus = char '-' *> return negate
+
+
+
+
+
+
+
+
+
 
 instance Abbreviate (TimeZone SomeOffset) where
 
-   abbreviate (SomeTimeZoneOffset proxy) =
-     pack $ sign : hours ++ minutes
-     where
-       sign    = if signat < 0 then '-' else '+'
-       hours   = printf "%02d" $ div nat 60
-       minutes = printf "%02d" $ mod nat 60
-       nat     = abs signat
-       signat  = sigNatVal proxy
+  -- |
+  -- Abbreviate a time zone offset that is unknown at runtime.
+  abbreviate (SomeTimeZoneOffset proxy) =
+    pack $ sign : hours ++ minutes
+    where
+      sign    = 
+      
+if signat < 0 then '-' else '+'
+      hours   = printf "%02d" $ nat `div` 60 `mod` 24
+      minutes = printf "%02d" $ nat `mod` 60
+      nat     = abs signat
+      signat  = sigNatVal proxy
 
-   unabbreviate = parseOnly $ do
-     sign    <- plus <|> minus
-     hours   <- replicateM 2 digit
-     minutes <- replicateM 2 digit
-     let signat = sign $ read hours * 60 + read minutes
-     case someSigNatVal signat
-       of SomeSigNat proxy -> return $! promoteSigNat proxy SomeTimeZoneOffset
-          where plus  = char '+' *> return id
-                minus = char '-' *> return negate
+  -- |
+  -- Unabbreviate a time zone offset that is unknown at runtime.
+  unabbreviate =
+    parseOnly $ do
+      sign    <- plus <|> minus
+      hours   <- replicateM 2 digit
+      minutes <- replicateM 2 digit
+      let signat = sign $ read hours * 60 + read minutes
+      case someSigNatVal signat
+        of SomeSigNat proxy -> return $! promoteSigNat proxy SomeTimeZoneOffset
+           where plus  = char '+' *> return id
+                 minus = char '-' *> return negate
+
+
+
+
+
+
+
+
+
+
 
 instance NFData (TimeZone (Universal    )) where rnf _ = ()
 instance NFData (TimeZone (Offset signat)) where rnf _ = ()

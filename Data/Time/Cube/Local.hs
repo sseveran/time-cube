@@ -27,7 +27,7 @@ import Control.DeepSeq (NFData(..))
 import Data.Ord (comparing)
 import Data.Time.Cube.Base (Calendar(..))
 import Data.Time.Cube.UTC
-import Data.Time.Cube.Zones (Offset, TimeZone)
+import Data.Time.Cube.Zones (SomeOffset, TimeZone)
 import Foreign.Ptr (plusPtr)
 import Foreign.Storable (Storable(..))
 import GHC.Generics (Generic)
@@ -80,7 +80,7 @@ instance NFData (TimeZone tz) => NFData (LocalDateTimeNanos cal tz) where
 
    rnf (LocalDateTimeNanos time zone) = rnf time `seq` rnf zone `seq` ()
 
-instance Storable (LocalDate cal (Offset int)) where
+instance Storable (LocalDate cal SomeOffset) where
    sizeOf  _ = 6
    alignment = sizeOf
    peekElemOff ptr n = do
@@ -93,7 +93,7 @@ instance Storable (LocalDate cal (Offset int)) where
        flip poke date . plusPtr ptr $ off
        flip poke zone . plusPtr ptr $ off + 4
 
-instance Storable (LocalDateTime cal (Offset int)) where
+instance Storable (LocalDateTime cal SomeOffset) where
    sizeOf  _ = 10
    alignment = sizeOf
    peekElemOff ptr n = do
@@ -106,7 +106,7 @@ instance Storable (LocalDateTime cal (Offset int)) where
        flip poke time . plusPtr ptr $ off
        flip poke zone . plusPtr ptr $ off + 8
 
-instance Storable (LocalDateTimeNanos cal (Offset int)) where
+instance Storable (LocalDateTimeNanos cal SomeOffset) where
    sizeOf  _ = 14
    alignment = sizeOf
    peekElemOff ptr n = do

@@ -1,6 +1,7 @@
 {-# LANGUAGE BangPatterns            #-}
 {-# LANGUAGE DataKinds               #-}
 {-# LANGUAGE DeriveGeneric           #-}
+{-# LANGUAGE FlexibleContexts        #-}
 {-# LANGUAGE FlexibleInstances       #-}
 {-# LANGUAGE MultiParamTypeClasses   #-}
 {-# LANGUAGE RecordWildCards         #-}
@@ -606,8 +607,8 @@ getCurrentUnixDateTimeNanos =
 
 -- |
 -- Default parser state for unix timestamps.
-defaultUnixParserState :: ParserState Gregorian (Offset (Plus 0))
-defaultUnixParserState =  ParserState 1970 January 1 Thursday 0 0 0.0 id id $ Offset 0
+defaultUnixParserState :: ParserState Gregorian Universal
+defaultUnixParserState =  ParserState 1970 January 1 Thursday 0 0 0.0 id id CoordinatedUniversalTime
 
 -- |
 -- Parse a Unix date.
@@ -637,7 +638,7 @@ parseUnixDateTimeNanos = parseUnixDateTimeNanos' defaultTimeLocale defaultUnixPa
 -- Same as 'parseUnixDate', except takes the
 -- additional locale and parser state parameters. 
 parseUnixDate'
-  :: Abbreviate tz
+  :: Abbreviate (TimeZone tz)
   => TimeLocale               -- ^ Local conventions
   -> ParserState Gregorian tz -- ^ Initialized state
   -> FormatText               -- ^ Format string
@@ -646,13 +647,13 @@ parseUnixDate'
 parseUnixDate' locale state format =
   fmap from . parse locale state format
   where from ParserState{..} =
-             createUnixDate _def_year _def_mon _def_mday
+             createUnixDate _ps_year _ps_mon _ps_mday
 
 -- |
 -- Same as 'parseUnixDateTime', except takes the
 -- additional locale and parser state parameters. 
 parseUnixDateTime'
-  :: Abbreviate tz
+  :: Abbreviate (TimeZone tz)
   => TimeLocale               -- ^ Local conventions
   -> ParserState Gregorian tz -- ^ Initialized state
   -> FormatText               -- ^ Format string
@@ -661,15 +662,15 @@ parseUnixDateTime'
 parseUnixDateTime' locale state format =
   fmap from . parse locale state format
   where from ParserState{..} =
-             createUnixDateTime _def_year _def_mon _def_mday hour _def_min sec
-             where hour = _def_ampm _def_hour
-                   sec  = truncate _def_sec
+             createUnixDateTime _ps_year _ps_mon _ps_mday hour _ps_min sec
+             where hour = _ps_ampm _ps_hour
+                   sec  = truncate _ps_sec
 
 -- |
 -- Same as 'parseUnixDateTimeNanos', except takes
 -- the additional locale and parser state parameters.
 parseUnixDateTimeNanos'
-  :: Abbreviate tz
+  :: Abbreviate (TimeZone tz)
   => TimeLocale               -- ^ Local conventions
   -> ParserState Gregorian tz -- ^ Initialized state
   -> FormatText               -- ^ Format string
@@ -678,9 +679,9 @@ parseUnixDateTimeNanos'
 parseUnixDateTimeNanos' locale state format =
   fmap from . parse locale state format
   where from ParserState{..} =
-             createUnixDateTimeNanos _def_year _def_mon _def_mday hour _def_min sec nsec
-             where hour = _def_ampm _def_hour
-                   (,) sec nsec = properFracNanos $ _def_frac _def_sec
+             createUnixDateTimeNanos _ps_year _ps_mon _ps_mday hour _ps_min sec nsec
+             where hour = _ps_ampm _ps_hour
+                   (,) sec nsec = properFracNanos $ _ps_frac _ps_sec
 
 -- |
 -- Check if the given year is a leap year.
