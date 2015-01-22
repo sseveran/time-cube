@@ -37,7 +37,7 @@ module Data.Time.Cube.Zones (
 import Control.Applicative  ((<|>), (*>))
 import Control.DeepSeq      (NFData(..))
 import Control.Monad        (replicateM)
-import Data.Attoparsec.Text (char, digit, option, parseOnly)
+import Data.Attoparsec.Text (char, digit, parseOnly)
 import Data.Int             (Int16)
 import Data.Proxy           (Proxy(..))
 import Data.Text            (Text, pack)
@@ -130,7 +130,7 @@ instance KnownSigNat signat => Abbreviate (TimeZone (Offset signat)) where
   -- |
   -- Abbreviate a time zone offset that is known at runtime.
   abbreviate TimeZoneOffset =
-    pack $ sign : hours ++ ':' : minutes
+    pack $ sign : hours ++ minutes
     where
       sign    = if signat < 0 then '-' else '+'
       hours   = printf "%02d" $ div nat 60
@@ -144,7 +144,6 @@ instance KnownSigNat signat => Abbreviate (TimeZone (Offset signat)) where
     parseOnly $ do
       sign    <- plus <|> minus
       hours   <- replicateM 2 digit
-      _       <- option ':' $ char ':'
       minutes <- replicateM 2 digit
       let proxy  = Proxy :: Proxy signat
           signat = sign $ read hours * 60 + read minutes
@@ -159,7 +158,7 @@ instance Abbreviate (TimeZone SomeOffset) where
   -- |
   -- Abbreviate a time zone offset that is unknown at runtime.
   abbreviate (SomeTimeZoneOffset proxy) =
-    pack $ sign : hours ++ ':' : minutes
+    pack $ sign : hours ++ minutes
     where
       sign    = if signat < 0 then '-' else '+'
       hours   = printf "%02d" $ div nat 60
@@ -173,7 +172,6 @@ instance Abbreviate (TimeZone SomeOffset) where
     parseOnly $ do
       sign    <- plus <|> minus
       hours   <- replicateM 2 digit
-      _       <- option ':' $ char ':'
       minutes <- replicateM 2 digit
       let signat = sign $ read hours * 60 + read minutes
       case someSigNatVal signat
