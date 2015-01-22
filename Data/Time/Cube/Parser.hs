@@ -12,9 +12,9 @@
 -- |
 -- Module      : Data.Time.Cube.Parser
 -- License     : BSD3
--- Maintainer  : Enzo Haussecker
--- Stability   : Stable
--- Portability : Portable
+-- Maintainer  : ehaussecker@alphaheavy.com
+-- Stability   : Experimental
+-- Portability : GHC 7.8.* on Unix
 --
 -- Timestamp parsing.
 module Data.Time.Cube.Parser (
@@ -27,19 +27,19 @@ module Data.Time.Cube.Parser (
 
      ) where
 
-import Control.Applicative ((<|>), (<$>), (*>))
-import Control.Arrow ((***))
-import Control.Lens.Setter (Setter, (%=), assign)
-import Control.Lens.TH (makeLenses)
-import Control.Monad ((<=<), foldM, replicateM)
-import Control.Monad.State.Strict (execState, State)
+import Control.Applicative              ((<|>), (<$>), (*>))
+import Control.Arrow                    ((***))
+import Control.Lens.Setter              (Setter, (%=), assign)
+import Control.Lens.TH                  (makeLenses)
+import Control.Monad                    ((<=<), foldM, replicateM)
+import Control.Monad.State.Strict       (execState, State)
 import Data.Attoparsec.Text as P hiding (match, parse)
-import Data.Char (isAlpha)
-import Data.Text as T (Text, length, pack, toLower)
+import Data.Char                        (isAlpha)
+import Data.Text as T                   (Text, length, pack, toLower)
 import Data.Time.Cube.Base
 import Data.Time.Cube.Format
 import Data.Time.Cube.Zones
-import System.Locale (TimeLocale(..))
+import System.Locale                    (TimeLocale(..))
 
 -- |
 -- Parser state.
