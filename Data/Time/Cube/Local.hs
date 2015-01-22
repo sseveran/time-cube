@@ -9,9 +9,9 @@
 -- |
 -- Module      : Data.Time.Cube.Local
 -- License     : BSD3
--- Maintainer  : Enzo Haussecker
--- Stability   : Stable
--- Portability : Portable
+-- Maintainer  : ehaussecker@alphaheavy.com
+-- Stability   : Experimental
+-- Portability : GHC 7.8.* on Unix
 --
 -- Local timestamps.
 module Data.Time.Cube.Local (
@@ -23,14 +23,14 @@ module Data.Time.Cube.Local (
 
      ) where
 
-import Control.DeepSeq (NFData(..))
-import Data.Ord (comparing)
-import Data.Time.Cube.Base (Calendar(..))
+import Control.DeepSeq      (NFData(..))
+import Data.Ord             (comparing)
+import Data.Time.Cube.Base  (Calendar(..))
 import Data.Time.Cube.UTC
 import Data.Time.Cube.Zones (SomeOffset, TimeZone)
-import Foreign.Ptr (plusPtr)
-import Foreign.Storable (Storable(..))
-import GHC.Generics (Generic)
+import Foreign.Ptr          (plusPtr)
+import Foreign.Storable     (Storable(..))
+import GHC.Generics         (Generic)
 
 -- |
 -- Local days since Unix epoch.

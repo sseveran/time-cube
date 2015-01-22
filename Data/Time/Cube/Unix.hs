@@ -7,9 +7,9 @@
 -- |
 -- Module      : Data.Time.Cube.Unix
 -- License     : BSD3
--- Maintainer  : Enzo Haussecker
--- Stability   : Stable
--- Portability : Portable
+-- Maintainer  : ehaussecker@alphaheavy.com
+-- Stability   : Experimental
+-- Portability : GHC 7.8.* on Unix
 --
 -- Unix timestamps.
 module Data.Time.Cube.Unix (
@@ -21,12 +21,12 @@ module Data.Time.Cube.Unix (
 
      ) where
 
-import Control.DeepSeq (NFData(..))
-import Data.Int (Int32, Int64)
+import Control.DeepSeq     (NFData(..))
+import Data.Int            (Int32, Int64)
 import Data.Time.Cube.Base (Calendar)
-import Foreign.Ptr (plusPtr)
-import Foreign.Storable (Storable(..))
-import GHC.Generics (Generic)
+import Foreign.Ptr         (plusPtr)
+import Foreign.Storable    (Storable(..))
+import GHC.Generics        (Generic)
 
 -- |
 -- Days since Unix epoch.
