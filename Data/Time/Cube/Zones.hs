@@ -117,13 +117,27 @@ class Abbreviate tz where
 
 instance Abbreviate (TimeZone Universal) where
 
+  -- |
+  -- Abbreviate the UTC time zone.
   abbreviate UTC = "UTC"
 
   -- |
-  -- Unabbreviate a universal time zone.
+  -- Unabbreviate the UTC time zone.
   unabbreviate = \ case
-    "UTC"  -> Right UTC
-    _      -> Left "unabbreviate{TimeZone Universal}: mismatch"
+    "UTC" -> Right UTC
+    _     -> Left "unabbreviate{TimeZone Universal}: mismatch"
+
+instance Abbreviate (TimeZone Unix) where
+
+  -- |
+  -- Abbreviate the Unix time zone.
+  abbreviate UnixTime = ""
+
+  -- |
+  -- Unabbreviate a Unix time zone.
+  unabbreviate = \ case
+    "" -> Right UnixTime
+    _  -> Left "unabbreviate{TimeZone Unix}: mismatch"
 
 instance KnownSigNat signat => Abbreviate (TimeZone (Offset signat)) where
 
