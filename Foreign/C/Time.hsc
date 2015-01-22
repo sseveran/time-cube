@@ -13,14 +13,14 @@
 -- Haskell bindings to the C time library.
 module Foreign.C.Time where
 
-import Data.Time.Cube.Base (Human(..))
-import Foreign.C.String (CString)
-import Foreign.C.Types (CInt(..), CLong, CTime(..))
-import Foreign.Marshal.Alloc (alloca)
+import Data.Time.Cube.Base    (Human(..))
+import Foreign.C.String       (CString)
+import Foreign.C.Types        (CInt(..), CLong, CTime(..))
+import Foreign.Marshal.Alloc  (alloca)
 import Foreign.Marshal.Unsafe (unsafeLocalState)
-import Foreign.Marshal.Utils (with)
-import Foreign.Ptr (FunPtr, Ptr, nullPtr, plusPtr)
-import Foreign.Storable (Storable(..))
+import Foreign.Marshal.Utils  (with)
+import Foreign.Ptr            (FunPtr, Ptr, nullPtr, plusPtr)
+import Foreign.Storable       (Storable(..))
 
 #include <bindings.dsl.h>
 #include <time.h>
