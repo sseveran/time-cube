@@ -23,8 +23,8 @@ module Data.Time.Cube.Zones (
        TimeZone(..)
 
  -- ** Parameterizations
-     , Universal
      , Unix
+     , UTC
      , Offset
      , SomeOffset(..)
      , Olson
@@ -52,9 +52,9 @@ import Text.Printf          (printf)
 -- A uniform standard for time.
 data family TimeZone :: * -> *
 
-data Universal :: *
-
 data Unix :: *
+
+data UTC :: *
 
 data Offset :: SigNat -> *
 
@@ -62,12 +62,12 @@ data SomeOffset = forall signat . KnownSigNat signat => SomeOffset (Proxy signat
 
 data family Olson :: Symbol -> *
 
-data instance TimeZone Universal =
-     UTC
+data instance TimeZone Unix =
+     Unix
      deriving (Eq, Generic, Show)
 
-data instance TimeZone Unix =
-     UnixTime
+data instance TimeZone UTC =
+     UTC
      deriving (Eq, Generic, Show)
 
 data instance TimeZone (Offset signat) =
@@ -115,7 +115,19 @@ class Abbreviate tz where
   -- Get the time zone for the given abbreviation text.
   unabbreviate :: Text -> Either String tz
 
-instance Abbreviate (TimeZone Universal) where
+instance Abbreviate (TimeZone Unix) where
+
+  -- |
+  -- Abbreviate the Unix time zone.
+  abbreviate Unix = ""
+
+  -- |
+  -- Unabbreviate a Unix time zone.
+  unabbreviate = \ case
+    "" -> Right Unix
+    _  -> Left $ "unabbreviate{TimeZone Unix}: unmatched text"
+
+instance Abbreviate (TimeZone UTC) where
 
   -- |
   -- Abbreviate the UTC time zone.
@@ -125,19 +137,7 @@ instance Abbreviate (TimeZone Universal) where
   -- Unabbreviate the UTC time zone.
   unabbreviate = \ case
     "UTC" -> Right UTC
-    _     -> Left "unabbreviate{TimeZone Universal}: mismatch"
-
-instance Abbreviate (TimeZone Unix) where
-
-  -- |
-  -- Abbreviate the Unix time zone.
-  abbreviate UnixTime = ""
-
-  -- |
-  -- Unabbreviate a Unix time zone.
-  unabbreviate = \ case
-    "" -> Right UnixTime
-    _  -> Left "unabbreviate{TimeZone Unix}: mismatch"
+    _     -> Left $ "unabbreviate{TimeZone UTC}: unmatched text"
 
 instance KnownSigNat signat => Abbreviate (TimeZone (Offset signat)) where
 
@@ -162,7 +162,7 @@ instance KnownSigNat signat => Abbreviate (TimeZone (Offset signat)) where
       let proxy  = Proxy :: Proxy signat
           signat = sign $ read hours * 60 + read minutes
       if  sigNatVal proxy /= signat
-      then fail "unabbreviate{TimeZone (Offset signat)}: mismatch"
+      then fail "unabbreviate{TimeZone (Offset signat)}: unmatched type"
       else return TimeZoneOffset
            where plus  = char '+' *> return id
                  minus = char '-' *> return negate
@@ -193,8 +193,8 @@ instance Abbreviate (TimeZone SomeOffset) where
            where plus  = char '+' *> return id
                  minus = char '-' *> return negate
 
-instance NFData (TimeZone (Universal    )) where rnf _ = ()
 instance NFData (TimeZone (Unix         )) where rnf _ = ()
+instance NFData (TimeZone (UTC          )) where rnf _ = ()
 instance NFData (TimeZone (Offset signat)) where rnf _ = ()
 instance NFData (TimeZone (SomeOffset   )) where rnf _ = ()
 instance NFData (TimeZone (Olson olson  )) where rnf _ = ()

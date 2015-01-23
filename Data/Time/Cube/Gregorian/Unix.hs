@@ -14,46 +14,38 @@
 -- |
 -- Module      : Data.Time.Cube.Unix.Gregorian
 -- License     : BSD3
--- Maintainer  : Enzo Haussecker
--- Stability   : Stable
--- Portability : Portable
+-- Maintainer  : ehaussecker@alphaheavy.com
+-- Stability   : Experimental
+-- Portability : GHC 7.8.* on Unix
 --
 -- Gregorian instances for Unix timestamps.
-module Data.Time.Cube.Unix.Gregorian (
+module Data.Time.Cube.Gregorian.Unix (
 
- -- ** Timestamps
-       UnixDate(..)
+ -- ** Gregorian Calendar
+       Era(..)
+     , Month(..)
+     , DayOfWeek(..)
+
+ -- ** Unix Timestamps
+     , UnixDate(..)
      , UnixDateTime(..)
      , UnixDateTimeNanos(..)
 
- -- ** Create
      , createUnixDate
      , createUnixDateTime
      , createUnixDateTimeNanos
 
- -- ** Current
      , getCurrentUnixDate
      , getCurrentUnixDateTime
      , getCurrentUnixDateTimeNanos
 
- -- ** Parsing
      , parseUnixDate
      , parseUnixDateTime
      , parseUnixDateTimeNanos
 
- -- ** State
-     , ParserState
-     , defaultUnixParserState
-
- -- ** Internals
      , parseUnixDate'
      , parseUnixDateTime'
      , parseUnixDateTimeNanos'
-
- -- ** Calendar
-     , Era(..)
-     , Month(..)
-     , DayOfWeek(..)
 
      ) where
 
@@ -607,8 +599,8 @@ getCurrentUnixDateTimeNanos =
 
 -- |
 -- Default parser state for unix timestamps.
-defaultUnixParserState :: ParserState Gregorian Universal
-defaultUnixParserState =  ParserState 1970 January 1 Thursday 0 0 0.0 id id CoordinatedUniversalTime
+defaultUnixParserState :: ParserState Gregorian Unix
+defaultUnixParserState =  ParserState 1970 January 1 Thursday 0 0 0.0 id id Unix
 
 -- |
 -- Parse a Unix date.

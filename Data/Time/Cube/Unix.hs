@@ -14,7 +14,7 @@
 -- Unix timestamps.
 module Data.Time.Cube.Unix (
 
- -- ** Timestamps
+ -- ** Unix Timestamps
        UnixDate(..)
      , UnixDateTime(..)
      , UnixDateTimeNanos(..)

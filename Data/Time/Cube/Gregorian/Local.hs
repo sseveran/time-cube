@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds               #-}
+{-# LANGUAGE FlexibleContexts        #-}
 {-# LANGUAGE FlexibleInstances       #-}
 {-# LANGUAGE MultiParamTypeClasses   #-}
 {-# LANGUAGE RecordWildCards         #-}
@@ -15,68 +16,58 @@
 -- Portability : Portable
 --
 -- Gregorian instances for local timestamps.
-module Data.Time.Cube.Local.Gregorian (
+module Data.Time.Cube.Gregorian.Local (
 
- -- ** Timestamps
+ -- ** Local Timestamps
        LocalDate(..)
      , LocalDateTime(..)
      , LocalDateTimeNanos(..)
 
- -- ** Create
      , createLocalDate
  --  , createLocalDateTime
  --  , createLocalDateTimeNanos
 
- -- ** State
-     , ParserState
-     , defaultParserState
-
- -- ** Calendar
-     , Era(..)
-     , Month(..)
-     , DayOfWeek(..)
-
      ) where
 
 import Data.Time.Cube.Base
+import Data.Time.Cube.Gregorian.UTC
+import Data.Time.Cube.Gregorian.Unix
 import Data.Time.Cube.Local
 import Data.Time.Cube.Parser
-import Data.Time.Cube.Unix.Gregorian hiding (defaultParserState)
-import Data.Time.Cube.UTC.Gregorian  hiding (defaultParserState)
 import Data.Time.Cube.Zones
 
 import qualified Text.Printf as P (printf)
 import qualified Data.Text   as T (unpack)
 
-instance Bounded (LocalDate Gregorian Universal) where
+instance Bounded (LocalDate Gregorian UTC) where
 
     -- |
     -- Thursday 01 January 1970 UTC.
-    minBound = LocalDate minBound utc
+    minBound = LocalDate minBound UTC
 
     -- |
     -- Friday 31 December 9999 UTC.
-    maxBound = LocalDate maxBound utc
+    maxBound = LocalDate maxBound UTC
 
-instance Bounded (LocalDateTime Gregorian Universal) where
+instance Bounded (LocalDateTime Gregorian UTC) where
 
     -- |
     -- 12:00:00 AM Thursday 01 January 1970 UTC.
-    minBound = LocalDateTime minBound utc
+    minBound = LocalDateTime minBound UTC
 
     -- |
     -- 11:59:59 PM Friday 31 December 9999 UTC.
-    maxBound = LocalDateTime maxBound utc
+    maxBound = LocalDateTime maxBound UTC
 
-instance Bounded (LocalDateTimeNanos Gregorian Universal) where
+instance Bounded (LocalDateTimeNanos Gregorian UTC) where
 
     -- |
     -- 12:00:00.000000000 AM Thursday 01 January 1970 UTC.
-    minBound = LocalDateTimeNanos minBound utc
+    minBound = LocalDateTimeNanos minBound UTC
 
     -- |
     -- 11:59:59.999999999 PM Friday 31 December 9999 UTC.
-    maxBound = LocalDateTimeNanos maxBound utc
+    maxBound = LocalDateTimeNanos maxBound UTC
 
 instance Human (LocalDate Gregorian tz) where
 
@@ -105,7 +96,7 @@ instance Math (LocalDate Gregorian tz) Day where
     -- Add days to a local datestamp.
     plus (LocalDate date zone) day = LocalDate (date `plus` day) zone
 
-instance Abbreviate tz => Show (LocalDate Gregorian tz) where
+instance Abbreviate (TimeZone tz) => Show (LocalDate Gregorian tz) where
     show date = P.printf "%s %02d %s %4d %s" wday _ld_mday mon _ld_year abbr where
          mon  = show _ld_mon
          wday = show _ld_wday
@@ -125,8 +116,8 @@ createLocalDate year mon day =
 
 -- |
 -- Default parser state.
-defaultParserState :: ParserState Gregorian Universal
-defaultParserState =  ParserState 1970 January 1 Thursday 0 0 0.0 id id utc
+defaultLocalParserState :: ParserState Gregorian UTC
+defaultLocalParserState =  ParserState 1970 January 1 Thursday 0 0 0.0 id id UTC
 
 
 

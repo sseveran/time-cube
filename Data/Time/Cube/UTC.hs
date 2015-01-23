@@ -14,7 +14,7 @@
 -- UTC timestamps.
 module Data.Time.Cube.UTC (
 
- -- ** Timestamps
+ -- ** UTC Timestamps
        UTCDate(..)
      , UTCDateTime(..)
      , UTCDateTimeNanos(..)

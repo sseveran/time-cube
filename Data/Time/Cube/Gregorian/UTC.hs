@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds                  #-}
+{-# LANGUAGE FlexibleContexts           #-}
 {-# LANGUAGE FlexibleInstances          #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE MultiParamTypeClasses      #-}
@@ -13,63 +14,50 @@
 -- |
 -- Module      : Data.Time.Cube.UTC.Gregorian
 -- License     : BSD3
--- Maintainer  : Enzo Haussecker
--- Stability   : Stable
--- Portability : Portable
+-- Maintainer  : ehaussecker@alphaheavy.com
+-- Stability   : Experimental
+-- Portability : GHC 7.8.* on Unix
 --
 -- Gregorian instances for UTC timestamps.
-module Data.Time.Cube.UTC.Gregorian (
+module Data.Time.Cube.Gregorian.UTC (
 
- -- ** Timestamps
+ -- ** UTC Timestamps
        UTCDate(..)
      , UTCDateTime(..)
      , UTCDateTimeNanos(..)
 
- -- ** Create
      , createUTCDate
      , createUTCDateTime
      , createUTCDateTimeNanos
 
- -- ** Current
      , getCurrentUTCDate
      , getCurrentUTCDateTime
      , getCurrentUTCDateTimeNanos
 
- -- ** Parsing
      , parseUTCDate
      , parseUTCDateTime
      , parseUTCDateTimeNanos
 
- -- ** State
-     , ParserState
-     , defaultUTCParserState
-
- -- ** Internals
      , parseUTCDate'
      , parseUTCDateTime'
      , parseUTCDateTimeNanos'
 
- -- ** Calendar
-     , Era(..)
-     , Month(..)
-     , DayOfWeek(..)
-
      ) where
 
-import Control.Applicative ((<$>))
-import Control.Lens.Setter (over)
-import Data.Int (Int64)
-import Data.Text (Text)
+import Control.Applicative           ((<$>))
+import Control.Lens.Setter           (over)
+import Data.Int                      (Int64)
+import Data.Text                     (Text)
 import Data.Time.Cube.Base
 import Data.Time.Cube.Format
+import Data.Time.Cube.Gregorian.Unix
 import Data.Time.Cube.Lens
 import Data.Time.Cube.Parser
-import Data.Time.Cube.Unix.Gregorian
 import Data.Time.Cube.Utilities
 import Data.Time.Cube.UTC
 import Data.Time.Cube.Zones
-import System.Locale (TimeLocale, defaultTimeLocale)
-import Text.Printf (printf)
+import System.Locale                 (TimeLocale, defaultTimeLocale)
+import Text.Printf                   (printf)
 
 deriving instance Bounded (UTCDate Gregorian)
 deriving instance Enum    (UTCDate Gregorian)
@@ -346,8 +334,8 @@ getCurrentUTCDateTimeNanos = do
 
 -- |
 -- Default parser state for UTC timestamps.
-defaultUTCParserState :: ParserState Gregorian Universal
-defaultUTCParserState =  ParserState 1970 January 1 Thursday 0 0 0.0 id id utc
+defaultUTCParserState :: ParserState Gregorian UTC
+defaultUTCParserState =  ParserState 1970 January 1 Thursday 0 0 0.0 id id UTC
 
 -- |
 -- Parse a UTC date.
@@ -377,7 +365,7 @@ parseUTCDateTimeNanos = parseUTCDateTimeNanos' defaultTimeLocale defaultUTCParse
 -- Same as 'parseUTCDate', except takes the
 -- additional locale and parser state parameters.
 parseUTCDate'
-  :: Abbreviate tz
+  :: Abbreviate (TimeZone tz)
   => TimeLocale               -- ^ Local conventions
   -> ParserState Gregorian tz -- ^ Initialized state
   -> FormatText               -- ^ Format string
@@ -390,7 +378,7 @@ parseUTCDate' locale state format =
 -- Same as 'parseUTCDateTime', except takes the
 -- additional locale and parser state parameters.
 parseUTCDateTime'
-  :: Abbreviate tz
+  :: Abbreviate (TimeZone tz)
   => TimeLocale               -- ^ Local conventions
   -> ParserState Gregorian tz -- ^ Initialized state
   -> FormatText               -- ^ Format string
@@ -398,16 +386,17 @@ parseUTCDateTime'
   -> Either String (UTCDateTime Gregorian)
 parseUTCDateTime' locale state format =
   fmap from . parse locale state format
-  where from ParserState{..} =
-             createUTCDateTime _def_year _def_mon _def_mday hour _def_min sec
-             where hour = _def_ampm _def_hour
-                   sec  = truncate _def_sec
+  where from :: ParserState Gregorian tz -> UTCDateTime Gregorian
+        from ParserState{..} =
+             createUTCDateTime _ps_year _ps_mon _ps_mday hour _ps_min sec
+             where hour = _ps_ampm _ps_hour
+                   sec  = truncate _ps_sec
 
 -- |
 -- Same as 'parseUTCDateTimeNanos', except takes
 -- the additional locale and parser state parameters.
 parseUTCDateTimeNanos'
-  :: Abbreviate tz
+  :: Abbreviate (TimeZone tz)
   => TimeLocale               -- ^ Local conventions
   -> ParserState Gregorian tz -- ^ Initialized state
   -> FormatText               -- ^ Format string
@@ -416,9 +405,9 @@ parseUTCDateTimeNanos'
 parseUTCDateTimeNanos' locale state format =
   fmap from . parse locale state format
   where from ParserState{..} =
-             createUTCDateTimeNanos _def_year _def_mon _def_mday hour _def_min sec nsec
-             where hour = _def_ampm _def_hour
-                   (,) sec nsec = properFracNanos $ _def_frac _def_sec
+             createUTCDateTimeNanos _ps_year _ps_mon _ps_mday hour _ps_min sec nsec
+             where hour = _ps_ampm _ps_hour
+                   (,) sec nsec = properFracNanos $ _ps_frac _ps_sec
 
 -- |
 -- Next leap second insertion date.

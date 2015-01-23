@@ -16,7 +16,7 @@
 -- Local timestamps.
 module Data.Time.Cube.Local (
 
- -- ** Timestamps
+ -- ** Local Timestamps
        LocalDate(..)
      , LocalDateTime(..)
      , LocalDateTimeNanos(..)

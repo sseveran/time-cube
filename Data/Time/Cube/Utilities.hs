@@ -19,7 +19,7 @@ module Data.Time.Cube.Utilities (
 
      ) where
 
-import Data.Int (Int64)
+import Data.Int            (Int64)
 import Data.Time.Cube.Base (Hour)
 
 -- |
