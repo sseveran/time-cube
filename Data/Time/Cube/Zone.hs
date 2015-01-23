@@ -17,7 +17,7 @@
 -- Portability : GHC 7.8.* on Unix
 --
 -- Dependently typed time zones and related utilities.
-module Data.Time.Cube.Zones (
+module Data.Time.Cube.Zone (
 
  -- ** Time Zones
        TimeZone(..)

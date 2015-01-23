@@ -8,7 +8,7 @@
 -- Portability : GHC 7.8.* on Unix
 --
 -- Internal utilities.
-module Data.Time.Cube.Utilities (
+module Data.Time.Cube.Utils (
 
  -- ** Conversions
        baseUnixToUTC

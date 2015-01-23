@@ -57,11 +57,11 @@ module Data.Time.Cube.Base (
 
      ) where
 
-import Control.DeepSeq      (NFData(..))
-import Data.Int             (Int32, Int64)
-import Data.Time.Cube.Zones (TimeZone)
-import GHC.Generics         (Generic)
-import Text.Printf          (PrintfArg)
+import Control.DeepSeq     (NFData(..))
+import Data.Int            (Int32, Int64)
+import Data.Time.Cube.Zone (TimeZone)
+import GHC.Generics        (Generic)
+import Text.Printf         (PrintfArg)
 
 class Human x where
 

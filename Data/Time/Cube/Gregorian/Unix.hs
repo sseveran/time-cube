@@ -49,22 +49,22 @@ module Data.Time.Cube.Gregorian.Unix (
 
      ) where
 
-import Control.Arrow ((***))
-import Control.Lens.Setter (over)
-import Data.Int (Int64)
-import Data.Text (Text)
+import Control.Arrow         ((***))
+import Control.Lens.Setter   (over)
+import Data.Int              (Int64)
+import Data.Text             (Text)
 import Data.Time.Cube.Base
 import Data.Time.Cube.Format
 import Data.Time.Cube.Lens
 import Data.Time.Cube.Parser
 import Data.Time.Cube.Unix
-import Data.Time.Cube.Utilities
-import Data.Time.Cube.Zones
-import Foreign.C.Types (CLong(..))
-import Foreign.C.Time (C'timeval(..), getTimeOfDay)
-import GHC.Generics (Generic)
-import System.Locale (TimeLocale, defaultTimeLocale)
-import Text.Printf (printf)
+import Data.Time.Cube.Utils
+import Data.Time.Cube.Zone
+import Foreign.C.Types       (CLong(..))
+import Foreign.C.Time        (C'timeval(..), getTimeOfDay)
+import GHC.Generics          (Generic)
+import System.Locale         (TimeLocale, defaultTimeLocale)
+import Text.Printf           (printf)
 
 data instance Era Gregorian =
      BeforeChrist

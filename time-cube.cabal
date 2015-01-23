@@ -22,14 +22,14 @@ Library
                     Data.Time.Cube.Local
                     Data.Time.Cube.UTC
                     Data.Time.Cube.Unix
-                    Data.Time.Cube.Zones
+                    Data.Time.Cube.Zone
                     Foreign.C.Time
                     GHC.TypeLits.SigNat
   Other-Modules:    Data.Time.Cube.Gregorian.Local
                     Data.Time.Cube.Gregorian.UTC
                     Data.Time.Cube.Gregorian.Unix
                     Data.Time.Cube.Parser
-                    Data.Time.Cube.Utilities
+                    Data.Time.Cube.Utils
   Build-Depends:    attoparsec,
                     base >= 4 && < 5,
                     bindings-DSL >= 1.0.11 && < 1.1,
