@@ -12,8 +12,13 @@ Build-Type:         Simple
 Cabal-Version:      >= 1.18.0
 Description:        Typesafe timestamps for real-time applications.
 
+Source-Repository head
+  Type:             git
+  Location:         https://github.com/time-cube/time-cube.git
+
 Library
   Default-Language: Haskell2010
+  HS-Source-Dirs:   src
   Exposed-Modules:  Data.Time.Cube
                     Data.Time.Cube.Base
                     Data.Time.Cube.Format
@@ -38,8 +43,22 @@ Library
                     mtl,
                     old-locale,
                     text
-  Build-tools:      hsc2hs
+  Build-Tools:      hsc2hs
 
-Source-Repository head
-  Type:             git
-  Location:         https://github.com/time-cube/time-cube.git
+Test-Suite unit-test
+  Default-Language: Haskell2010
+  Type:             exitcode-stdio-1.0
+  HS-Source-Dirs:   src,
+                    test
+  Main-Is:          Test.hs
+  Other-Modules:    Foreign.C.Time
+  Build-Depends:    attoparsec,
+                    base >= 4 && < 5,
+                    bindings-DSL >= 1.0.11 && < 1.1,
+                    deepseq,
+                    lens,
+                    mtl,
+                    QuickCheck >= 2.4 && < 2.7,
+                    old-locale,
+                    text
+  Build-Tools:      hsc2hs
