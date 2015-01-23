@@ -53,6 +53,10 @@ instance KnownNat nat => KnownSigNat (Minus nat) where
 -- This type represents an unknown signed type-level natural.
 data SomeSigNat = forall signat . KnownSigNat signat => SomeSigNat (Proxy signat)
 
+instance Eq SomeSigNat where
+
+  SomeSigNat proxy1 == SomeSigNat proxy2 = sigNatVal proxy1 == sigNatVal proxy2
+
 deriving instance Show SomeSigNat
 
 -- |
