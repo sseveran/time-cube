@@ -3,6 +3,7 @@
 {-# LANGUAGE GADTs                     #-}
 {-# LANGUAGE KindSignatures            #-}
 {-# LANGUAGE ScopedTypeVariables       #-}
+{-# LANGUAGE StandaloneDeriving        #-}
 {-# OPTIONS -Wall                      #-}
 
 -- |
@@ -51,6 +52,8 @@ instance KnownNat nat => KnownSigNat (Minus nat) where
 -- |
 -- This type represents an unknown signed type-level natural.
 data SomeSigNat = forall signat . KnownSigNat signat => SomeSigNat (Proxy signat)
+
+deriving instance Show SomeSigNat
 
 -- |
 -- Convert an integer into an unknown signed type-level natural.
