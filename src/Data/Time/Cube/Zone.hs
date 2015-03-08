@@ -1,3 +1,4 @@
+{-# LANGUAGE BangPatterns              #-}
 {-# LANGUAGE DataKinds                 #-}
 {-# LANGUAGE DeriveGeneric             #-}
 {-# LANGUAGE ExistentialQuantification #-}
@@ -32,6 +33,9 @@ module Data.Time.Cube.Zone (
 
  -- ** Abbreviations
      , Abbreviate(..)
+
+ -- ** Utilities
+     , normalizeOffset
 
      ) where
 
@@ -94,9 +98,9 @@ data instance TimeZone SomeOlson =
      SomeTimeZoneOlson String (Proxy symbol) (Proxy signat)
 
 instance Eq (SomeOffset) where
-       (==) (SomeOffset x)
-            (SomeOffset y) = sigNatVal x ==
-                             sigNatVal y
+       (==) (SomeOffset x1)
+            (SomeOffset y1) = sigNatVal x1 ==
+                              sigNatVal y1
 
 instance Eq (SomeOlson) where
        (==) (SomeOlson x1 x2 x3)
@@ -106,9 +110,9 @@ instance Eq (SomeOlson) where
                                                          sigNatVal y3
 
 instance Eq (TimeZone SomeOffset) where
-       (==) (SomeTimeZoneOffset x)
-            (SomeTimeZoneOffset y) = sigNatVal x ==
-                                     sigNatVal y
+       (==) (SomeTimeZoneOffset x1)
+            (SomeTimeZoneOffset y1) = sigNatVal x1 ==
+                                      sigNatVal y1
 
 instance Eq (TimeZone SomeOlson) where
        (==) (SomeTimeZoneOlson x1 x2 x3)
@@ -123,15 +127,27 @@ deriving instance Show (TimeZone SomeOffset)
 deriving instance Show (TimeZone SomeOlson)
 
 instance Storable (TimeZone SomeOffset) where
-  sizeOf _  = 2
+
+  -- |
+  -- Size of an unknown time zone offset.
+  sizeOf = const 2
+
+  -- |
+  -- Alignment of an unknown time zone offset.
   alignment = sizeOf
+
+  -- |
+  -- Read an unknown time zone offset from an array.
   peekElemOff ptr n = do
     val <- peekElemOff (castPtr ptr) n :: IO Int16
     case someSigNatVal $ toInteger val
       of SomeSigNat proxy -> return $! SomeTimeZoneOffset proxy
+
+  -- |
+  -- Write an unknown time zone offset to an array.
   pokeElemOff ptr n (SomeTimeZoneOffset proxy) =
     pokeElemOff (castPtr ptr) n val
-    where val = fromInteger $ sigNatVal proxy :: Int16 -- this is not safe.
+    where val = normalizeOffset $ sigNatVal proxy :: Int16
 
 class Abbreviate tz where
 
@@ -226,3 +242,10 @@ instance NFData (TimeZone (UTC)) where rnf _ = ()
 instance NFData (TimeZone (Offset signat)) where rnf _ = ()
 instance NFData (TimeZone (SomeOffset)) where rnf _ = ()
 instance NFData (TimeZone (Olson region symbol signat)) where rnf _ = ()
+instance NFData (TimeZone (SomeOlson)) where rnf _ = ()
+
+-- |
+-- Map an arbitrary time zone offset to the interval [-720, 720].
+normalizeOffset :: Integer -> Int16
+normalizeOffset = fromInteger . reduce
+  where reduce !n = if abs n <= 720 then n else reduce $ n - signum n * 1440
