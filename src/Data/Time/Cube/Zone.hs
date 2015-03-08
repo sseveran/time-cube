@@ -28,6 +28,7 @@ module Data.Time.Cube.Zone (
      , Offset
      , SomeOffset(..)
      , Olson
+     , SomeOlson(..)
 
  -- ** Abbreviations
      , Abbreviate(..)
@@ -58,9 +59,15 @@ data UTC :: *
 
 data Offset :: SigNat -> *
 
-data SomeOffset = forall signat . KnownSigNat signat => SomeOffset (Proxy signat)
+data SomeOffset =
+     forall signat . KnownSigNat signat =>
+     SomeOffset (Proxy signat)
 
-data family Olson :: Symbol -> *
+data family Olson :: Symbol -> Symbol -> SigNat -> *
+
+data SomeOlson =
+     forall symbol signat . (KnownSymbol symbol, KnownSigNat signat) =>
+     SomeOlson String (Proxy symbol) (Proxy signat)
 
 data instance TimeZone Unix =
      Unix
@@ -78,23 +85,44 @@ data instance TimeZone SomeOffset =
      forall signat . KnownSigNat signat =>
      SomeTimeZoneOffset (Proxy signat)
 
-data instance TimeZone (Olson olson) =
+data instance TimeZone (Olson region symbol signat) =
      TimeZoneOlson
      deriving (Eq, Generic, Show)
 
-instance Eq (SomeOffset) where
+data instance TimeZone SomeOlson =
+     forall symbol signat . (KnownSymbol symbol, KnownSigNat signat) =>
+     SomeTimeZoneOlson String (Proxy symbol) (Proxy signat)
 
-  SomeOffset x == SomeOffset y = sigNatVal x == sigNatVal y
+instance Eq (SomeOffset) where
+       (==) (SomeOffset x)
+            (SomeOffset y) = sigNatVal x ==
+                             sigNatVal y
+
+instance Eq (SomeOlson) where
+       (==) (SomeOlson x1 x2 x3)
+            (SomeOlson y1 y2 y3) = x1 ==
+                                   y1 && symbolVal x2 ==
+                                         symbolVal y2 && sigNatVal x3 ==
+                                                         sigNatVal y3
 
 instance Eq (TimeZone SomeOffset) where
+       (==) (SomeTimeZoneOffset x)
+            (SomeTimeZoneOffset y) = sigNatVal x ==
+                                     sigNatVal y
 
-  SomeTimeZoneOffset x == SomeTimeZoneOffset y = sigNatVal x == sigNatVal y
+instance Eq (TimeZone SomeOlson) where
+       (==) (SomeTimeZoneOlson x1 x2 x3)
+            (SomeTimeZoneOlson y1 y2 y3) = x1 ==
+                                           y1 && symbolVal x2 ==
+                                                 symbolVal y2 && sigNatVal x3 ==
+                                                                 sigNatVal y3
 
 deriving instance Show (SomeOffset)
+deriving instance Show (SomeOlson)
 deriving instance Show (TimeZone SomeOffset)
+deriving instance Show (TimeZone SomeOlson)
 
 instance Storable (TimeZone SomeOffset) where
-
   sizeOf _  = 2
   alignment = sizeOf
   peekElemOff ptr n = do
@@ -103,7 +131,7 @@ instance Storable (TimeZone SomeOffset) where
       of SomeSigNat proxy -> return $! SomeTimeZoneOffset proxy
   pokeElemOff ptr n (SomeTimeZoneOffset proxy) =
     pokeElemOff (castPtr ptr) n val
-    where val = fromInteger $ sigNatVal proxy :: Int16
+    where val = fromInteger $ sigNatVal proxy :: Int16 -- this is not safe.
 
 class Abbreviate tz where
 
@@ -193,8 +221,8 @@ instance Abbreviate (TimeZone SomeOffset) where
            where plus  = char '+' *> return id
                  minus = char '-' *> return negate
 
-instance NFData (TimeZone (Unix         )) where rnf _ = ()
-instance NFData (TimeZone (UTC          )) where rnf _ = ()
+instance NFData (TimeZone (Unix)) where rnf _ = ()
+instance NFData (TimeZone (UTC)) where rnf _ = ()
 instance NFData (TimeZone (Offset signat)) where rnf _ = ()
-instance NFData (TimeZone (SomeOffset   )) where rnf _ = ()
-instance NFData (TimeZone (Olson olson  )) where rnf _ = ()
+instance NFData (TimeZone (SomeOffset)) where rnf _ = ()
+instance NFData (TimeZone (Olson region symbol signat)) where rnf _ = ()
