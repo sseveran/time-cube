@@ -36,6 +36,7 @@ module Data.Time.Cube.Zone (
 
  -- ** Utilities
      , normalizeOffset
+     , promoteOlson
 
      ) where
 
@@ -249,3 +250,13 @@ instance NFData (TimeZone (SomeOlson)) where rnf _ = ()
 normalizeOffset :: Integer -> Int16
 normalizeOffset = fromInteger . reduce
   where reduce !n = if abs n <= 720 then n else reduce $ n - signum n * 1440
+
+-- |
+-- Promote Olson data to the type level.
+promoteOlson
+  :: forall proxy1 proxy2 symbol signat olson . (KnownSymbol symbol, KnownSigNat signat)
+  => proxy1 symbol
+  -> proxy2 signat
+  -> (Proxy symbol -> Proxy signat -> olson)
+  -> olson
+promoteOlson _ _ f = f Proxy Proxy
