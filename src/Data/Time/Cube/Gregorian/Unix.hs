@@ -599,8 +599,8 @@ getCurrentUnixDateTimeNanos =
 
 -- |
 -- Default parser state for unix timestamps.
-defaultUnixParserState :: ParserState Gregorian Unix
-defaultUnixParserState =  ParserState 1970 January 1 Thursday 0 0 0.0 id id Unix
+defaultUnixParserState :: ParserState Gregorian None
+defaultUnixParserState =  ParserState 1970 January 1 Thursday 0 0 0.0 id id NoTimeZone
 
 -- |
 -- Parse a Unix date.
