@@ -11,7 +11,7 @@
 {-# OPTIONS -Wall                      #-}
 
 -- |
--- Module      : Data.Time.Cube.Zones
+-- Module      : Data.Time.Cube.Zone
 -- License     : BSD3
 -- Maintainer  : ehaussecker@alphaheavy.com
 -- Stability   : Experimental
