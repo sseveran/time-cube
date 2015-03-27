@@ -196,7 +196,7 @@ instance KnownSigNat signat => Abbreviate (TimeZone (Offset signat)) where
       hours   = printf "%02d" $ div nat 60
       minutes = printf "%02d" $ mod nat 60
       nat     = abs signat
-      signat  = sigNatVal (Proxy :: Proxy signat)
+      signat  = normalizeOffset $ sigNatVal (Proxy :: Proxy signat)
 
   -- |
   -- Unabbreviate a time zone offset that is known at compile time.
@@ -208,7 +208,7 @@ instance KnownSigNat signat => Abbreviate (TimeZone (Offset signat)) where
       let proxy  = Proxy :: Proxy signat
           signat = sign $ read hours * 60 + read minutes
       if  sigNatVal proxy /= signat
-      then fail "unabbreviate{TimeZone (Offset signat)}: unmatched type"
+      then fail "unabbreviate{TimeZone (Offset signat)}: unmatched type signature"
       else return TimeZoneOffset
            where plus  = char '+' *> return id
                  minus = char '-' *> return negate
@@ -224,7 +224,7 @@ instance Abbreviate (TimeZone SomeOffset) where
       hours   = printf "%02d" $ div nat 60
       minutes = printf "%02d" $ mod nat 60
       nat     = abs signat
-      signat  = sigNatVal proxy
+      signat  = normalizeOffset $ sigNatVal proxy
 
   -- |
   -- Unabbreviate a time zone offset that is unknown at compile time.
@@ -249,8 +249,8 @@ instance NFData (TimeZone (SomeOlson)) where rnf _ = ()
 -- |
 -- Map a time zone offset to the interval [-720, 720].
 normalizeOffset :: Integer -> Int16
-normalizeOffset = fromInteger . reduce
-  where reduce !n = if abs n <= 720 then n else reduce $ n - signum n * 1440
+normalizeOffset = fromInteger . norm . flip mod 1440
+  where norm !n = if abs n <= 720 then n else n - signum n * 1440
 
 -- |
 -- Promote a time zone offset to the type level.
