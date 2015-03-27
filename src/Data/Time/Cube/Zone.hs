@@ -46,7 +46,7 @@ import Control.Monad        (replicateM)
 import Data.Attoparsec.Text (char, digit, parseOnly)
 import Data.Int             (Int16)
 import Data.Proxy           (Proxy(..))
-import Data.Text            (Text, pack)
+import Data.Text            (Text, pack, unpack)
 import Foreign.Ptr          (castPtr)
 import Foreign.Storable     (Storable(..))
 import GHC.Generics         (Generic)
@@ -238,6 +238,19 @@ instance Abbreviate (TimeZone SomeOffset) where
            where plus  = char '+' *> return id
                  minus = char '-' *> return negate
 
+instance KnownSymbol symbol => Abbreviate (TimeZone (Olson region symbol signat)) where
+
+  -- |
+  -- Abbreviate an Olson time zone that is known at compile time.
+  abbreviate TimeZoneOlson = pack $ symbolVal (Proxy :: Proxy symbol)
+
+  -- |
+  -- Unabbreviate an Olson time zone that is known at compile time.
+  unabbreviate symbol = 
+    if unpack symbol /= symbolVal (Proxy :: Proxy symbol)
+    then fail "unabbreviate{TimeZone (Olson region symbol signat)}: unmatched type signature"
+    else return TimeZoneOlson
+
 instance NFData (TimeZone (None)) where rnf _ = ()
 instance NFData (TimeZone (UTC)) where rnf _ = ()
 instance NFData (TimeZone (Offset signat)) where rnf _ = ()
@@ -253,7 +266,11 @@ normalizeOffset = fromInteger . pivot . flip mod 1440
 
 -- |
 -- Promote a time zone offset to the type level.
-promoteOffset :: forall proxy signat offset . KnownSigNat signat => proxy signat -> (Proxy signat -> offset) -> offset
+promoteOffset
+  :: forall proxy signat offset . KnownSigNat signat
+  => proxy signat
+  -> (Proxy signat -> offset)
+  -> offset
 promoteOffset = promoteSigNat
 
 -- |
