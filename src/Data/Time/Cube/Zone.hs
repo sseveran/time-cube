@@ -1,4 +1,3 @@
-{-# LANGUAGE BangPatterns              #-}
 {-# LANGUAGE DataKinds                 #-}
 {-# LANGUAGE DeriveGeneric             #-}
 {-# LANGUAGE ExistentialQuantification #-}
@@ -249,8 +248,8 @@ instance NFData (TimeZone (SomeOlson)) where rnf _ = ()
 -- |
 -- Map a time zone offset to the interval [-720, 720].
 normalizeOffset :: Integer -> Int16
-normalizeOffset = fromInteger . norm . flip mod 1440
-  where norm !n = if abs n <= 720 then n else n - signum n * 1440
+normalizeOffset = fromInteger . pivot . flip mod 1440
+  where pivot n = if abs n <= 720 then n else n - signum n * 1440
 
 -- |
 -- Promote a time zone offset to the type level.
