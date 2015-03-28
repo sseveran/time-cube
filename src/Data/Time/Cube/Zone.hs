@@ -47,6 +47,7 @@ import Data.Attoparsec.Text (char, digit, parseOnly)
 import Data.Int             (Int16)
 import Data.Proxy           (Proxy(..))
 import Data.Text            (Text, pack, unpack)
+import Data.Time.Zones      (TZ, diffForAbbr)
 import Foreign.Ptr          (castPtr)
 import Foreign.Storable     (Storable(..))
 import GHC.Generics         (Generic)
@@ -148,7 +149,7 @@ instance Storable (TimeZone SomeOffset) where
   -- Write a time zone offset that is unknown at compile time to an array.
   pokeElemOff ptr n (SomeTimeZoneOffset proxy) =
     pokeElemOff (castPtr ptr) n val
-    where val = normalizeOffset $ sigNatVal proxy :: Int16
+    where val = fromInteger . normalizeOffset $ sigNatVal proxy :: Int16
 
 class Abbreviate tz where
 
@@ -158,7 +159,7 @@ class Abbreviate tz where
 
   -- |
   -- Get the time zone for the given abbreviation text.
-  unabbreviate :: Text -> Either String tz
+  unabbreviate :: Maybe (String, TZ) -> Text -> Either String tz
 
 instance Abbreviate (TimeZone None) where
 
@@ -168,9 +169,9 @@ instance Abbreviate (TimeZone None) where
 
   -- |
   -- Unabbreviate a time zone with no parameterization.
-  unabbreviate = \ case
-    "" -> Right NoTimeZone
-    _  -> Left $ "unabbreviate{TimeZone None}: unmatched text"
+  unabbreviate _ = \ case
+    ""   -> Right NoTimeZone
+    text -> Left $ "unabbreviate{TimeZone None}: unmatched text: " ++ unpack text
 
 instance Abbreviate (TimeZone UTC) where
 
@@ -180,9 +181,9 @@ instance Abbreviate (TimeZone UTC) where
 
   -- |
   -- Unabbreviate the UTC time zone.
-  unabbreviate = \ case
+  unabbreviate _ = \ case
     "UTC" -> Right UTC
-    _     -> Left $ "unabbreviate{TimeZone UTC}: unmatched text"
+    text  -> Left $ "unabbreviate{TimeZone UTC}: unmatched text: " ++ unpack text
 
 instance KnownSigNat signat => Abbreviate (TimeZone (Offset signat)) where
 
@@ -199,16 +200,16 @@ instance KnownSigNat signat => Abbreviate (TimeZone (Offset signat)) where
 
   -- |
   -- Unabbreviate a time zone offset that is known at compile time.
-  unabbreviate =
+  unabbreviate _ =
     parseOnly $ do
       sign    <- plus <|> minus
       hours   <- replicateM 2 digit
       minutes <- replicateM 2 digit
       let proxy  = Proxy :: Proxy signat
-          signat = sign $ read hours * 60 + read minutes
-      if  sigNatVal proxy /= signat
-      then fail "unabbreviate{TimeZone (Offset signat)}: unmatched type signature"
-      else return TimeZoneOffset
+          signat = normalizeOffset . sign $ read hours * 60 + read minutes
+      if  normalizeOffset (sigNatVal proxy) == signat
+      then return TimeZoneOffset
+      else fail $ "unabbreviate{TimeZone (Offset signat)}: unmatched type signature: " ++ show signat
            where plus  = char '+' *> return id
                  minus = char '-' *> return negate
 
@@ -227,12 +228,12 @@ instance Abbreviate (TimeZone SomeOffset) where
 
   -- |
   -- Unabbreviate a time zone offset that is unknown at compile time.
-  unabbreviate =
+  unabbreviate _ =
     parseOnly $ do
       sign    <- plus <|> minus
       hours   <- replicateM 2 digit
       minutes <- replicateM 2 digit
-      let signat = sign $ read hours * 60 + read minutes
+      let signat = normalizeOffset . sign $ read hours * 60 + read minutes
       case someSigNatVal signat
         of SomeSigNat proxy -> return $! promoteOffset proxy SomeTimeZoneOffset
            where plus  = char '+' *> return id
@@ -246,10 +247,32 @@ instance KnownSymbol symbol => Abbreviate (TimeZone (Olson region symbol signat)
 
   -- |
   -- Unabbreviate an Olson time zone that is known at compile time.
-  unabbreviate symbol = 
-    if unpack symbol /= symbolVal (Proxy :: Proxy symbol)
-    then fail "unabbreviate{TimeZone (Olson region symbol signat)}: unmatched type signature"
-    else return TimeZoneOlson
+  unabbreviate _ text =
+    if unpack text == symbolVal (Proxy :: Proxy symbol)
+    then Right TimeZoneOlson
+    else Left $ "unabbreviate{TimeZone (Olson region symbol signat)}: unmatched type signature: " ++ unpack text
+
+instance Abbreviate (TimeZone SomeOlson) where
+
+  -- |
+  -- Abbreviate an Olson time zone that is unknown at compile time.
+  abbreviate (SomeTimeZoneOlson _ proxy _) = pack $ symbolVal proxy
+
+  -- |
+  -- Unabbreviate an Olson time zone that is unknown at compile time.
+  unabbreviate mval text =
+    case mval
+      of Nothing -> Left "unabbreviate{TimeZone SomeOlson}: no Olson data to match text"
+         Just (region, tz) ->
+           let symbol = unpack text
+           in case diffForAbbr tz symbol
+                of Nothing -> Left "unabbreviate{TimeZone SomeOlson}: unmatched text"
+                   Just diff ->
+                     case someSymbolVal symbol
+                       of SomeSymbol proxy1 ->
+                            case someSigNatVal . toInteger $ div diff 60
+                              of SomeSigNat proxy2 ->
+                                   Right . promoteOlson proxy1 proxy2 $ SomeTimeZoneOlson region
 
 instance NFData (TimeZone (None)) where rnf _ = ()
 instance NFData (TimeZone (UTC)) where rnf _ = ()
@@ -260,8 +283,8 @@ instance NFData (TimeZone (SomeOlson)) where rnf _ = ()
 
 -- |
 -- Map a time zone offset to the interval (-720, 720].
-normalizeOffset :: Integer -> Int16
-normalizeOffset = fromInteger . pivot . flip mod 1440
+normalizeOffset :: Integer -> Integer
+normalizeOffset = pivot . flip mod 1440
   where pivot n = if -720 < n && n <= 720 then n else n - signum n * 1440
 
 -- |
