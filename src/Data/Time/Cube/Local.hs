@@ -51,9 +51,7 @@ data LocalDateTimeNanos (cal :: Calendar) tz =
      deriving Generic
 
 deriving instance (Eq tz, Eq (TimeZone tz)) => Eq (LocalDate cal tz)
-
 deriving instance (Eq tz, Eq (TimeZone tz)) => Eq (LocalDateTime cal tz)
-
 deriving instance (Eq tz, Eq (TimeZone tz)) => Eq (LocalDateTimeNanos cal tz)
 
 instance (Eq tz, Eq (TimeZone tz)) => Ord (LocalDate cal tz) where
