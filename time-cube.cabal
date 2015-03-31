@@ -27,7 +27,7 @@ Library
                     Data.Time.Cube.Local
                     Data.Time.Cube.UTC
                     Data.Time.Cube.Unix
-                    Data.Time.Cube.Zone
+                    Data.Time.Cube.Zones
                     Foreign.C.Time
                     GHC.TypeLits.SigNat
   Other-Modules:    Data.Time.Cube.Gregorian.Local

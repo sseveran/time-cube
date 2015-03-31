@@ -55,7 +55,7 @@ import Data.Time.Cube.Lens
 import Data.Time.Cube.Parser
 import Data.Time.Cube.Utils
 import Data.Time.Cube.UTC
-import Data.Time.Cube.Zone
+import Data.Time.Cube.Zones
 import System.Locale                 (TimeLocale, defaultTimeLocale)
 import Text.Printf                   (printf)
 

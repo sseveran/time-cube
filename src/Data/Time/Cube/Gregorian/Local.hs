@@ -34,7 +34,7 @@ import Data.Time.Cube.Gregorian.UTC
 import Data.Time.Cube.Gregorian.Unix
 import Data.Time.Cube.Local
 import Data.Time.Cube.Parser
-import Data.Time.Cube.Zone
+import Data.Time.Cube.Zones
 
 import qualified Text.Printf as P (printf)
 import qualified Data.Text   as T (unpack)

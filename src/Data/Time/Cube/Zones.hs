@@ -10,14 +10,14 @@
 {-# OPTIONS -Wall                      #-}
 
 -- |
--- Module      : Data.Time.Cube.Zone
+-- Module      : Data.Time.Cube.Zones
 -- License     : BSD3
 -- Maintainer  : ehaussecker@alphaheavy.com
 -- Stability   : Experimental
 -- Portability : GHC 7.8.* on Unix
 --
 -- Dependently typed time zones and related utilities.
-module Data.Time.Cube.Zone (
+module Data.Time.Cube.Zones (
 
  -- ** Time Zones
        TimeZone(..)

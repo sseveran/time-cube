@@ -23,14 +23,14 @@ module Data.Time.Cube.Local (
 
      ) where
 
-import Control.DeepSeq     (NFData(..))
-import Data.Ord            (comparing)
-import Data.Time.Cube.Base (Calendar(..))
+import Control.DeepSeq      (NFData(..))
+import Data.Ord             (comparing)
+import Data.Time.Cube.Base  (Calendar(..))
 import Data.Time.Cube.UTC
-import Data.Time.Cube.Zone (SomeOffset, TimeZone)
-import Foreign.Ptr         (plusPtr)
-import Foreign.Storable    (Storable(..))
-import GHC.Generics        (Generic)
+import Data.Time.Cube.Zones (SomeOffset, TimeZone)
+import Foreign.Ptr          (plusPtr)
+import Foreign.Storable     (Storable(..))
+import GHC.Generics         (Generic)
 
 -- |
 -- Local days since Unix epoch.

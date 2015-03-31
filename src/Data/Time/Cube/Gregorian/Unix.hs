@@ -59,7 +59,7 @@ import Data.Time.Cube.Lens
 import Data.Time.Cube.Parser
 import Data.Time.Cube.Unix
 import Data.Time.Cube.Utils
-import Data.Time.Cube.Zone
+import Data.Time.Cube.Zones
 import Foreign.C.Types       (CLong(..))
 import Foreign.C.Time        (C'timeval(..), getTimeOfDay)
 import GHC.Generics          (Generic)

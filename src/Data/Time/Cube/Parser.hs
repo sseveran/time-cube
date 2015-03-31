@@ -38,7 +38,7 @@ import Data.Char                        (isAlpha)
 import Data.Text as T                   (Text, length, pack, toLower)
 import Data.Time.Cube.Base
 import Data.Time.Cube.Format
-import Data.Time.Cube.Zone
+import Data.Time.Cube.Zones
 import Data.Time.Zones                  (TZ)
 import Data.Time.Zones.DB               (TZLabel)
 import System.Locale                    (TimeLocale(..))
