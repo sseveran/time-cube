@@ -79,7 +79,7 @@ instance NFData (TimeZone tz) => NFData (LocalDateTimeNanos cal tz) where
    rnf (LocalDateTimeNanos time zone) = rnf time `seq` rnf zone `seq` ()
 
 instance Storable (LocalDate cal SomeOffset) where
-   sizeOf  _ = 6
+   sizeOf = const 6
    alignment = sizeOf
    peekElemOff ptr n = do
        let off = 6 * n
@@ -92,7 +92,7 @@ instance Storable (LocalDate cal SomeOffset) where
        flip poke zone . plusPtr ptr $ off + 4
 
 instance Storable (LocalDateTime cal SomeOffset) where
-   sizeOf  _ = 10
+   sizeOf = const 10
    alignment = sizeOf
    peekElemOff ptr n = do
        let off = 10 * n
@@ -105,7 +105,7 @@ instance Storable (LocalDateTime cal SomeOffset) where
        flip poke zone . plusPtr ptr $ off + 8
 
 instance Storable (LocalDateTimeNanos cal SomeOffset) where
-   sizeOf  _ = 14
+   sizeOf = const 14
    alignment = sizeOf
    peekElemOff ptr n = do
        let off = 14 * n
