@@ -33,12 +33,14 @@ import Control.Lens.Setter              (Setter, (%=), assign)
 import Control.Lens.TH                  (makeLenses)
 import Control.Monad                    ((<=<), foldM, replicateM)
 import Control.Monad.State.Strict       (execState, State)
-import Data.Attoparsec.Text as P hiding (match, parse)
+import Data.Attoparsec.Text as P hiding (parse)
 import Data.Char                        (isAlpha)
 import Data.Text as T                   (Text, length, pack, toLower)
 import Data.Time.Cube.Base
 import Data.Time.Cube.Format
 import Data.Time.Cube.Zone
+import Data.Time.Zones                  (TZ)
+import Data.Time.Zones.DB               (TZLabel)
 import System.Locale                    (TimeLocale(..))
 
 -- |
@@ -66,13 +68,14 @@ parse
   => Bounded    (Month     cal)
   => Enum       (DayOfWeek cal)
   => Enum       (Month     cal)
-  => TimeLocale         -- ^ Local Conventions
-  -> ParserState cal tz -- ^ Initialized State
-  -> FormatText         -- ^ Format String
-  -> Text               -- ^ Input String
+  => TimeLocale          -- ^ Local Conventions
+  -> Maybe (TZLabel, TZ) -- ^ Time Zone Data
+  -> ParserState cal tz  -- ^ Initialized State
+  -> FormatText          -- ^ Format String
+  -> Text                -- ^ Input String
   -> Either String (ParserState cal tz)
-parse locale state format input =
-  flip parseOnly input <=< fmap exe . flip parseOnly format . many' $ create locale
+parse locale mval state format input =
+  flip parseOnly input <=< fmap exe . flip parseOnly format . many' $ create locale mval
   where exe sets = flip execState state <$> sequence <$> sequence sets
 
 -- |
@@ -83,8 +86,9 @@ create
   => Enum       (DayOfWeek cal)
   => Enum       (Month     cal)
   => TimeLocale
+  -> Maybe (TZLabel, TZ)
   -> Parser (Parser (State (ParserState cal tz) ()))
-create locale =
+create locale mval =
 
   --- Literals
       percent
@@ -99,7 +103,7 @@ create locale =
   <|> match "%Q" ps_frac fraction
   <|> match "%S" ps_sec second
   <|> match "%Y" ps_year (fixed 4)
-  <|> match "%Z" ps_zone zoneAbbr
+  <|> match "%Z" ps_zone (zoneAbbr mval)
   <|> match "%a" ps_wday (weekAbbr locale)
   <|> match "%b" ps_mon (monthAbbr locale)
   <|> match "%d" ps_mday (fixed 2)
@@ -297,13 +301,13 @@ period TimeLocale{amPm = (am, pm)} casify = fromList
 
 -- |
 -- Parse a time zone in short text format.
-zoneAbbr :: Abbreviate (TimeZone tz) => Parser (TimeZone tz)
-zoneAbbr = takeWhile1 isAlpha >>= either fail return . unabbreviate
+zoneAbbr :: Abbreviate (TimeZone tz) => Maybe (TZLabel, TZ) -> Parser (TimeZone tz)
+zoneAbbr mval = takeWhile1 isAlpha >>= either fail return . unabbreviate mval
 
 -- |
 -- Parse a time zone in offset text format.
 zoneOffset :: Abbreviate (TimeZone tz) => Parser (TimeZone tz)
-zoneOffset = P.take 5 >>= either fail return . unabbreviate
+zoneOffset = P.take 5 >>= either fail return . unabbreviate Nothing
 
 -- |
 -- Parse a month in short text format.
