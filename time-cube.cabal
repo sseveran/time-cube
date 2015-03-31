@@ -1,5 +1,5 @@
 Name:               time-cube
-Version:            0.0.0
+Version:            0.1.20150330101655
 License:            BSD3
 License-File:       LICENSE
 Copyright:          Copyright (c) 2015, Alpha Heavy Industries, Inc. All rights reserved.
@@ -37,12 +37,15 @@ Library
                     Data.Time.Cube.Utils
   Build-Depends:    attoparsec,
                     base >= 4 && < 5,
+                    bytestring,
                     bindings-DSL >= 1.0.11 && < 1.1,
                     deepseq,
                     lens,
                     mtl,
                     old-locale,
-                    text
+                    text,
+                    tz >= 0.0.0.10,
+                    tzdata
   Build-Tools:      hsc2hs
 
 Test-Suite unit-test
@@ -54,11 +57,14 @@ Test-Suite unit-test
   Other-Modules:    Foreign.C.Time
   Build-Depends:    attoparsec,
                     base >= 4 && < 5,
+                    bytestring,
                     bindings-DSL >= 1.0.11 && < 1.1,
                     deepseq,
                     lens,
                     mtl,
                     QuickCheck >= 2.4 && < 2.7,
                     old-locale,
-                    text
+                    text,
+                    tz >= 0.0.0.10,
+                    tzdata
   Build-Tools:      hsc2hs
