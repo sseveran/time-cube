@@ -64,10 +64,10 @@ deriving instance Show SomeSigNat
 someSigNatVal :: Integer -> SomeSigNat
 someSigNatVal x =
   case fromJust . someNatVal $ abs x
-  of { SomeNat (_ :: Proxy nat) ->
-       if x >= 0
-       then SomeSigNat (Proxy :: Proxy (Plus  nat))
-       else SomeSigNat (Proxy :: Proxy (Minus nat)) }
+    of SomeNat (_ :: Proxy nat) ->
+         if x >= 0
+         then SomeSigNat (Proxy :: Proxy (Plus  nat))
+         else SomeSigNat (Proxy :: Proxy (Minus nat))
 
 -- |
 -- Promote a signed type-level natural.
