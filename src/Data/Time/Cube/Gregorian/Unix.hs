@@ -637,7 +637,7 @@ parseUnixDate'
   -> Text                     -- ^ Input string
   -> Either String (UnixDate Gregorian)
 parseUnixDate' locale state format =
-  fmap from . parse locale state format
+  fmap from . parse locale Nothing state format
   where from ParserState{..} =
              createUnixDate _ps_year _ps_mon _ps_mday
 
@@ -652,7 +652,7 @@ parseUnixDateTime'
   -> Text                     -- ^ Input string
   -> Either String (UnixDateTime Gregorian)
 parseUnixDateTime' locale state format =
-  fmap from . parse locale state format
+  fmap from . parse locale Nothing state format
   where from ParserState{..} =
              createUnixDateTime _ps_year _ps_mon _ps_mday hour _ps_min sec
              where hour = _ps_ampm _ps_hour
@@ -669,7 +669,7 @@ parseUnixDateTimeNanos'
   -> Text                     -- ^ Input string
   -> Either String (UnixDateTimeNanos Gregorian)
 parseUnixDateTimeNanos' locale state format =
-  fmap from . parse locale state format
+  fmap from . parse locale Nothing state format
   where from ParserState{..} =
              createUnixDateTimeNanos _ps_year _ps_mon _ps_mday hour _ps_min sec nsec
              where hour = _ps_ampm _ps_hour

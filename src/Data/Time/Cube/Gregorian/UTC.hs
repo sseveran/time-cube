@@ -385,7 +385,7 @@ parseUTCDateTime'
   -> Text                     -- ^ Input string
   -> Either String (UTCDateTime Gregorian)
 parseUTCDateTime' locale state format =
-  fmap from . parse locale state format
+  fmap from . parse locale Nothing state format
   where from :: ParserState Gregorian tz -> UTCDateTime Gregorian
         from ParserState{..} =
              createUTCDateTime _ps_year _ps_mon _ps_mday hour _ps_min sec
@@ -403,7 +403,7 @@ parseUTCDateTimeNanos'
   -> Text                     -- ^ Input string
   -> Either String (UTCDateTimeNanos Gregorian)
 parseUTCDateTimeNanos' locale state format =
-  fmap from . parse locale state format
+  fmap from . parse locale Nothing state format
   where from ParserState{..} =
              createUTCDateTimeNanos _ps_year _ps_mon _ps_mday hour _ps_min sec nsec
              where hour = _ps_ampm _ps_hour
