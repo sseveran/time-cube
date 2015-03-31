@@ -40,20 +40,22 @@ module Data.Time.Cube.Zone (
 
      ) where
 
-import Control.Applicative  ((<|>), (*>))
-import Control.DeepSeq      (NFData(..))
-import Control.Monad        (replicateM)
-import Data.Attoparsec.Text (char, digit, parseOnly)
-import Data.Int             (Int16)
-import Data.Proxy           (Proxy(..))
-import Data.Text            (Text, pack, unpack)
-import Data.Time.Zones      (TZ, diffForAbbr)
-import Foreign.Ptr          (castPtr)
-import Foreign.Storable     (Storable(..))
-import GHC.Generics         (Generic)
+import Control.Applicative        ((<|>), (*>))
+import Control.DeepSeq            (NFData(..))
+import Control.Monad              (replicateM)
+import Data.Attoparsec.Text       (char, digit, parseOnly)
+import Data.ByteString.Char8 as B (unpack)
+import Data.Int                   (Int16)
+import Data.Proxy                 (Proxy(..))
+import Data.Text as T             (Text, pack, unpack)
+import Data.Time.Zones            (TZ, diffForAbbr)
+import Data.Time.Zones.DB         (TZLabel, toTZName)
+import Foreign.Ptr                (castPtr)
+import Foreign.Storable           (Storable(..))
+import GHC.Generics               (Generic)
 import GHC.TypeLits
 import GHC.TypeLits.SigNat
-import Text.Printf          (printf)
+import Text.Printf                (printf)
 
 -- |
 -- A uniform standard for time.
@@ -159,7 +161,7 @@ class Abbreviate tz where
 
   -- |
   -- Get the time zone for the given abbreviation text.
-  unabbreviate :: Maybe (String, TZ) -> Text -> Either String tz
+  unabbreviate :: Maybe (TZLabel, TZ) -> Text -> Either String tz
 
 instance Abbreviate (TimeZone None) where
 
@@ -171,7 +173,7 @@ instance Abbreviate (TimeZone None) where
   -- Unabbreviate a time zone with no parameterization.
   unabbreviate _ = \ case
     ""   -> Right NoTimeZone
-    text -> Left $ "unabbreviate{TimeZone None}: unmatched text: " ++ unpack text
+    text -> Left $ "unabbreviate{TimeZone None}: unmatched text: " ++ T.unpack text
 
 instance Abbreviate (TimeZone UTC) where
 
@@ -183,7 +185,7 @@ instance Abbreviate (TimeZone UTC) where
   -- Unabbreviate the UTC time zone.
   unabbreviate _ = \ case
     "UTC" -> Right UTC
-    text  -> Left $ "unabbreviate{TimeZone UTC}: unmatched text: " ++ unpack text
+    text  -> Left $ "unabbreviate{TimeZone UTC}: unmatched text: " ++ T.unpack text
 
 instance KnownSigNat signat => Abbreviate (TimeZone (Offset signat)) where
 
@@ -248,23 +250,38 @@ instance KnownSymbol symbol => Abbreviate (TimeZone (Olson region symbol signat)
   -- |
   -- Unabbreviate an Olson time zone that is known at compile time.
   unabbreviate _ text =
-    if unpack text == symbolVal (Proxy :: Proxy symbol)
+    if T.unpack text == symbolVal (Proxy :: Proxy symbol)
     then Right TimeZoneOlson
-    else Left $ "unabbreviate{TimeZone (Olson region symbol signat)}: unmatched type signature: " ++ unpack text
+    else Left $ "unabbreviate{TimeZone (Olson region symbol signat)}: unmatched type signature: " ++ T.unpack text
 
 instance Abbreviate (TimeZone SomeOlson) where
 
   -- |
   -- Abbreviate an Olson time zone that is unknown at compile time.
+  --
+  -- > λ> :set -XDataKinds
+  -- > λ> :module + Data.Proxy GHC.TypeLits.SigNat
+  -- > λ> let abbreviation = Proxy :: Proxy "CEST"
+  -- > λ> let offset = Proxy :: Proxy (Plus 120)
+  -- > λ> abbreviate $ SomeTimeZoneOlson "Europe/Paris" abbreviation offset
+  -- > "CEST"
+  --
   abbreviate (SomeTimeZoneOlson _ proxy _) = pack $ symbolVal proxy
 
   -- |
   -- Unabbreviate an Olson time zone that is unknown at compile time.
+  --
+  -- > λ> :set -XOverloadedStrings -XTupleSections
+  -- > λ> :module + Control.Applicative Data.Time.Zones Data.Time.Zones.DB 
+  -- > λ> tzdata <- Just . (Europe__Paris, ) <$> loadTZFromDB "Europe/Paris"
+  -- > λ> unabbreviate tzdata "CEST" :: Either String (TimeZone SomeOlson)
+  -- > Right (SomeTimeZoneOlson "Europe/Paris" Proxy Proxy)
+  --
   unabbreviate mval text =
     case mval
       of Nothing -> Left "unabbreviate{TimeZone SomeOlson}: no Olson data to match text"
-         Just (region, tz) ->
-           let symbol = unpack text
+         Just (label, tz) ->
+           let symbol = T.unpack text
            in case diffForAbbr tz symbol
                 of Nothing -> Left "unabbreviate{TimeZone SomeOlson}: unmatched text"
                    Just diff ->
@@ -272,7 +289,8 @@ instance Abbreviate (TimeZone SomeOlson) where
                        of SomeSymbol proxy1 ->
                             case someSigNatVal . toInteger $ div diff 60
                               of SomeSigNat proxy2 ->
-                                   Right . promoteOlson proxy1 proxy2 $ SomeTimeZoneOlson region
+                                   let region = B.unpack $ toTZName label
+                                   in Right . promoteOlson proxy1 proxy2 $ SomeTimeZoneOlson region
 
 instance NFData (TimeZone (None)) where rnf _ = ()
 instance NFData (TimeZone (UTC)) where rnf _ = ()
