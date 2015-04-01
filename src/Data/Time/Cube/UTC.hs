@@ -50,7 +50,7 @@ instance NFData (UTCDateTimeNanos cal) where
    rnf (UTCDateTimeNanos base nsec) = rnf base `seq` rnf nsec `seq` ()
 
 instance Storable (UTCDateTimeNanos cal) where
-   sizeOf  _ = 12
+   sizeOf = const 12
    alignment = sizeOf
    peekElemOff ptr n = do
        let off = 12 * n
