@@ -49,7 +49,7 @@ instance NFData (UnixDateTimeNanos cal) where
    rnf (UnixDateTimeNanos base nsec) = rnf base `seq` rnf nsec `seq` ()
 
 instance Storable (UnixDateTimeNanos cal) where
-   sizeOf  _ = 12
+   sizeOf = const 12
    alignment = sizeOf
    peekElemOff ptr n = do
        let off = 12 * n
