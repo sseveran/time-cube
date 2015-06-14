@@ -599,7 +599,7 @@ getCurrentUnixDateTimeNanos =
 
 -- |
 -- Default parser state for unix timestamps.
-defaultUnixParserState :: ParserState Gregorian None
+defaultUnixParserState :: ParserState Gregorian (TimeZone None)
 defaultUnixParserState =  ParserState 1970 January 1 Thursday 0 0 0.0 id id NoTimeZone
 
 -- |
@@ -630,7 +630,7 @@ parseUnixDateTimeNanos = parseUnixDateTimeNanos' defaultTimeLocale defaultUnixPa
 -- Same as 'parseUnixDate', except takes the
 -- additional locale and parser state parameters. 
 parseUnixDate'
-  :: Abbreviate (TimeZone tz)
+  :: Abbreviate tz
   => TimeLocale               -- ^ Local conventions
   -> ParserState Gregorian tz -- ^ Initialized state
   -> FormatText               -- ^ Format string
@@ -645,7 +645,7 @@ parseUnixDate' locale state format =
 -- Same as 'parseUnixDateTime', except takes the
 -- additional locale and parser state parameters. 
 parseUnixDateTime'
-  :: Abbreviate (TimeZone tz)
+  :: Abbreviate tz
   => TimeLocale               -- ^ Local conventions
   -> ParserState Gregorian tz -- ^ Initialized state
   -> FormatText               -- ^ Format string
@@ -662,7 +662,7 @@ parseUnixDateTime' locale state format =
 -- Same as 'parseUnixDateTimeNanos', except takes
 -- the additional locale and parser state parameters.
 parseUnixDateTimeNanos'
-  :: Abbreviate (TimeZone tz)
+  :: Abbreviate tz
   => TimeLocale               -- ^ Local conventions
   -> ParserState Gregorian tz -- ^ Initialized state
   -> FormatText               -- ^ Format string
