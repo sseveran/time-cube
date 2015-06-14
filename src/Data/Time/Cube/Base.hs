@@ -57,11 +57,10 @@ module Data.Time.Cube.Base (
 
      ) where
 
-import Control.DeepSeq      (NFData(..))
-import Data.Int             (Int32, Int64)
-import Data.Time.Cube.Zones (TimeZone)
-import GHC.Generics         (Generic)
-import Text.Printf          (PrintfArg)
+import Control.DeepSeq (NFData(..))
+import Data.Int        (Int32, Int64)
+import GHC.Generics    (Generic)
+import Text.Printf     (PrintfArg)
 
 class Human x where
 
@@ -194,28 +193,28 @@ data DateTimeStruct (cal :: Calendar) =
 
 -- |
 -- A struct with date and time zone components.
-data LocalDateStruct (cal :: Calendar) geo =
+data LocalDateStruct (cal :: Calendar) (tz :: *) =
      LocalDateStruct
        { _ld_year :: {-# UNPACK #-} !Year
        , _ld_mon  ::                !(Month cal)
        , _ld_mday :: {-# UNPACK #-} !Day
        , _ld_wday ::                !(DayOfWeek cal)
-       , _ld_zone ::                !(TimeZone geo)
+       , _ld_zone ::                !tz
        } deriving Generic
 
 -- |
 -- A struct with time and time zone components.
-data LocalTimeStruct geo =
+data LocalTimeStruct (tz :: *) =
      LocalTimeStruct
        { _lt_hour :: {-# UNPACK #-} !Hour
        , _lt_min  :: {-# UNPACK #-} !Minute
        , _lt_sec  :: {-# UNPACK #-} !Double
-       , _lt_zone ::                !(TimeZone geo)
+       , _lt_zone ::                !tz
        } deriving Generic
 
 -- |
 -- A struct with date, time, and time zone components.
-data LocalDateTimeStruct (cal :: Calendar) geo =
+data LocalDateTimeStruct (cal :: Calendar) (tz :: *) =
      LocalDateTimeStruct
        { _ldt_year :: {-# UNPACK #-} !Year
        , _ldt_mon  ::                !(Month cal)
@@ -224,113 +223,72 @@ data LocalDateTimeStruct (cal :: Calendar) geo =
        , _ldt_hour :: {-# UNPACK #-} !Hour
        , _ldt_min  :: {-# UNPACK #-} !Minute
        , _ldt_sec  :: {-# UNPACK #-} !Double
-       , _ldt_zone ::                !(TimeZone geo)
+       , _ldt_zone ::                !tz
        } deriving Generic
 
-deriving instance (Eq (Month cal),
-                   Eq (DayOfWeek cal)) =>
-                   Eq (DateStruct cal)
+deriving instance (Eq   (Month cal), Eq   (DayOfWeek cal)) => Eq   (DateStruct cal)
+deriving instance (Show (Month cal), Show (DayOfWeek cal)) => Show (DateStruct cal)
 
-deriving instance (Eq (Month cal),
-                   Eq (DayOfWeek cal)) =>
-                   Eq (DateTimeStruct cal)
+deriving instance (Eq   (Month cal), Eq   (DayOfWeek cal)) => Eq   (DateTimeStruct cal)
+deriving instance (Show (Month cal), Show (DayOfWeek cal)) => Show (DateTimeStruct cal)
 
-deriving instance (Eq (Month cal),
-                   Eq (DayOfWeek cal),
-                   Eq (TimeZone geo)) =>
-                   Eq (LocalDateStruct cal geo)
+deriving instance (Eq   (Month cal), Eq   (DayOfWeek cal), Eq   tz) => Eq   (LocalDateStruct cal tz)
+deriving instance (Show (Month cal), Show (DayOfWeek cal), Show tz) => Show (LocalDateStruct cal tz)
 
-deriving instance (Eq (TimeZone geo)) =>
-                   Eq (LocalTimeStruct geo)
+deriving instance (Eq   tz) => Eq   (LocalTimeStruct tz)
+deriving instance (Show tz) => Show (LocalTimeStruct tz)
 
-deriving instance (Eq (Month cal),
-                   Eq (DayOfWeek cal),
-                   Eq (TimeZone geo)) =>
-                   Eq (LocalDateTimeStruct cal geo)
+deriving instance (Eq   (Month cal), Eq   (DayOfWeek cal), Eq   tz) => Eq   (LocalDateTimeStruct cal tz)
+deriving instance (Show (Month cal), Show (DayOfWeek cal), Show tz) => Show (LocalDateTimeStruct cal tz)
 
-deriving instance (Show (Month cal),
-                   Show (DayOfWeek cal)) =>
-                   Show (DateStruct cal)
-
-deriving instance (Show (Month cal),
-                   Show (DayOfWeek cal)) =>
-                   Show (DateTimeStruct cal)
-
-deriving instance (Show (Month cal),
-                   Show (DayOfWeek cal),
-                   Show (TimeZone geo)) =>
-                   Show (LocalDateStruct cal geo)
-
-deriving instance (Show (TimeZone geo)) =>
-                   Show (LocalTimeStruct geo)
-
-deriving instance (Show (Month cal),
-                   Show (DayOfWeek cal),
-                   Show (TimeZone geo)) =>
-                   Show (LocalDateTimeStruct cal geo)
-
-instance (NFData (Month cal),
-          NFData (DayOfWeek cal)) =>
-          NFData (DateStruct cal) where
-
-      rnf DateStruct{..} =
-          rnf _d_year `seq`
-          rnf _d_mon  `seq`
-          rnf _d_mday `seq`
-          rnf _d_wday `seq` ()
+instance (NFData (Month cal), NFData (DayOfWeek cal)) => NFData (DateStruct cal) where
+     rnf DateStruct{..} =
+         rnf _d_year `seq`
+         rnf _d_mon  `seq`
+         rnf _d_mday `seq`
+         rnf _d_wday `seq` ()
 
 instance NFData TimeStruct where
+     rnf TimeStruct{..} =
+         rnf _t_hour `seq`
+         rnf _t_min  `seq`
+         rnf _t_sec  `seq` ()
 
-      rnf TimeStruct{..} =
-          rnf _t_hour `seq`
-          rnf _t_min  `seq`
-          rnf _t_sec  `seq` ()
+instance (NFData (Month cal), NFData (DayOfWeek cal)) => NFData (DateTimeStruct cal) where
+     rnf DateTimeStruct{..} =
+         rnf _dt_year `seq`
+         rnf _dt_mon  `seq`
+         rnf _dt_mday `seq`
+         rnf _dt_wday `seq`
+         rnf _dt_hour `seq`
+         rnf _dt_min  `seq`
+         rnf _dt_sec  `seq` ()
 
-instance (NFData (Month cal),
-          NFData (DayOfWeek cal)) =>
-          NFData (DateTimeStruct cal) where
+instance (NFData (Month cal), NFData (DayOfWeek cal), NFData tz) => NFData (LocalDateStruct cal tz) where
+     rnf LocalDateStruct{..} =
+         rnf _ld_year `seq`
+         rnf _ld_mon  `seq`
+         rnf _ld_mday `seq`
+         rnf _ld_wday `seq`
+         rnf _ld_zone `seq` ()
 
-      rnf DateTimeStruct{..} =
-          rnf _dt_year `seq`
-          rnf _dt_mon  `seq`
-          rnf _dt_mday `seq`
-          rnf _dt_wday `seq`
-          rnf _dt_hour `seq`
-          rnf _dt_min  `seq`
-          rnf _dt_sec  `seq` ()
+instance (NFData tz) => NFData (LocalTimeStruct tz) where
+     rnf LocalTimeStruct{..} =
+         rnf _lt_hour `seq`
+         rnf _lt_min  `seq`
+         rnf _lt_sec  `seq`
+         rnf _lt_zone `seq` ()
 
-instance (NFData (Month cal),
-          NFData (DayOfWeek cal),
-          NFData (TimeZone geo)) =>
-          NFData (LocalDateStruct cal geo) where
-
-      rnf LocalDateStruct{..} =
-          rnf _ld_year `seq`
-          rnf _ld_mon  `seq`
-          rnf _ld_mday `seq`
-          rnf _ld_wday `seq` ()
-
-instance (NFData (TimeZone geo)) =>
-          NFData (LocalTimeStruct geo) where
-
-      rnf LocalTimeStruct{..} =
-          rnf _lt_hour `seq`
-          rnf _lt_min  `seq`
-          rnf _lt_sec  `seq` ()
-
-instance (NFData (Month cal),
-          NFData (DayOfWeek cal),
-          NFData (TimeZone geo)) =>
-          NFData (LocalDateTimeStruct cal geo) where
-
-      rnf LocalDateTimeStruct{..} =
-          rnf _ldt_year `seq`
-          rnf _ldt_mon  `seq`
-          rnf _ldt_mday `seq`
-          rnf _ldt_wday `seq`
-          rnf _ldt_hour `seq`
-          rnf _ldt_min  `seq`
-          rnf _ldt_sec  `seq` ()
+instance (NFData (Month cal), NFData (DayOfWeek cal), NFData tz) => NFData (LocalDateTimeStruct cal tz) where
+     rnf LocalDateTimeStruct{..} =
+         rnf _ldt_year `seq`
+         rnf _ldt_mon  `seq`
+         rnf _ldt_mday `seq`
+         rnf _ldt_wday `seq`
+         rnf _ldt_hour `seq`
+         rnf _ldt_min  `seq`
+         rnf _ldt_sec  `seq`
+         rnf _ldt_zone `seq` ()
 
 -- |
 -- Decompose a floating point number into second and millisecond components.
