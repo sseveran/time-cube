@@ -8,10 +8,11 @@
 
 -- |
 -- Module      : Data.Time.Cube.Local
+-- Copyright   : Copyright (c) 2015, Alpha Heavy Industries, Inc. All rights reserved.
 -- License     : BSD3
--- Maintainer  : ehaussecker@alphaheavy.com
+-- Maintainer  : Enzo Haussecker <ehaussecker@alphaheavy.com>
 -- Stability   : Experimental
--- Portability : GHC 7.8.* on Unix
+-- Portability : Portable
 --
 -- Local timestamps.
 module Data.Time.Cube.Local (
