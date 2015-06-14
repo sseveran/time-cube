@@ -46,7 +46,7 @@ import System.Locale                    (TimeLocale(..))
 
 -- |
 -- Parser state.
-data ParserState (cal :: Calendar) geo = ParserState
+data ParserState (cal :: Calendar) (tz :: *) = ParserState
   { _ps_year :: Year
   , _ps_mon  :: Month cal
   , _ps_mday :: Day
@@ -55,8 +55,8 @@ data ParserState (cal :: Calendar) geo = ParserState
   , _ps_min  :: Minute
   , _ps_sec  :: Double
   , _ps_frac :: Double -> Double
-  , _ps_ampm :: Hour   -> Hour
-  , _ps_zone :: TimeZone geo
+  , _ps_ampm :: Hour -> Hour
+  , _ps_zone :: tz
   }
 
 makeLenses ''ParserState
@@ -65,16 +65,16 @@ makeLenses ''ParserState
 -- Run the generic timestamp parser and return the raw
 -- parser state or an error string if the parser failed.
 parse
-  :: Abbreviate (TimeZone  geo)
-  => Bounded    (Month     cal)
-  => Enum       (DayOfWeek cal)
-  => Enum       (Month     cal)
+  :: Abbreviate tz
+  => Bounded (Month cal)
+  => Enum (DayOfWeek cal)
+  => Enum (Month cal)
   => TimeLocale          -- ^ Local Conventions
   -> Maybe (TZLabel, TZ) -- ^ Time Zone Data
-  -> ParserState cal geo -- ^ Initialized State
+  -> ParserState cal tz  -- ^ Initialized State
   -> FormatText          -- ^ Format String
   -> Text                -- ^ Input String
-  -> Either String (ParserState cal geo)
+  -> Either String (ParserState cal tz)
 parse locale mval state format input =
   flip parseOnly input <=< fmap exe . flip parseOnly format . many' $ create locale mval
   where exe sets = flip execState state <$> sequence <$> sequence sets
@@ -82,13 +82,13 @@ parse locale mval state format input =
 -- |
 -- Create a timestamp parser from local conventions.
 create
-  :: Abbreviate (TimeZone  geo)
-  => Bounded    (Month     cal)
-  => Enum       (DayOfWeek cal)
-  => Enum       (Month     cal)
+  :: Abbreviate tz
+  => Bounded (Month cal)
+  => Enum (DayOfWeek cal)
+  => Enum (Month cal)
   => TimeLocale
   -> Maybe (TZLabel, TZ)
-  -> Parser (Parser (State (ParserState cal geo) ()))
+  -> Parser (Parser (State (ParserState cal tz) ()))
 create locale mval =
 
   --- Literals
@@ -128,7 +128,7 @@ create locale mval =
 
 -- |
 -- Match a percent literal.
-percent :: Parser (Parser (State (ParserState cal geo) ()))
+percent :: Parser (Parser (State (ParserState cal tz) ()))
 percent = string "%%" *> return (char '%' *> return (return ()))
 
 -- |
@@ -136,11 +136,11 @@ percent = string "%%" *> return (char '%' *> return (return ()))
 -- the value returned by the parser.
 match
   :: Enum (DayOfWeek cal)
-  => Enum (Month     cal)
+  => Enum (Month cal)
   => Text
-  -> Setter (ParserState cal geo) (ParserState cal geo) a a
+  -> Setter (ParserState cal tz) (ParserState cal tz) a a
   -> Parser a
-  -> Parser (Parser (State (ParserState cal geo) ()))
+  -> Parser (Parser (State (ParserState cal tz) ()))
 match code field parser =
   string code *> return (assign field <$> parser)
 
@@ -149,12 +149,12 @@ match code field parser =
 -- assign the values returned by the parser.
 iso8601
   :: Bounded (Month cal)
-  => Enum    (Month cal)
+  => Enum (Month cal)
   => Text
-  -> Setter (ParserState cal geo) (ParserState cal geo) Year Year
-  -> Setter (ParserState cal geo) (ParserState cal geo) (Month cal) (Month cal)
-  -> Setter (ParserState cal geo) (ParserState cal geo) Day Day
-  -> Parser (Parser (State (ParserState cal geo) ()))
+  -> Setter (ParserState cal tz) (ParserState cal tz) Year Year
+  -> Setter (ParserState cal tz) (ParserState cal tz) (Month cal) (Month cal)
+  -> Setter (ParserState cal tz) (ParserState cal tz) Day Day
+  -> Parser (Parser (State (ParserState cal tz) ()))
 iso8601 code yr mon mday =
   string code *> return parser
   where parser = do
@@ -170,12 +170,12 @@ iso8601 code yr mon mday =
 -- assign the values returned by the parser.
 date
   :: Bounded (Month cal)
-  => Enum    (Month cal)
+  => Enum (Month cal)
   => Text
-  -> Setter (ParserState cal geo) (ParserState cal geo) Year Year
-  -> Setter (ParserState cal geo) (ParserState cal geo) (Month cal) (Month cal)
-  -> Setter (ParserState cal geo) (ParserState cal geo) Day Day
-  -> Parser (Parser (State (ParserState cal geo) ()))
+  -> Setter (ParserState cal tz) (ParserState cal tz) Year Year
+  -> Setter (ParserState cal tz) (ParserState cal tz) (Month cal) (Month cal)
+  -> Setter (ParserState cal tz) (ParserState cal tz) Day Day
+  -> Parser (Parser (State (ParserState cal tz) ()))
 date code yr mon mday =
   string code *> return parser
   where parser = do
@@ -191,11 +191,11 @@ date code yr mon mday =
 -- assign the values returned by the parser.
 clock12
   :: Text
-  -> Setter (ParserState cal geo) (ParserState cal geo) Hour Hour
-  -> Setter (ParserState cal geo) (ParserState cal geo) Minute Minute
-  -> Setter (ParserState cal geo) (ParserState cal geo) Double Double
+  -> Setter (ParserState cal tz) (ParserState cal tz) Hour Hour
+  -> Setter (ParserState cal tz) (ParserState cal tz) Minute Minute
+  -> Setter (ParserState cal tz) (ParserState cal tz) Double Double
   -> TimeLocale
-  -> Parser (Parser (State (ParserState cal geo) ()))
+  -> Parser (Parser (State (ParserState cal tz) ()))
 clock12 code hour min sec locale =
   string code *> return parser
   where parser = do
@@ -212,10 +212,10 @@ clock12 code hour min sec locale =
 -- assign the values returned by the parser.
 clock24
   :: Text
-  -> Setter (ParserState cal geo) (ParserState cal geo) Hour Hour
-  -> Setter (ParserState cal geo) (ParserState cal geo) Minute Minute
-  -> Setter (ParserState cal geo) (ParserState cal geo) Double Double
-  -> Parser (Parser (State (ParserState cal geo) ()))
+  -> Setter (ParserState cal tz) (ParserState cal tz) Hour Hour
+  -> Setter (ParserState cal tz) (ParserState cal tz) Minute Minute
+  -> Setter (ParserState cal tz) (ParserState cal tz) Double Double
+  -> Parser (Parser (State (ParserState cal tz) ()))
 clock24 code hour min sec =
   string code *> return parser
   where parser = do
@@ -230,9 +230,9 @@ clock24 code hour min sec =
 -- Same as 'clock24', but with the seconds omitted.
 clock24'
   :: Text
-  -> Setter (ParserState cal geo) (ParserState cal geo) Hour Hour
-  -> Setter (ParserState cal geo) (ParserState cal geo) Minute Minute
-  -> Parser (Parser (State (ParserState cal geo) ()))
+  -> Setter (ParserState cal tz) (ParserState cal tz) Hour Hour
+  -> Setter (ParserState cal tz) (ParserState cal tz) Minute Minute
+  -> Parser (Parser (State (ParserState cal tz) ()))
 clock24' code hour min =
   string code *> return parser
   where parser = do
@@ -243,7 +243,7 @@ clock24' code hour min =
 
 -- |
 -- Match any other character sequence.
-text :: Parser (Parser (State (ParserState cal geo) ()))
+text :: Parser (Parser (State (ParserState cal tz) ()))
 text = takeWhile1 (/='%') >>= return . \ source -> do
   target <- P.take $ T.length source
   if source == target then return (return ())
@@ -302,12 +302,14 @@ period TimeLocale{amPm = (am, pm)} casify = fromList
 
 -- |
 -- Parse a time zone in short text format.
-zoneAbbr :: Abbreviate (TimeZone geo) => Maybe (TZLabel, TZ) -> Parser (TimeZone geo)
+zoneAbbr :: Abbreviate tz => Maybe (TZLabel, TZ) -> Parser tz
+{-# SPECIALISE zoneAbbr :: Maybe (TZLabel, TZ) -> Parser (TimeZone SomeOlson) #-}
 zoneAbbr mval = takeWhile1 isAlpha >>= either fail return . unabbreviate mval
 
 -- |
 -- Parse a time zone in offset text format.
-zoneOffset :: Abbreviate (TimeZone geo) => Parser (TimeZone geo)
+zoneOffset :: Abbreviate tz => Parser tz
+{-# SPECIALISE zoneOffset :: Parser (TimeZone SomeOffset) #-}
 zoneOffset = P.take 5 >>= either fail return . unabbreviate Nothing
 
 -- |
