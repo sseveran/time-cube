@@ -11,7 +11,6 @@
 
 -- |
 -- Module      : Data.Time.Cube.Zones
--- Description : Dependently typed time zones.
 -- Copyright   : Copyright (c) 2015, Alpha Heavy Industries, Inc. All rights reserved.
 -- License     : BSD3
 -- Maintainer  : Enzo Haussecker <ehaussecker@alphaheavy.com>
