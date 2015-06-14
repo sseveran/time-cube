@@ -334,7 +334,7 @@ getCurrentUTCDateTimeNanos = do
 
 -- |
 -- Default parser state for UTC timestamps.
-defaultUTCParserState :: ParserState Gregorian UTC
+defaultUTCParserState :: ParserState Gregorian (TimeZone UTC)
 defaultUTCParserState =  ParserState 1970 January 1 Thursday 0 0 0.0 id id UTC
 
 -- |
@@ -365,7 +365,7 @@ parseUTCDateTimeNanos = parseUTCDateTimeNanos' defaultTimeLocale defaultUTCParse
 -- Same as 'parseUTCDate', except takes the
 -- additional locale and parser state parameters.
 parseUTCDate'
-  :: Abbreviate (TimeZone tz)
+  :: Abbreviate tz
   => TimeLocale               -- ^ Local conventions
   -> ParserState Gregorian tz -- ^ Initialized state
   -> FormatText               -- ^ Format string
@@ -378,7 +378,7 @@ parseUTCDate' locale state format =
 -- Same as 'parseUTCDateTime', except takes the
 -- additional locale and parser state parameters.
 parseUTCDateTime'
-  :: Abbreviate (TimeZone tz)
+  :: Abbreviate tz
   => TimeLocale               -- ^ Local conventions
   -> ParserState Gregorian tz -- ^ Initialized state
   -> FormatText               -- ^ Format string
@@ -396,7 +396,7 @@ parseUTCDateTime' locale state format =
 -- Same as 'parseUTCDateTimeNanos', except takes
 -- the additional locale and parser state parameters.
 parseUTCDateTimeNanos'
-  :: Abbreviate (TimeZone tz)
+  :: Abbreviate tz
   => TimeLocale               -- ^ Local conventions
   -> ParserState Gregorian tz -- ^ Initialized state
   -> FormatText               -- ^ Format string
