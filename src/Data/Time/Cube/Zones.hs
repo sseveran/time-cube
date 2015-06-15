@@ -310,20 +310,20 @@ normalizeOffset = pivot . flip mod 1440
 -- |
 -- Promote a time zone offset to the type level.
 promoteOffset
-  :: forall proxy signat offset . KnownSigNat signat
+  :: forall proxy signat a . KnownSigNat signat
   => proxy signat
-  -> (Proxy signat -> offset)
-  -> offset
+  -> (Proxy signat -> a)
+  -> a
 promoteOffset = promoteSigNat
 
 -- |
 -- Promote a time zone abbreviation and offset to the type level.
 promoteOlson
-  :: forall proxy1 proxy2 symbol signat olson . (KnownSymbol symbol, KnownSigNat signat)
+  :: forall proxy1 proxy2 symbol signat a . (KnownSymbol symbol, KnownSigNat signat)
   => proxy1 symbol
   -> proxy2 signat
-  -> (Proxy symbol -> Proxy signat -> olson)
-  -> olson
+  -> (Proxy symbol -> Proxy signat -> a)
+  -> a
 promoteOlson _ _ f = f Proxy Proxy
 
 -- |
