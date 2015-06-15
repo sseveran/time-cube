@@ -38,6 +38,7 @@ module Data.Time.Cube.Zones (
      , normalizeOffset
      , promoteOffset
      , promoteOlson
+     , promoteTimeZone
 
      ) where
 
@@ -324,3 +325,11 @@ promoteOlson
   -> (Proxy symbol -> Proxy signat -> olson)
   -> olson
 promoteOlson _ _ f = f Proxy Proxy
+
+-- |
+-- Promote a time zone to the type level.
+promoteTimeZone
+  :: forall proxy param a . proxy (TimeZone param)
+  -> (Proxy (TimeZone param) -> a)
+  -> a
+promoteTimeZone _ f = f Proxy
