@@ -30,8 +30,7 @@ Library
                     Data.Time.Cube.Zones
                     Foreign.C.Time
                     GHC.TypeLits.SigNat
-  Other-Modules:    Data.Time.Cube.Gregorian.Local
-                    Data.Time.Cube.Gregorian.UTC
+  Other-Modules:    Data.Time.Cube.Gregorian.UTC
                     Data.Time.Cube.Gregorian.Unix
                     Data.Time.Cube.Parser
                     Data.Time.Cube.Utils
@@ -62,7 +61,7 @@ Test-Suite unit-test
                     deepseq,
                     lens,
                     mtl,
-                    QuickCheck >= 2.4 && < 2.7,
+                    QuickCheck >= 2.4 && < 2.9,
                     old-locale,
                     text,
                     tz >= 0.0.0.10,

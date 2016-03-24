@@ -34,7 +34,7 @@ import Control.Lens.Setter              (Setter, (%=), assign)
 import Control.Lens.TH                  (makeLenses)
 import Control.Monad                    ((<=<), foldM, replicateM)
 import Control.Monad.State.Strict       (execState, State)
-import Data.Attoparsec.Text as P hiding (parse)
+import Data.Attoparsec.Text as P hiding (parse,match)
 import Data.Char                        (isAlpha)
 import Data.Text as T                   (Text, length, pack, toLower)
 import Data.Time.Cube.Base
@@ -328,7 +328,7 @@ weekAbbr :: Enum (DayOfWeek cal) => TimeLocale -> Parser (DayOfWeek cal)
 weekAbbr = fromList . zipWith (\n (_, abbr) -> (T.pack abbr, toEnum n)) [1..] . wDays
 
 -- |
--- Parse a day of week in long text format. 
+-- Parse a day of week in long text format.
 weekFull :: Enum (DayOfWeek cal) => TimeLocale -> Parser (DayOfWeek cal)
 weekFull = fromList . zipWith (\n (full, _) -> (T.pack full, toEnum n)) [1..] . wDays
 

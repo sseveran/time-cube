@@ -12,10 +12,7 @@ module Data.Time.Cube.Gregorian (
 
        module Data.Time.Cube.Gregorian.Unix
      , module Data.Time.Cube.Gregorian.UTC
-     , module Data.Time.Cube.Gregorian.Local
-
      ) where
 
 import Data.Time.Cube.Gregorian.Unix
 import Data.Time.Cube.Gregorian.UTC
-import Data.Time.Cube.Gregorian.Local
